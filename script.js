@@ -1,617 +1,580 @@
-// ============================================================
-// 模块10：全局数据与角色权限配置
-// ============================================================
-const userRole = 'trainee';
-const currentUser = { username: "时代骏风仔", avatar: "🐯", bio: "热爱骑行，喜欢分享", role: userRole };
-
-let posts = [
-  { id: 1, author: "李铁汁", avatar: "🔥", content: "第一位认证用户报到！大家好啊！🏆 #登顶计划", image: null, likes: 12, likedBy: [{ username: "张三", count: 3 }, { username: "时代骏风仔", count: 1 }], comments: [
-      { id: 101, username: "小旋风", avatar: "🌀", text: "欢迎大佬！", createdAt: Date.now() - 7200000, likes: 2, likedBy: [], replies: [] }
-    ], createdAt: Date.now() - 86400000 },
-  { id: 2, author: "张三", avatar: "😎", content: "契弟广场终于开了，开心！🎉 #登顶计划", image: null, likes: 5, likedBy: [{ username: "李铁汁", count: 1 }], comments: [], createdAt: Date.now() - 172800000 },
-  { id: 3, author: "骏风车神", avatar: "🚴", content: "有没有周末一起骑行的？集合点老地方！ #周末骑行", image: null, likes: 8, likedBy: [], comments: [], createdAt: Date.now() - 3600000 }
-];
-
-function savePosts() { localStorage.setItem('forum_posts', JSON.stringify(posts)); }
-function loadData() {
-  const stored = localStorage.getItem('forum_posts');
-  if (stored) { try { const p = JSON.parse(stored); if (Array.isArray(p)) posts = p; } catch(e) {} }
-}
-function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-
-// ============================================================
-// 模块11：时间格式化工具
-// ============================================================
-function formatRelativeTime(timestamp) {
-  const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (seconds < 0) return '刚刚';
-  if (seconds < 60) return seconds + '秒前';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return minutes + '分钟前';
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours + '小时前';
-  const days = Math.floor(hours / 24);
-  if (days < 7) return days + '天前';
-  return Math.floor(days / 7) + '周前';
-}
-function updatePostTimes() {
-  posts.forEach(p => { p.timeStr = formatRelativeTime(p.createdAt); });
+/* ==========================================
+   模块1：全局重置 & 基础样式
+========================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-// ============================================================
-// 模块12：热门词条提取逻辑
-// ============================================================
-function extractHotKeywords() {
-  const wordMap = new Map();
-  const stopWords = new Set(['的', '了', '是', '在', '我', '有', '和', '就', '不', '人', '都', '一', '个', '上', '也', '很', '到', '说', '去', '会', '这', '那', '吧', '吗', '啊']);
-  for (let post of posts) {
-    let text = post.content;
-    const hashtags = text.match(/#[\u4e00-\u9fa5a-zA-Z0-9]+/g) || [];
-    for (let tag of hashtags) {
-      let score = 1 + Math.floor(post.likes / 3) + post.comments.length;
-      wordMap.set(tag, (wordMap.get(tag) || 0) + score);
-    }
-    const words = text.match(/[\u4e00-\u9fa5]{2,6}|[a-zA-Z]{3,8}/g) || [];
-    for (let w of words) {
-      if (stopWords.has(w) || w.length < 2) continue;
-      if (hashtags.includes('#' + w)) continue;
-      let score = 1 + Math.floor(post.likes / 5);
-      wordMap.set(w, (wordMap.get(w) || 0) + score);
-    }
+body {
+  background: #000;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ==========================================
+   模块2：页面主容器特效
+========================================== */
+.page-wrapper {
+  background: #f5f7fb;
+  min-height: 100vh;
+  transition: transform 0.1s ease, filter 0.1s ease;
+  will-change: transform, filter;
+  position: relative;
+  z-index: 1;
+  border-radius: 0;
+  overflow: hidden;
+}
+.page-wrapper.modal-open {
+  border-radius: 28px 28px 0 0;
+}
+
+.forum-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+
+/* ==========================================
+   模块3：顶部导航栏
+========================================== */
+header {
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 15px;
+}
+nav a.active {
+  font-weight: bold;
+  color: #ff7b5c;
+}
+
+/* ==========================================
+   模块4：热门词条区域
+========================================== */
+.hot-section {
+  background: #fff6ea;
+  border-radius: 28px;
+  padding: 16px;
+  margin-bottom: 28px;
+}
+.hot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.hot-header .hot-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff7b5c;
+  flex: 1;
+  text-align: center;
+}
+.publish-trigger {
+  background: #ff7b5c;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(255,123,92,0.3);
+}
+.hot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hot-item {
+  background: white;
+  border-radius: 20px;
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.hot-tag { font-weight: 600; color: #333; }
+.hot-count { color: #ff7b5c; font-weight: bold; }
+.clear-filter {
+  background: #eee;
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 12px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+/* ==========================================
+   模块5：帖子卡片样式
+========================================== */
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.post-card {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.post-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.post-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffb88c, #ff7b5c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+}
+.author-name {
+  font-weight: bold;
+  cursor: pointer;
+}
+.post-time {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 4px;
+}
+.post-content {
+  margin: 12px 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.post-image {
+  max-width: 100%;
+  border-radius: 16px;
+  margin: 8px 0;
+  max-height: 200px;
+}
+.post-stats {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+.stat-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.like-action-btn, .comment-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.like-action-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: #777;
+  stroke-width: 2;
+  fill: none;
+  transition: 0.1s;
+}
+.like-action-btn svg.liked {
+  fill: #ff4d4f;
+  stroke: #ff4d4f;
+}
+.comment-action-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: #777;
+  stroke-width: 2;
+  fill: none;
+}
+.stat-num { font-size: 14px; color: #777; }
+
+/* ==========================================
+   模块6：点赞爱心粒子动画
+========================================== */
+.heart-particle {
+  position: fixed;
+  font-size: 18px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: floatHeart 0.8s ease-out forwards;
+}
+@keyframes floatHeart {
+  0% { transform: translate(0, 0) scale(0.8); opacity: 1; }
+  100% { transform: translate(var(--dx, 40px), var(--dy, -60px)) scale(1.2); opacity: 0; }
+}
+
+/* ==========================================
+   模块7：发帖编辑器
+========================================== */
+.post-editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.25s;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.post-editor-overlay.active {
+  transform: scale(1);
+  opacity: 1;
+  border-radius: 0;
+  pointer-events: auto;
+}
+.post-editor-overlay.closing {
+  transform: scale(0);
+  opacity: 0;
+  border-radius: 50%;
+  transition: transform 0.25s ease-in, opacity 0.2s;
+}
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+.editor-header button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+.send-btn { color: #ff7b5c; }
+.close-editor { color: #888; }
+.editor-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+.editor-textarea {
+  width: 100%;
+  min-height: 150px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 16px;
+  font-size: 16px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+}
+.editor-textarea:focus { border-color: #ff7b5c; }
+.image-picker {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.square-image-btn {
+  width: 100px;
+  height: 100px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #94a3b8;
+  cursor: pointer;
+  border: 2px dashed #cbd5e1;
+}
+.image-preview {
+  margin-top: 16px;
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 16px;
+  display: none;
+}
+
+/* ==========================================
+   模块8：全局模态窗抽屉系统
+========================================== */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3000;
+  visibility: hidden;
+  display: flex;
+}
+.modal-mask.show { visibility: visible; }
+
+@media (max-width: 768px) {
+  .modal-mask {
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
+    pointer-events: auto;
   }
-  const sorted = Array.from(wordMap.entries()).sort((a,b) => b[1] - a[1]);
-  return sorted.slice(0, 3).map(([word, heat]) => ({ word, heat }));
-}
-
-let currentFilter = null;
-function filterByKeyword(keyword) {
-  currentFilter = keyword;
-  renderForum();
-}
-
-// ============================================================
-// 模块13：发帖编辑器
-// ============================================================
-function openPostEditor() {
-  const overlay = document.getElementById('postEditorOverlay');
-  if (!overlay) return;
-  document.getElementById('postText').value = '';
-  const preview = document.getElementById('imagePreview');
-  preview.style.display = 'none';
-  preview.src = '';
-  window.selectedImageBase64 = null;
-  overlay.classList.remove('closing');
-  overlay.classList.add('active');
-}
-function closePostEditor() {
-  const overlay = document.getElementById('postEditorOverlay');
-  if (!overlay) return;
-  overlay.classList.add('closing');
-  setTimeout(() => overlay.classList.remove('active', 'closing'), 250);
-}
-function publishNewPost() {
-  const text = document.getElementById('postText').value.trim();
-  if (!text) { alert('请填写内容'); return; }
-  const imageBase64 = window.selectedImageBase64 || null;
-  const newPost = {
-    id: Date.now(),
-    author: currentUser.username,
-    avatar: currentUser.avatar,
-    content: text,
-    image: imageBase64,
-    likes: 0,
-    likedBy: [],
-    comments: [],
-    createdAt: Date.now(),
-    timeStr: '刚刚'
-  };
-  posts.unshift(newPost);
-  savePosts();
-  renderForum();
-  closePostEditor();
-}
-function triggerImageUpload() { document.getElementById('imageUploadInput').click(); }
-function handleImageSelect(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const preview = document.getElementById('imagePreview');
-    preview.src = ev.target.result;
-    preview.style.display = 'block';
-    window.selectedImageBase64 = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-// ============================================================
-// 模块14：点赞爱心动画
-// ============================================================
-function createHeartExplosion(x, y) {
-  for (let i = 0; i < 8; i++) {
-    const heart = document.createElement('div');
-    heart.className = 'heart-particle';
-    heart.innerHTML = '❤️';
-    heart.style.left = x + 'px';
-    heart.style.top = y + 'px';
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 40 + Math.random() * 40;
-    const dx = Math.cos(angle) * distance;
-    const dy = Math.sin(angle) * distance - 30;
-    heart.style.setProperty('--dx', dx + 'px');
-    heart.style.setProperty('--dy', dy + 'px');
-    document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 800);
+  .drawer-modal {
+    background: white;
+    border-radius: 28px 28px 0 0;
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    height: 80vh;
+    min-height: 400px;
+    overflow: hidden;
+    position: relative;
   }
-}
-
-// ============================================================
-// 模块15：帖子点赞逻辑
-// ============================================================
-function handleLike(postId, btn, e) {
-  const post = posts.find(p => p.id === postId);
-  if (post) {
-    const existing = post.likedBy.find(u => u.username === currentUser.username);
-    if (existing) existing.count = (existing.count || 1) + 1;
-    else post.likedBy.push({ username: currentUser.username, count: 1 });
-    post.likes++;
-    savePosts();
-    const likeSpan = document.querySelector(`.like-num[data-id="${postId}"]`);
-    if (likeSpan) likeSpan.innerText = post.likes;
-    const svg = btn.querySelector('svg');
-    if (svg && !existing) svg.classList.add('liked');
-    const rect = btn.getBoundingClientRect();
-    createHeartExplosion(rect.left + rect.width/2, rect.top + rect.height/2);
-    renderForum();
+  .drag-bar {
+    width: 60px;
+    height: 4px;
+    background: #bbb;
+    border-radius: 4px;
+    margin: 12px auto;
+    cursor: grab;
+    touch-action: pan-y;
+    padding: 10px 0;
+    background-clip: content-box;
+    z-index: 30;
   }
-}
-
-function handleContentLike(postId, itemId, type, parentId) {
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-  const findItem = (items, id) => {
-    for (let item of items) {
-      if (item.id === id) return item;
-      if (item.replies) { const found = findItem(item.replies, id); if (found) return found; }
-    }
-    return null;
-  };
-  let target = type === 'comment' ? post.comments.find(c => c.id === itemId) : findItem(post.comments, itemId);
-  if (target) {
-    target.likes = (target.likes || 0) + 1;
-    savePosts();
-    renderCommentsModal(postId);
+  .drag-bar:active {
+    cursor: grabbing;
   }
-}
-
-// ============================================================
-// 模块16：全局模态窗管理器
-// ============================================================
-let activeMask = null, activeDrawer = null, scrollPosition = 0;
-function closeModal() {
-  if (!activeMask) return;
-  const wrapper = document.getElementById('pageWrapper');
-  wrapper.style.transform = '';
-  wrapper.style.filter = '';
-  wrapper.classList.remove('modal-open');
-  if (activeDrawer && activeDrawer.cleanup) activeDrawer.cleanup();
-  activeMask.remove();
-  activeMask = null;
-  activeDrawer = null;
-  document.body.style.overflow = '';
-  document.body.style.position = '';
-  window.scrollTo(0, scrollPosition);
-}
-
-function openModal(modalElement, isMobile) {
-  if (activeMask) closeModal();
-  const wrapper = document.getElementById('pageWrapper');
-  scrollPosition = window.scrollY;
-  if (isMobile) {
-    wrapper.style.transform = `scale(0.94)`;
-    wrapper.style.filter = `blur(2px)`;
-    wrapper.classList.add('modal-open');
+  .drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 100px 20px;
   }
-  const mask = document.createElement('div');
-  mask.className = 'modal-mask show';
-  document.body.appendChild(mask);
-  mask.appendChild(modalElement);
-  document.body.style.overflow = 'hidden';
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${scrollPosition}px`;
-  document.body.style.width = '100%';
-  activeMask = mask;
-
-  if (isMobile) {
-    activeDrawer = modalElement;
-    const drawer = modalElement;
-    const dragBar = drawer.querySelector('.drag-bar');
-    if (!dragBar) return;
-    let startY = 0, startHeight = 0, dragging = false;
-    const INIT_H = window.innerHeight * 0.8;
-    const MAX_H = window.innerHeight * 0.85;
-    drawer.style.height = `${INIT_H}px`;
-    drawer.style.transform = 'translateY(0)';
-    const onTouchStart = (e) => { startY = e.touches[0].clientY; startHeight = drawer.offsetHeight; dragging = true; drawer.style.transition = 'none'; e.preventDefault(); };
-    const onTouchMove = (e) => {
-      if (!dragging) return;
-      const deltaY = startY - e.touches[0].clientY;
-      let newHeight = startHeight + deltaY;
-      newHeight = Math.min(MAX_H, Math.max(0, newHeight));
-      drawer.style.height = `${newHeight}px`;
-      let blurValue = newHeight >= INIT_H ? 2 + ((newHeight - INIT_H)/(MAX_H-INIT_H))*6 : 2 - ((INIT_H - newHeight)/INIT_H)*2;
-      wrapper.style.transform = `scale(0.94)`;
-      wrapper.style.filter = `blur(${Math.max(0, blurValue)}px)`;
-      e.preventDefault();
-    };
-    const onTouchEnd = () => {
-      if (!dragging) return;
-      dragging = false;
-      const currentH = drawer.offsetHeight;
-      if (currentH < INIT_H - 30) closeModal();
-      else {
-        drawer.style.transition = 'height 0.2s ease-out';
-        drawer.style.height = `${INIT_H}px`;
-        wrapper.style.transform = `scale(0.94)`;
-        wrapper.style.filter = `blur(2px)`;
-        setTimeout(() => { if(drawer) drawer.style.transition = ''; }, 200);
-      }
-    };
-    dragBar.addEventListener('touchstart', onTouchStart, { passive: false });
-    dragBar.addEventListener('touchmove', onTouchMove, { passive: false });
-    dragBar.addEventListener('touchend', onTouchEnd);
-    dragBar.addEventListener('touchcancel', onTouchEnd);
-    drawer.cleanup = () => {
-      dragBar.removeEventListener('touchstart', onTouchStart);
-      dragBar.removeEventListener('touchmove', onTouchMove);
-      dragBar.removeEventListener('touchend', onTouchEnd);
-      dragBar.removeEventListener('touchcancel', onTouchEnd);
-    };
-  } else {
-    const closeBtn = modalElement.querySelector('.close-modal');
-    if (closeBtn) closeBtn.onclick = () => closeModal();
-  }
-}
-
-function showLikesModal(postId) {
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-  const listHtml = (post.likedBy || []).map(u => `<div>❤️ ${escapeHtml(u.username)} × ${u.count || 1}</div>`).join('') || '<div>暂无点赞</div>';
-  const isMobile = window.innerWidth <= 768;
-  const modal = document.createElement('div');
-  modal.className = isMobile ? 'drawer-modal' : 'modal-card';
-  modal.innerHTML = isMobile ? `<div class="drag-bar"></div><div class="drawer-content"><div style="font-weight:bold;margin-bottom:16px;">❤️ 点赞列表</div>${listHtml}</div>` : `<div class="modal-header"><h3>❤️ 点赞列表</h3><button class="close-modal">×</button></div><div class="modal-body">${listHtml}</div>`;
-  openModal(modal, isMobile);
-}
-
-// ============================================================
-// 模块17：楼中楼回复系统
-// ============================================================
-let activeReplyTarget = null;
-let currentCommentModalPostId = null;
-
-function setReplyTarget(postId, targetId, targetType, parentId, username) {
-  activeReplyTarget = { postId, targetId, targetType, parentId, targetUsername: username };
-  renderCommentsModal(postId);
-}
-
-function cancelReply() {
-  activeReplyTarget = null;
-  if (currentCommentModalPostId) renderCommentsModal(currentCommentModalPostId);
-}
-
-function submitReply(postId, inputEl, isMobile = false) {
-  const text = inputEl.value.trim();
-  if (!text) return;
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-  if (!activeReplyTarget) {
-    post.comments.push({
-      id: Date.now(), username: currentUser.username, avatar: currentUser.avatar, text, createdAt: Date.now(), likes: 0, likedBy: [], replies: []
-    });
-  } else {
-    const findItem = (items, id) => {
-      for (let item of items) {
-        if (item.id === id) return item;
-        if (item.replies) { const found = findItem(item.replies, id); if (found) return found; }
-      }
-      return null;
-    };
-    let parent = activeReplyTarget.targetType === 'comment'
-      ? post.comments.find(c => c.id === activeReplyTarget.targetId)
-      : findItem(post.comments, activeReplyTarget.parentId);
-    if (parent) {
-      if (!parent.replies) parent.replies = [];
-      parent.replies.push({
-        id: Date.now(), username: currentUser.username, avatar: currentUser.avatar, text, createdAt: Date.now(), likes: 0, likedBy: [], replies: []
-      });
-    }
-  }
-  savePosts();
-  activeReplyTarget = null;
-  if (isMobile) inputEl.blur();
-  renderCommentsModal(postId);
-}
-
-function getReplyCount(item) {
-  if (!item.replies) return 0;
-  let count = item.replies.length;
-  for (let r of item.replies) count += getReplyCount(r);
-  return count;
-}
-
-function generateCommentsHtml(post) {
-  const renderItem = (item, level=0, parentId=null) => {
-    const likeCount = item.likes || 0;
-    const replyCount = getReplyCount(item);
-    const actions = `
-      <div class="action-bar">
-        <button class="action-btn reply-btn" data-id="${item.id}" data-type="${item.replies ? 'comment' : 'reply'}" data-parent="${parentId || ''}" data-username="${item.username}">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${replyCount > 0 ? replyCount : ''}
-        </button>
-        <button class="action-btn like-btn" data-id="${item.id}" data-type="${item.replies ? 'comment' : 'reply'}" data-parent="${parentId || ''}">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.8 4.6c-1.6-1.6-4.1-1.6-5.7 0l-.5.5-.5-.5c-1.6-1.6-4.1-1.6-5.7 0-1.6 1.6-1.6 4.1 0 5.7l6.2 6.2 6.2-6.2c1.6-1.6 1.6-4.1 0-5.7z"/></svg> ${likeCount}
-        </button>
-      </div>
-    `;
-    const nested = (item.replies && item.replies.length) ? `<div class="nested-replies">${item.replies.map(r => renderItem(r, level+1, item.id)).join('')}</div>` : '';
-    return `
-      <div class="${item.replies ? 'comment-item' : 'reply-item'}">
-        <div class="${item.replies ? 'comment-main' : 'reply-main'}">
-          <div class="${item.replies ? 'comment-avatar' : 'reply-avatar'}" data-username="${escapeHtml(item.username)}">${escapeHtml(item.avatar || item.username.charAt(0))}</div>
-          <div class="${item.replies ? 'comment-right' : 'reply-right'}">
-            <div><span class="${item.replies ? 'comment-user' : 'reply-user'}" data-username="${escapeHtml(item.username)}">${escapeHtml(item.username)}</span><span class="${item.replies ? 'comment-time' : 'reply-time'}">${formatRelativeTime(item.createdAt)}</span></div>
-            <div class="${item.replies ? 'comment-text' : 'reply-text'}">${escapeHtml(item.text)}</div>
-            ${actions}
-          </div>
-        </div>
-        ${nested}
-      </div>
-    `;
-  };
-  if (!post.comments.length) return '<div style="text-align:center;padding:24px;">暂无评论</div>';
-  return post.comments.map(c => renderItem(c)).join('');
-}
-
-function attachCommentEvents(modal, post, isMobile) {
-  modal.querySelectorAll('.like-btn').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const id = parseInt(btn.dataset.id);
-      const type = btn.dataset.type;
-      const parentId = btn.dataset.parent ? parseInt(btn.dataset.parent) : null;
-      handleContentLike(post.id, id, type, parentId);
-    };
-  });
-  modal.querySelectorAll('.reply-btn').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const id = parseInt(btn.dataset.id);
-      const type = btn.dataset.type;
-      const parentId = btn.dataset.parent ? parseInt(btn.dataset.parent) : null;
-      const username = btn.dataset.username;
-      setReplyTarget(post.id, id, type, parentId, username);
-      if (isMobile) {
-        const targetEl = btn.closest('.comment-item, .reply-item');
-        if (targetEl) {
-          const rect = targetEl.getBoundingClientRect();
-          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          const targetY = rect.top + scrollTop - 100;
-          window.scrollTo({ top: targetY, behavior: 'smooth' });
-          const input = modal.querySelector('#commentInputModal');
-          if (input) input.focus();
-        }
-      }
-    };
-  });
-  const input = modal.querySelector('#commentInputModal');
-  const sendBtn = modal.querySelector('#sendCommentModal');
-  if (sendBtn) {
-    sendBtn.onclick = () => {
-      if (activeReplyTarget) {
-        submitReply(post.id, input, isMobile);
-        input.value = '';
-      } else {
-        let val = input.value.trim();
-        if (!val) return;
-        post.comments.push({
-          id: Date.now(), username: currentUser.username, avatar: currentUser.avatar, text: val, createdAt: Date.now(), likes: 0, likedBy: [], replies: []
-        });
-        savePosts();
-        input.value = '';
-        renderCommentsModal(post.id);
-      }
-    };
-    input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (!isMobile) sendBtn.click();
-        else input.blur();
-      }
-    });
-  }
-  modal.querySelectorAll('.comment-avatar, .reply-avatar, .comment-user, .reply-user').forEach(el => {
-    el.onclick = (e) => {
-      e.stopPropagation();
-      const username = el.dataset.username;
-      if (username) gotoProfile(username);
-    };
-  });
-}
-
-function renderCommentsModal(postId) {
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-  const isMobile = window.innerWidth <= 768;
-  currentCommentModalPostId = postId;
-  let modal = document.querySelector('.active-comments-modal');
-  if (modal && modal.parentElement === activeMask) {
-    const container = modal.querySelector('#commentListModal');
-    if (container) container.innerHTML = generateCommentsHtml(post);
-    attachCommentEvents(modal, post, isMobile);
-    const previewDiv = modal.querySelector('.pc-reply-preview');
-    if (!isMobile && previewDiv) {
-      if (activeReplyTarget) {
-        previewDiv.style.display = 'flex';
-        previewDiv.querySelector('span').innerText = `回复 @${activeReplyTarget.targetUsername}：`;
-      } else previewDiv.style.display = 'none';
-    }
-    const inp = modal.querySelector('#commentInputModal');
-    if (inp && !isMobile && activeReplyTarget) inp.placeholder = `回复 ${activeReplyTarget.targetUsername}...`;
-    else if (inp && !isMobile) inp.placeholder = '写评论...';
-  } else {
-    modal = document.createElement('div');
-    modal.className = isMobile ? 'drawer-modal' : 'modal-card';
-    modal.classList.add('active-comments-modal');
-    const previewHtml = !isMobile ? `<div class="pc-reply-preview"><span></span><button class="close-preview">✕</button></div>` : '';
-    modal.innerHTML = `
-      ${isMobile ? '<div class="drag-bar"></div>' : '<div class="modal-header"><h3>💬 评论 · 0</h3><button class="close-modal">×</button></div>'}
-      <div class="drawer-content" style="flex:1; overflow-y:auto;">
-        <div id="commentListModal" style="margin-bottom:12px;"></div>
-        ${previewHtml}
-      </div>
-      <div class="comment-input-fixed">
-        <input type="text" id="commentInputModal" placeholder="写评论...">
-        <button id="sendCommentModal">➤</button>
-      </div>
-    `;
-    if (!isMobile) {
-      modal.querySelector('.modal-header h3').innerText = `💬 评论 · ${post.comments.length}`;
-      const previewDiv = modal.querySelector('.pc-reply-preview');
-      if (activeReplyTarget) {
-        previewDiv.style.display = 'flex';
-        previewDiv.querySelector('span').innerText = `回复 @${activeReplyTarget.targetUsername}：`;
-      }
-      const cancelBtn = modal.querySelector('.close-preview');
-      if (cancelBtn) cancelBtn.onclick = () => cancelReply();
-    }
-    const container = modal.querySelector('#commentListModal');
-    container.innerHTML = generateCommentsHtml(post);
-    openModal(modal, isMobile);
-    attachCommentEvents(modal, post, isMobile);
-    if (!isMobile) {
-      const inp = modal.querySelector('#commentInputModal');
-      if (activeReplyTarget) inp.placeholder = `回复 ${activeReplyTarget.targetUsername}...`;
-    }
+  .modal-card { display: none; }
+  
+  /* 手机端隐藏回复按钮 */
+  .reply-btn {
+    display: none !important;
   }
 }
 
-function showCommentsModal(postId) {
-  activeReplyTarget = null;
-  renderCommentsModal(postId);
-}
-
-function gotoProfile(username) {
-  alert(`个人主页开发中，即将开放（用户：${username}）`);
-}
-
-// ============================================================
-// 模块18：主渲染引擎
-// ============================================================
-function renderForum() {
-  updatePostTimes();
-  const hotKeywords = extractHotKeywords();
-  let filteredPosts = currentFilter ? posts.filter(p => p.content.includes(currentFilter)) : posts;
-  const filterChip = currentFilter ? `<span class="clear-filter" id="clearFilterBtn">✖ 清除</span>` : '';
-  const postsHtml = filteredPosts.map(post => {
-    const likeSvgClass = post.likedBy.some(u => u.username === currentUser.username) ? 'liked' : '';
-    return `
-      <div class="post-card">
-        <div class="post-header">
-          <div class="post-avatar" data-username="${escapeHtml(post.author)}">${escapeHtml(post.avatar || post.author.charAt(0))}</div>
-          <div>
-            <div class="author-name" data-username="${escapeHtml(post.author)}">${escapeHtml(post.author)}</div>
-            <div class="post-time">${post.timeStr}</div>
-          </div>
-        </div>
-        <div class="post-content">${escapeHtml(post.content)}</div>
-        ${post.image ? `<img src="${post.image}" class="post-image">` : ''}
-        <div class="post-stats">
-          <div class="stat-group like-group" data-id="${post.id}">
-            <button class="like-action-btn" data-id="${post.id}"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" class="${likeSvgClass}"><path d="M20.8 4.6c-1.6-1.6-4.1-1.6-5.7 0l-.5.5-.5-.5c-1.6-1.6-4.1-1.6-5.7 0-1.6 1.6-1.6 4.1 0 5.7l6.2 6.2 6.2-6.2c1.6-1.6 1.6-4.1 0-5.7z"/></svg></button>
-            <span class="stat-num like-num" data-id="${post.id}">${post.likes}</span>
-          </div>
-          <div class="stat-group comment-group" data-id="${post.id}">
-            <button class="comment-action-btn"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
-            <span class="stat-num comment-num" data-id="${post.id}">${post.comments.length}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  const showPublishBtn = currentUser.role === 'trainee';
-  const publishBtnHtml = showPublishBtn ? `<div class="publish-trigger" id="publishTriggerBtn">+</div>` : '';
-
-  document.getElementById('forumApp').innerHTML = `
-    <div class="hot-section">
-      <div class="hot-header">
-        <div class="hot-title">🔥 热门词条 ${filterChip}</div>
-        ${publishBtnHtml}
-      </div>
-      <div class="hot-list" id="hotListContainer">
-        ${hotKeywords.map(kw => `<div class="hot-item" data-word="${escapeHtml(kw.word)}"><span class="hot-tag">${escapeHtml(kw.word)}</span><span class="hot-count">🔥 ${kw.heat}</span></div>`).join('')}
-      </div>
-    </div>
-    <div class="posts-list">${postsHtml || '<div style="text-align:center;padding:40px;">暂无帖子</div>'}</div>
-  `;
-
-  document.querySelectorAll('.hot-item').forEach(el => {
-    el.onclick = () => filterByKeyword(el.dataset.word);
-  });
-  if (document.getElementById('clearFilterBtn')) {
-    document.getElementById('clearFilterBtn').onclick = () => { currentFilter = null; renderForum(); };
+@media (min-width: 769px) {
+  .modal-mask {
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    pointer-events: auto;
   }
-  if (showPublishBtn && document.getElementById('publishTriggerBtn')) {
-    document.getElementById('publishTriggerBtn').onclick = () => openPostEditor();
+  .modal-card {
+    background: white;
+    border-radius: 32px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
   }
-  document.querySelectorAll('.like-group').forEach(group => {
-    const id = parseInt(group.dataset.id);
-    const btn = group.querySelector('.like-action-btn');
-    btn.onclick = (e) => { e.stopPropagation(); handleLike(id, btn, e); };
-  });
-  document.querySelectorAll('.like-num').forEach(el => {
-    el.onclick = (e) => { e.stopPropagation(); showLikesModal(parseInt(el.dataset.id)); };
-  });
-  document.querySelectorAll('.comment-group').forEach(group => {
-    const id = parseInt(group.dataset.id);
-    group.onclick = (e) => { e.stopPropagation(); showCommentsModal(id); };
-  });
-  document.querySelectorAll('.post-avatar, .author-name').forEach(el => {
-    el.onclick = (e) => { e.stopPropagation(); const username = el.dataset.username; if(username) gotoProfile(username); };
-  });
+  .modal-card .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: white;
+    border-radius: 32px 32px 0 0;
+  }
+  .modal-card .modal-header h3 { font-size: 18px; font-weight: 600; }
+  .modal-card .close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+  }
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+  }
+  .drawer-modal { display: none; }
 }
 
-// ============================================================
-// 模块19：初始化
-// ============================================================
-function initEditorOverlay() {
-  const overlay = document.createElement('div');
-  overlay.id = 'postEditorOverlay';
-  overlay.className = 'post-editor-overlay';
-  overlay.innerHTML = `
-    <div class="editor-header">
-      <button class="close-editor" id="closeEditorBtn">✕</button>
-      <button class="send-btn" id="sendPostBtn">发送</button>
-    </div>
-    <div class="editor-content">
-      <textarea class="editor-textarea" id="postText" placeholder="分享你的铁汁时刻... 支持 #话题"></textarea>
-      <div class="image-picker">
-        <div class="square-image-btn" id="addImageBtn">+</div>
-        <img id="imagePreview" class="image-preview">
-        <input type="file" id="imageUploadInput" accept="image/*" style="display:none">
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  document.getElementById('closeEditorBtn').onclick = () => closePostEditor();
-  document.getElementById('sendPostBtn').onclick = () => publishNewPost();
-  document.getElementById('addImageBtn').onclick = () => triggerImageUpload();
-  document.getElementById('imageUploadInput').onchange = (e) => handleImageSelect(e);
+/* ==========================================
+   模块9：评论 & 楼中楼回复样式
+========================================== */
+.comment-item, .reply-item {
+  margin-bottom: 12px;
+}
+.comment-main, .reply-main {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+}
+.comment-avatar, .reply-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffd966;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.comment-right, .reply-right {
+  flex: 1;
+}
+.comment-user, .reply-user {
+  font-weight: 700;
+  color: #ff7b5c;
+  cursor: pointer;
+  font-size: 14px;
+}
+.comment-time, .reply-time {
+  font-size: 10px;
+  color: #aaa;
+  margin-left: 8px;
+}
+.comment-text, .reply-text {
+  margin-top: 4px;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+  cursor: pointer;
+}
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 8px;
+  align-items: center;
+}
+.action-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.action-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: #888;
+  stroke-width: 2;
+  fill: none;
+}
+.nested-replies {
+  margin-left: 52px;
+  padding-left: 12px;
+  border-left: 2px solid #e9ecef;
+  margin-top: 8px;
 }
 
-loadData();
-posts.forEach(p => { if (!p.image) p.image = null; if (!p.comments) p.comments = p.comments || []; });
-savePosts();
-initEditorOverlay();
-renderForum();
+.pc-reply-preview {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  margin: 0 20px 8px 20px;
+  font-size: 13px;
+  color: #555;
+}
+.pc-reply-preview .close-preview {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #888;
+}
+
+.comment-input-fixed {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+  padding: 6px 12px;
+  margin: 0 16px 16px 16px;
+  gap: 8px;
+  z-index: 20;
+}
+.comment-input-fixed input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 20px;
+  background: #f0f0f0;
+}
+.comment-input-fixed input:focus {
+  background: #e8e8e8;
+}
+.comment-input-fixed button {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.comment-input-fixed button:active {
+  background: #fff;
+  color: #000;
+  transform: scale(0.95);
+}
