@@ -1,70 +1,48 @@
 export function initDrawer() {
 
-    // 防止重复初始化（解决越点越卡）
     if (window.__drawerInit) return;
     window.__drawerInit = true;
 
     const app = document.querySelector(".app");
 
-    initCommentDrawer(app);
-    initLikeDrawer(app);
+    initDrawerCore(app);
 }
-
-/* =========================
-   全局状态
-========================= */
 
 let drawerLocked = false;
-let dragging = false;
 
-let startY = 0;
-let targetY = 0;
+function initDrawerCore(app) {
 
-/* =========================
-   评论 Drawer
-========================= */
-
-function initCommentDrawer(app) {
-
-    const overlay =
-        document.getElementById("commentOverlay");
-
-    const drawer =
-        document.getElementById("commentDrawer");
-
-    if (!overlay || !drawer) return;
-
-    bindDrawer(overlay, drawer, app, ".comment-btn");
+    bind("commentOverlay", "commentDrawer", ".comment-btn", app);
+    bind("likeOverlay", "likeDrawer", ".like-count-trigger", app);
 }
 
 /* =========================
-   点赞 Drawer
+   核心绑定
 ========================= */
 
-function initLikeDrawer(app) {
+function bind(overlayId, drawerId, trigger, app) {
 
-    const overlay =
-        document.getElementById("likeOverlay");
-
-    const drawer =
-        document.getElementById("likeDrawer");
+    const overlay = document.getElementById(overlayId);
+    const drawer = document.getElementById(drawerId);
 
     if (!overlay || !drawer) return;
 
-    bindDrawer(overlay, drawer, app, ".like-count-trigger");
-}
+    let startY = 0;
+    let currentY = 0;
 
-/* =========================
-   统一绑定（核心）
-========================= */
+    const MAX_UP = -120;   // ⭐ 上拉最大
+    const MAX_DOWN = 220;  // ⭐ 下拉关闭阈值（可调）
+    const ANCHOR = 0;      // ⭐ 初始点
 
-function bindDrawer(overlay, drawer, app, triggerSelector) {
+    let dragging = false;
 
-    /* 打开 */
+    /* =========================
+       OPEN
+    ========================= */
+
     document.addEventListener("click", (e) => {
 
-        const btn = e.target.closest(triggerSelector);
-
+        const btn = e.target.closest(trigger);
         if (!btn) return;
 
         if (drawerLocked) return;
@@ -76,18 +54,17 @@ function bindDrawer(overlay, drawer, app, triggerSelector) {
             drawer.classList.add("active");
             document.body.classList.add("drawer-open");
         });
+
     });
 
     /* 背景关闭 */
     overlay.addEventListener("click", (e) => {
-
         if (e.target !== overlay) return;
-
-        closeDrawer(overlay, drawer, app);
+        close();
     });
 
     /* =========================
-       手势系统（PC + Mobile）
+       DRAG（PC + MOBILE）
     ========================= */
 
     const start = (e) => {
@@ -111,44 +88,74 @@ function bindDrawer(overlay, drawer, app, triggerSelector) {
 
         let diff = y - startY;
 
-        if (diff < 0) diff = 0;
+        currentY = diff;
 
-        targetY = diff;
+        /* =========================
+           限制范围（关键修复）
+        ========================= */
+
+        if (currentY < MAX_UP) currentY = MAX_UP;
+        if (currentY > MAX_DOWN) currentY = MAX_DOWN;
 
         drawer.style.transform =
-            `translateY(${targetY}px)`;
+            `translateY(${currentY}px)`;
 
-        app.style.transform =
-            `scale(${1 - Math.min(targetY / 1800, 0.08)})`;
+        /* =========================
+           背景缩放逻辑（修正方向）
+        ========================= */
+
+        let progress = currentY / MAX_DOWN;
+
+        /* ⬇️ 下拉：变大 + 清晰 */
+        let scale = 0.92 + progress * 0.08;
+
+        /* ⬆️ 上拉：变小 + 模糊 */
+        let blur = Math.max(0, -currentY / 200);
+
+        app.style.transform = `scale(${scale})`;
+
+        app.style.filter =
+            `blur(${blur}px) brightness(${1 - blur * 0.3})`;
 
         overlay.style.background =
-            `rgba(0,0,0,${Math.min(targetY / 500, 0.35)})`;
+            `rgba(0,0,0,${0.25 + progress * 0.25})`;
     };
 
     const end = () => {
 
         dragging = false;
 
-        const shouldClose = targetY > 120;
+        const shouldClose =
+            currentY > MAX_DOWN * 0.6;
 
         if (shouldClose) {
 
-            closeDrawer(overlay, drawer, app);
+            close();
 
         } else {
 
-            targetY = 0;
+            /* =========================
+               回弹到 anchor（0点）
+            ========================= */
 
             drawer.style.transition =
                 "transform .35s cubic-bezier(.22,1,.36,1)";
 
             drawer.style.transform = "translateY(0)";
+
+            app.style.transition =
+                "transform .35s, filter .35s";
+
             app.style.transform = "scale(.96)";
+            app.style.filter = "none";
+
             overlay.style.background = "rgba(0,0,0,0.25)";
+
+            currentY = 0;
         }
     };
 
-    /* 手机 */
+    /* MOBILE */
     overlay.addEventListener("touchstart", start, { passive: true });
     overlay.addEventListener("touchmove", move, { passive: false });
     overlay.addEventListener("touchend", end);
@@ -157,26 +164,21 @@ function bindDrawer(overlay, drawer, app, triggerSelector) {
     overlay.addEventListener("mousedown", start);
     document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", end);
-}
 
-/* =========================
-   CLOSE
-========================= */
+    function close() {
 
-function closeDrawer(overlay, drawer, app) {
+        drawerLocked = false;
+        dragging = false;
 
-    drawerLocked = false;
-    dragging = false;
-    targetY = 0;
-
-    drawer.classList.remove("active");
-    document.body.classList.remove("drawer-open");
-
-    drawer.style.transform = "";
-    app.style.transform = "";
-    overlay.style.background = "";
-
-    setTimeout(() => {
         overlay.classList.remove("active");
-    }, 250);
+        drawer.classList.remove("active");
+        document.body.classList.remove("drawer-open");
+
+        drawer.style.transform = "";
+        app.style.transform = "";
+        app.style.filter = "";
+        overlay.style.background = "";
+
+        currentY = 0;
+    }
 }
