@@ -1,7 +1,3 @@
-/* =========================
-   OVERLAY
-========================= */
-
 .drawer-overlay{
 
     position:fixed;
@@ -101,6 +97,9 @@ body.editor-open .app{
 
     display:flex;
     flex-direction:column;
+
+    /* ⭐ FIX：解决手机拖不动 */
+    touch-action:none;
 }
 
 /* open */
