@@ -1,37 +1,54 @@
+// fab.js
+
 export function initFAB() {
-  const fab = document.getElementById("fab");
-  const editor = document.getElementById("editor");
 
-  if (!fab || !editor) return;
+    const fab = document.getElementById("fab");
+    const editor = document.getElementById("editor");
 
-  let locked = false;
+    if (!fab || !editor) return;
 
-  fab.addEventListener("click", () => {
-    if (locked) return;
-    locked = true;
+    let locked = false;
 
-    fab.classList.add("active");
+    fab.addEventListener("click", () => {
 
-    const circle = document.createElement("div");
-    circle.className = "fab-circle";
-    document.body.appendChild(circle);
+        if (locked) return;
 
-    requestAnimationFrame(() => {
-      circle.classList.add("expand");
+        locked = true;
+
+        /* FAB 点击动画 */
+        fab.classList.add("active");
+
+        /* 创建扩散圆 */
+        const circle = document.createElement("div");
+        circle.className = "fab-circle";
+
+        document.body.appendChild(circle);
+
+        requestAnimationFrame(() => {
+            circle.classList.add("expand");
+        });
+
+        /* 防止背景滚动 */
+        document.body.style.overflow = "hidden";
+
+        /* 打开发帖页 */
+        setTimeout(() => {
+            editor.classList.add("active");
+        }, 280);
+
+        /* 动画结束 */
+        setTimeout(() => {
+
+            circle.remove();
+
+            fab.classList.remove("active");
+
+            document.body.style.overflow = "";
+
+            locked = false;
+
+        }, 700);
+
     });
 
-    document.body.style.overflow = "hidden";
-
-    // 👉 打开 editor（关键）
-    setTimeout(() => {
-      editor.classList.add("active");
-    }, 300);
-
-    // 清理
-    setTimeout(() => {
-      circle.remove();
-      fab.classList.remove("active");
-      locked = false;
-    }, 700);
-  });
 }
