@@ -1,42 +1,58 @@
-import { posts, currentUser } from "./data.js";
+import { currentUser } from "./data.js";
 import { renderPosts } from "./postCard.js";
 
 export function initEditor(postsList) {
-
   const editor = document.getElementById("editor");
   const publishBtn = document.querySelector(".publish-btn");
-  const closeEditor = document.getElementById("closeEditor");
-  const submitPost = document.getElementById("submitPost");
+  const closeBtn = document.getElementById("closeEditor");
+  const submitBtn = document.getElementById("submitPost");
   const postInput = document.getElementById("postInput");
 
   let compressedImage = "";
+  let isSubmitting = false;
 
-  /* 权限 */
-  if (currentUser.role !== "trainee") {
+  /* =========================
+     权限控制
+  ========================= */
+  if (publishBtn && currentUser.role !== "trainee") {
     publishBtn.style.display = "none";
   }
 
-  /* 打开 */
-  publishBtn.onclick = () => {
-    editor.classList.add("active");
-  };
+  /* =========================
+     打开编辑器
+  ========================= */
+  function openEditor() {
+    editor?.classList.add("active");
+  }
 
-  /* 关闭 */
-  closeEditor.onclick = () => {
-    editor.classList.add("closing");
+  /* =========================
+     关闭编辑器（触发动画）
+  ========================= */
+  function closeEditor() {
+    editor?.classList.add("closing");
+  }
 
-    setTimeout(() => {
+  /* =========================
+     动画结束后清理状态
+  ========================= */
+  editor?.addEventListener("transitionend", () => {
+    if (editor.classList.contains("closing")) {
       editor.classList.remove("active", "closing");
-    }, 500);
-  };
+    }
+  });
 
-  /* 发布 */
-  submitPost.onclick = () => {
+  /* =========================
+     发布逻辑
+  ========================= */
+  function submitPost() {
+    if (isSubmitting) return;
+
     const text = postInput.value.trim();
-
     if (!text && !compressedImage) return;
 
-    posts.unshift({
+    isSubmitting = true;
+
+    postsList.unshift({
       user: currentUser.name[0],
       name: currentUser.name,
       content: text,
@@ -51,10 +67,18 @@ export function initEditor(postsList) {
     postInput.value = "";
     compressedImage = "";
 
-    editor.classList.add("closing");
+    closeEditor();
 
+    // 防止连点
     setTimeout(() => {
-      editor.classList.remove("active", "closing");
-    }, 500);
-  };
+      isSubmitting = false;
+    }, 400);
+  }
+
+  /* =========================
+     事件绑定
+  ========================= */
+  publishBtn?.addEventListener("click", openEditor);
+  closeBtn?.addEventListener("click", closeEditor);
+  submitBtn?.addEventListener("click", submitPost);
 }
