@@ -78,7 +78,10 @@ function bind(overlayId, drawerId, trigger, app) {
         drawer.style.transition = "none";
     };
 
-  const move = (e) => {
+ const MAX_UP = -120;   // ⭐ 上拉最大（硬限制）
+const MAX_DOWN = 999;  // ⭐ 下拉不限制（软）
+
+const move = (e) => {
 
     if (!dragging) return;
 
@@ -88,70 +91,77 @@ function bind(overlayId, drawerId, trigger, app) {
 
     let diff = y - startY;
 
-    const MAX_UP = -120;
-    const MAX_DOWN = 220;
-
-    /* ⭐ 统一边界（关键） */
-    diff = Math.max(MAX_UP, Math.min(diff, MAX_DOWN));
-
     currentY = diff;
+
+    /* =========================
+       ⭐ 关键修复：只限制“上拉”
+    ========================= */
+
+    if (currentY < MAX_UP) {
+        currentY = MAX_UP;   // ⬆️ 顶住
+    }
+
+    /* ❌ 不限制下拉（允许继续拖） */
 
     drawer.style.transform =
         `translateY(${currentY}px)`;
 
     /* =========================
-       背景缩放（修正后）
+       背景逻辑（修正方向）
     ========================= */
 
-    let progress =
-        (currentY - MAX_UP) / (MAX_DOWN - MAX_UP);
+    let progressUp = Math.abs(Math.min(currentY, 0)) / 120;
+    let progressDown = Math.max(currentY, 0) / 300;
 
-    let scale = 0.92 + progress * 0.08;
+    /* ⬆️ 上拉：缩小 + 变暗 + 模糊 */
+    let scale = 1 - progressUp * 0.06;
+    let blur = progressUp * 0.8;
 
-    let blur = Math.max(0, -currentY / 200);
+    /* ⬇️ 下拉：放大一点 + 更清晰 */
+    if (currentY > 0) {
+        scale = 1 + progressDown * 0.04;
+        blur = Math.max(0, 0.8 - progressDown);
+    }
 
     app.style.transform = `scale(${scale})`;
 
     app.style.filter =
-        `blur(${blur}px) brightness(${1 - blur * 0.3})`;
+        `blur(${blur}px) brightness(${1 - blur * 0.2})`;
 
     overlay.style.background =
-        `rgba(0,0,0,${0.25 + progress * 0.25})`;
+        `rgba(0,0,0,${0.25 + progressUp * 0.25})`;
 };
+    
+    const MAX_CLOSE = 160;
 
-    const end = () => {
+const end = () => {
 
-        dragging = false;
+    dragging = false;
 
-        const shouldClose =
-            currentY > MAX_DOWN * 0.6;
+    const shouldClose = currentY > MAX_CLOSE;
 
-        if (shouldClose) {
+    drawer.style.transition =
+        "transform .35s cubic-bezier(.22,1,.36,1)";
 
-            close();
+    app.style.transition =
+        "transform .35s, filter .35s";
 
-        } else {
+    if (shouldClose) {
 
-            /* =========================
-               回弹到 anchor（0点）
-            ========================= */
+        close();
 
-            drawer.style.transition =
-                "transform .35s cubic-bezier(.22,1,.36,1)";
+    } else {
 
-            drawer.style.transform = "translateY(0)";
+        currentY = 0;
 
-            app.style.transition =
-                "transform .35s, filter .35s";
+        drawer.style.transform = "translateY(0)";
 
-            app.style.transform = "scale(.96)";
-            app.style.filter = "none";
+        app.style.transform = "scale(.96)";
+        app.style.filter = "none";
 
-            overlay.style.background = "rgba(0,0,0,0.25)";
-
-            currentY = 0;
-        }
-    };
+        overlay.style.background = "rgba(0,0,0,0.25)";
+    }
+};
 
     /* MOBILE */
     overlay.addEventListener("touchstart", start, { passive: true });
