@@ -18,3 +18,7 @@ initEditor(postsContainer, getImage);
 
 /* FAB */
 initFAB();
+
+/* 抽屉效果 */
+import { initDrawer } from "./drawer.js";
+initDrawer();
