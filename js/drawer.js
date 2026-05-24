@@ -67,9 +67,6 @@ export function initDrawer() {
             const scale =
                 0.94 + (delta / 1200);
 
-            document.querySelector(".app").style.transform =
-                `scale(${scale})`;
-
         }
 
     });
@@ -95,9 +92,6 @@ export function initDrawer() {
 
             drawer.style.transform =
                 "translateY(0)";
-
-            document.querySelector(".app").style.transform =
-                "scale(.94)";
         }
 
     });
@@ -111,9 +105,6 @@ export function initDrawer() {
         document.body.classList.remove("drawer-open");
 
         drawer.style.transform =
-            "";
-
-        document.querySelector(".app").style.transform =
             "";
 
     }
