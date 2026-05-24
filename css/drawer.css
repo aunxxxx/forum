@@ -8,6 +8,8 @@
 
     inset:0;
 
+    backdrop-filter:blur(10px);
+
     background:rgba(0,0,0,.18);
 
     opacity:0;
@@ -60,7 +62,7 @@ body.drawer-open .app{
 
     overflow:hidden;
 
-    filter:blur(10px);
+    opacity:.92;
 }
 
 /* =========================
