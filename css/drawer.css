@@ -1,3 +1,4 @@
+
 /* =========================
    OVERLAY
 ========================= */
@@ -62,7 +63,7 @@ body.editor-open .app{
 }
 
 /* =========================
-   DRAWER
+   DRAWER (MOBILE BASE)
 ========================= */
 
 .drawer{
@@ -86,8 +87,9 @@ body.editor-open .app{
     display:flex;
     flex-direction:column;
 
-    /* ⭐ 防止拖动冲突 */
     touch-action:none;
+
+    will-change:transform;
 }
 
 .drawer.active{
@@ -95,36 +97,39 @@ body.editor-open .app{
 }
 
 /* =========================
-   PC MODAL
+   PC MODE（关键修复：居中）
 ========================= */
 
 @media (min-width: 769px){
 
     .drawer{
 
-        width:680px;
-        height:82vh;
+        position:fixed;   /* ⭐ 核心修复 */
 
         left:50%;
         top:50%;
 
-        right:auto;
-        bottom:auto;
+        width:680px;
+        height:82vh;
 
         transform:
-            translate(-50%, calc(-50% + 80px))
+            translate(-50%, -50%)
             scale(.96);
 
         border-radius:28px;
+
+        margin:0;
     }
 
     .drawer.active{
-        transform:translate(-50%, -50%) scale(1);
+        transform:
+            translate(-50%, -50%)
+            scale(1);
     }
 }
 
 /* =========================
-   CLOSE BUTTON（PC ONLY）
+   CLOSE BUTTON（PC only）
 ========================= */
 
 .drawer-close{
@@ -152,7 +157,7 @@ body.editor-open .app{
     cursor:pointer;
 }
 
-/* 手机隐藏 */
+/* mobile hide */
 @media (max-width:768px){
     .drawer-close{
         display:none;
@@ -160,7 +165,7 @@ body.editor-open .app{
 }
 
 /* =========================
-   HEADER（你新增的整合）
+   HEADER（你加的）
 ========================= */
 
 .drawer-header{
@@ -172,14 +177,13 @@ body.editor-open .app{
     justify-content:space-between;
 }
 
-/* 标题 */
 .drawer-title{
     font-size:18px;
     font-weight:700;
     color:#111;
 }
 
-/* PC header 分割线 */
+/* PC header */
 @media (min-width:769px){
 
     .drawer-header{
@@ -193,7 +197,7 @@ body.editor-open .app{
 }
 
 /* =========================
-   HANDLE
+   HANDLE（mobile）
 ========================= */
 
 .drawer-handle-wrap{
@@ -211,7 +215,6 @@ body.editor-open .app{
     background:#d8d8d8;
 }
 
-/* PC 隐藏 handle */
 @media (min-width:769px){
     .drawer-handle-wrap{
         display:none;
@@ -230,10 +233,11 @@ body.editor-open .app{
     padding:0 18px 120px;
 
     overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
 }
 
 /* =========================
-   ITEM（评论 + 点赞统一优化）
+   ITEM
 ========================= */
 
 .comment-item,
