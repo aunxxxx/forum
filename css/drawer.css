@@ -52,6 +52,7 @@
         filter;
 }
 
+/* drawer open */
 body.drawer-open .app{
 
     transform:
@@ -63,6 +64,14 @@ body.drawer-open .app{
     overflow:hidden;
 
     opacity:.92;
+}
+
+/* editor open */
+body.editor-open .app{
+
+    transform:scale(.96);
+
+    filter:blur(2px) brightness(.9);
 }
 
 /* =========================
@@ -94,7 +103,7 @@ body.drawer-open .app{
     flex-direction:column;
 }
 
-/* 打开 */
+/* open */
 .drawer.active{
 
     transform:translateY(0);
@@ -159,7 +168,6 @@ body.drawer-open .app{
     background:#d8d8d8;
 }
 
-/* PC隐藏handle */
 @media (min-width:769px){
 
     .drawer-handle-wrap{
