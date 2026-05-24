@@ -10,3 +10,6 @@ renderPosts(postsList);
 
 const getImage = initUpload(previewImage);
 initEditor(postsList);
+
+import { initFAB } from "./fab.js";
+initFAB();
