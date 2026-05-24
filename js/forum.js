@@ -3,22 +3,50 @@ import { renderPosts } from "./postCard.js";
 import { initEditor } from "./editor.js";
 import { initUpload } from "./upload.js";
 import { initFAB } from "./fab.js";
+import { initDrawer } from "./drawer.js";
+
+/* =========================
+   DOM 元素
+========================= */
 
 const postsContainer = document.getElementById("postsList");
 const previewImage = document.getElementById("previewImage");
 
-/* 初始渲染 */
-renderPosts(postsContainer);
+/* =========================
+   App 初始化入口
+========================= */
 
-/* 上传 */
-const getImage = initUpload(previewImage);
+function initApp() {
 
-/* 编辑器 */
-initEditor(postsContainer, getImage);
+    if (!postsContainer) return;
 
-/* FAB */
-initFAB();
+    /* 初始渲染 */
+    renderPosts(postsContainer);
 
-/* 抽屉效果 */
-import { initDrawer } from "./drawer.js";
-initDrawer();
+    /* 上传系统 */
+    const getImage = initUpload(previewImage);
+
+    /* 编辑器 */
+    initEditor(postsContainer, getImage);
+
+    /* FAB */
+    initFAB();
+
+    /* Drawer（最后初始化，避免事件冲突） */
+    initDrawer();
+
+}
+
+/* =========================
+   等 DOM ready 再启动
+========================= */
+
+if (document.readyState === "loading") {
+
+    document.addEventListener("DOMContentLoaded", initApp);
+
+} else {
+
+    initApp();
+
+}
