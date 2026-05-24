@@ -4,15 +4,15 @@ import { renderPosts } from "./postCard.js";
 export function initEditor(postsList) {
   const editor = document.getElementById("editor");
   const publishBtn = document.querySelector(".publish-btn");
-  const closeBtn = document.getElementById("closeEditor");
-  const submitBtn = document.getElementById("submitPost");
+  const closeEditor = document.getElementById("closeEditor");
+  const submitPost = document.getElementById("submitPost");
   const postInput = document.getElementById("postInput");
 
   let compressedImage = "";
   let isSubmitting = false;
 
   /* =========================
-     权限控制
+     权限
   ========================= */
   if (publishBtn && currentUser.role !== "trainee") {
     publishBtn.style.display = "none";
@@ -21,20 +21,17 @@ export function initEditor(postsList) {
   /* =========================
      打开编辑器
   ========================= */
-  function openEditor() {
-    editor?.classList.add("active");
-  }
+  publishBtn?.addEventListener("click", () => {
+    editor.classList.add("active");
+  });
 
   /* =========================
-     关闭编辑器（触发动画）
+     关闭编辑器
   ========================= */
-  function closeEditor() {
-    editor?.classList.add("closing");
-  }
+  closeEditor?.addEventListener("click", () => {
+    editor.classList.add("closing");
+  });
 
-  /* =========================
-     动画结束后清理状态
-  ========================= */
   editor?.addEventListener("transitionend", () => {
     if (editor.classList.contains("closing")) {
       editor.classList.remove("active", "closing");
@@ -42,9 +39,9 @@ export function initEditor(postsList) {
   });
 
   /* =========================
-     发布逻辑
+     发布
   ========================= */
-  function submitPost() {
+  submitPost?.addEventListener("click", () => {
     if (isSubmitting) return;
 
     const text = postInput.value.trim();
@@ -67,18 +64,10 @@ export function initEditor(postsList) {
     postInput.value = "";
     compressedImage = "";
 
-    closeEditor();
+    editor.classList.add("closing");
 
-    // 防止连点
     setTimeout(() => {
       isSubmitting = false;
     }, 400);
-  }
-
-  /* =========================
-     事件绑定
-  ========================= */
-  publishBtn?.addEventListener("click", openEditor);
-  closeBtn?.addEventListener("click", closeEditor);
-  submitBtn?.addEventListener("click", submitPost);
+  });
 }
