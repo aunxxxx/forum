@@ -1,5 +1,5 @@
 /* =========================
-   DRAWER OVERLAY
+   OVERLAY
 ========================= */
 
 .drawer-overlay{
@@ -10,55 +10,47 @@
 
     background:rgba(0,0,0,.18);
 
-    backdrop-filter:blur(0px);
-
     opacity:0;
+
     pointer-events:none;
 
-    transition:
-        opacity .28s ease,
-        backdrop-filter .28s ease;
+    transition:.28s ease;
 
     z-index:3000;
 }
 
-/* 打开 */
 .drawer-overlay.active{
 
     opacity:1;
 
     pointer-events:auto;
-
-    backdrop-filter:blur(6px);
 }
 
 /* =========================
-   BACKGROUND SCALE
+   APP SCALE
 ========================= */
 
 .app{
 
     transition:
-        transform .35s cubic-bezier(.22,1,.36,1),
-        border-radius .35s cubic-bezier(.22,1,.36,1),
-        filter .35s cubic-bezier(.22,1,.36,1);
+        transform .38s cubic-bezier(.22,1,.36,1),
+        border-radius .38s cubic-bezier(.22,1,.36,1),
+        filter .38s cubic-bezier(.22,1,.36,1);
 
     transform-origin:center top;
 }
 
 body.drawer-open .app{
 
-    transform:
-        scale(.94);
+    transform:scale(.94);
 
     border-radius:28px;
 
-    overflow:hidden;
-
-    filter:blur(10px);
+    filter:blur(8px);
 }
+
 /* =========================
-   DRAWER
+   MOBILE DRAWER
 ========================= */
 
 .drawer{
@@ -75,23 +67,55 @@ body.drawer-open .app{
 
     border-radius:28px 28px 0 0;
 
-    transform:translateY(45vh);
+    transform:translateY(100%);
 
     transition:
         transform .42s cubic-bezier(.22,1,.36,1);
 
-    touch-action:none;
+    overflow:hidden;
 
     display:flex;
     flex-direction:column;
-
-    overflow:hidden;
 }
 
 /* 打开 */
 .drawer.active{
 
     transform:translateY(0);
+}
+
+/* =========================
+   PC MODAL
+========================= */
+
+@media (min-width: 769px){
+
+    .drawer{
+
+        width:680px;
+
+        height:82vh;
+
+        left:50%;
+        top:50%;
+
+        right:auto;
+        bottom:auto;
+
+        transform:
+            translate(-50%, calc(-50% + 80px))
+            scale(.96);
+
+        border-radius:28px;
+    }
+
+    .drawer.active{
+
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+    }
+
 }
 
 /* =========================
@@ -117,6 +141,15 @@ body.drawer-open .app{
     border-radius:999px;
 
     background:#d8d8d8;
+}
+
+/* PC隐藏handle */
+@media (min-width:769px){
+
+    .drawer-handle-wrap{
+        display:none;
+    }
+
 }
 
 /* =========================
@@ -145,6 +178,8 @@ body.drawer-open .app{
     display:flex;
 
     gap:12px;
+
+    cursor:pointer;
 }
 
 .comment-avatar{
@@ -165,8 +200,6 @@ body.drawer-open .app{
     font-weight:bold;
 
     flex-shrink:0;
-
-    cursor:pointer;
 }
 
 .comment-main{
@@ -185,4 +218,69 @@ body.drawer-open .app{
     line-height:1.7;
 
     color:#333;
+}
+
+/* =========================
+   LIKE ITEM
+========================= */
+
+.like-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:18px 0;
+
+    border-bottom:1px solid #f2f2f2;
+}
+
+.like-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+}
+
+.like-avatar{
+
+    width:46px;
+    height:46px;
+
+    border-radius:50%;
+
+    background:#ff8b6a;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:bold;
+}
+
+.like-name{
+
+    font-weight:700;
+}
+
+.like-title{
+
+    font-size:14px;
+
+    color:#999;
+
+    margin-top:2px;
+}
+
+.like-count{
+
+    font-weight:bold;
+
+    color:#ff8b6a;
 }
