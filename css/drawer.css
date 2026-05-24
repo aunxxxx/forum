@@ -32,21 +32,35 @@
 
 .app{
 
+    position:relative;
+
+    min-height:100vh;
+
+    background:var(--bg);
+
+    transform-origin:center top;
+
     transition:
         transform .38s cubic-bezier(.22,1,.36,1),
         border-radius .38s cubic-bezier(.22,1,.36,1),
         filter .38s cubic-bezier(.22,1,.36,1);
 
-    transform-origin:center top;
+    will-change:
+        transform,
+        filter;
 }
 
 body.drawer-open .app{
 
-    transform:scale(.94);
+    transform:
+        scale(.94)
+        translateY(12px);
 
-    border-radius:28px;
+    border-radius:32px;
 
-    filter:blur(8px);
+    overflow:hidden;
+
+    filter:blur(10px);
 }
 
 /* =========================
@@ -283,4 +297,15 @@ body.drawer-open .app{
     font-weight:bold;
 
     color:#ff8b6a;
+}
+
+/* =========================
+   LOCK SCROLL
+========================= */
+
+body.drawer-open{
+
+    overflow:hidden;
+
+    touch-action:none;
 }
