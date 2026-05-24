@@ -1,13 +1,14 @@
-const postsList = document.getElementById("postsList");
+const postsList =
+  document.getElementById("postsList");
 
 /* 当前用户 */
 
 const currentUser = {
   name: "练习生001",
-  role: "trainee" // fan / trainee
+  role: "trainee"
 };
 
-/* 发帖相关 DOM */
+/* editor DOM */
 
 const editor =
   document.getElementById("editor");
@@ -33,7 +34,7 @@ const imageInput =
 const previewImage =
   document.getElementById("previewImage");
 
-/* 帖子数据 */
+/* 帖子 */
 
 const posts = [
 
@@ -79,7 +80,7 @@ if (currentUser.role !== "trainee") {
   publishBtn.style.display = "none";
 }
 
-/* 渲染帖子 */
+/* 渲染 */
 
 function renderPosts() {
 
@@ -129,12 +130,49 @@ function renderPosts() {
 
       <div class="post-stats">
 
-        <div>
-          ❤️ ${post.likes}
+        <!-- 点赞 -->
+
+        <div class="stat-btn">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="
+              M12 21s-6.7-4.35-9.33-8.28
+              C.6 9.57 2.18 5 6.4 5
+              c2.04 0 3.18 1.17 3.9 2.2
+              C11.02 6.17 12.16 5 14.2 5
+              c4.22 0 5.8 4.57 3.73 7.72
+              C18.7 16.65 12 21 12 21z
+            "/>
+          </svg>
+
+          <span>${post.likes}</span>
+
         </div>
 
-        <div>
-          💬 ${post.comments}
+        <!-- 评论 -->
+
+        <div class="stat-btn">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="
+              M21 15a2 2 0 0 1-2 2H7l-4 4V5
+              a2 2 0 0 1 2-2h14
+              a2 2 0 0 1 2 2z
+            "/>
+          </svg>
+
+          <span>${post.comments}</span>
+
         </div>
 
       </div>
@@ -147,7 +185,7 @@ function renderPosts() {
 
 }
 
-/* 打开发帖层 */
+/* 打开发帖页 */
 
 publishBtn.onclick = () => {
 
@@ -155,15 +193,27 @@ publishBtn.onclick = () => {
 
 };
 
-/* 关闭 */
+/* 关闭动画 */
 
 closeEditor.onclick = () => {
 
-  editor.classList.remove("active");
+  editor.classList.add("closing");
+
+  setTimeout(() => {
+
+    editor.classList.remove(
+      "active"
+    );
+
+    editor.classList.remove(
+      "closing"
+    );
+
+  }, 500);
 
 };
 
-/* 上传图片 */
+/* 图片上传 */
 
 let compressedImage = "";
 
@@ -180,9 +230,10 @@ imageInput.onchange = (e) => {
 
   if (!file) return;
 
-  /* 最大 10MB */
-
-  if (file.size > 10 * 1024 * 1024) {
+  if (
+    file.size >
+    10 * 1024 * 1024
+  ) {
 
     alert("图片不能超过10MB");
 
@@ -212,7 +263,7 @@ imageInput.onchange = (e) => {
 
       ctx.drawImage(img, 0, 0);
 
-      /* 90年代 JPEG 压缩 */
+      /* 90年代 JPEG */
 
       compressedImage =
         canvas.toDataURL(
@@ -237,17 +288,23 @@ imageInput.onchange = (e) => {
 
 };
 
-/* 发布帖子 */
+/* 发布 */
 
 submitPost.onclick = () => {
 
   const text =
     postInput.value.trim();
 
-  /* 空内容禁止 */
-
   if (!text && !compressedImage) {
     return;
+  }
+
+  if (text.length > 1000) {
+
+    alert("最多1000字");
+
+    return;
+
   }
 
   posts.unshift({
@@ -285,7 +342,21 @@ submitPost.onclick = () => {
   previewImage.style.display =
     "none";
 
-  editor.classList.remove("active");
+  /* 关闭动画 */
+
+  editor.classList.add("closing");
+
+  setTimeout(() => {
+
+    editor.classList.remove(
+      "active"
+    );
+
+    editor.classList.remove(
+      "closing"
+    );
+
+  }, 500);
 
 };
 
