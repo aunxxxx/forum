@@ -11,8 +11,10 @@ body {
 }
 
 /* 顶部 */
+
 .topbar {
   height: 88px;
+
   background: white;
 
   display: flex;
@@ -23,15 +25,18 @@ body {
 
   position: sticky;
   top: 0;
+
   z-index: 100;
 }
 
 .logo {
   width: 52px;
   height: 52px;
+
   border-radius: 16px;
 
   background: #ff8b6a;
+
   color: white;
 
   display: flex;
@@ -45,6 +50,7 @@ body {
 .nav {
   display: flex;
   gap: 36px;
+
   font-size: 18px;
 }
 
@@ -56,6 +62,7 @@ body {
 .user-avatar {
   width: 52px;
   height: 52px;
+
   border-radius: 50%;
 
   background: #f6c39c;
@@ -68,17 +75,24 @@ body {
 }
 
 /* 主体 */
+
 .container {
   max-width: 760px;
+
   margin: 0 auto;
+
   padding: 22px;
 }
 
 /* 热门 */
+
 .hot-section {
   background: #fff8ed;
+
   border-radius: 30px;
+
   padding: 22px;
+
   margin-bottom: 24px;
 }
 
@@ -86,20 +100,25 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   margin-bottom: 18px;
 }
 
 .hot-title {
   font-size: 20px;
   font-weight: bold;
+
   color: #ff8b6a;
 }
 
 .publish-btn {
   width: 44px;
   height: 44px;
+
   border-radius: 50%;
+
   background: #ff8b6a;
+
   color: white;
 
   display: flex;
@@ -107,18 +126,28 @@ body {
   justify-content: center;
 
   font-size: 28px;
+
   cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.publish-btn:active {
+  transform: scale(0.92);
 }
 
 .hot-list {
   display: flex;
   flex-direction: column;
+
   gap: 14px;
 }
 
 .hot-item {
   background: white;
+
   border-radius: 22px;
+
   padding: 18px 20px;
 
   display: flex;
@@ -129,32 +158,44 @@ body {
 }
 
 /* 帖子 */
+
 .posts-list {
   display: flex;
   flex-direction: column;
+
   gap: 24px;
 }
 
 .post-card {
   background: white;
+
   border-radius: 30px;
+
   padding: 22px;
 }
 
 .post-header {
   display: flex;
+
   gap: 14px;
+
   margin-bottom: 18px;
 }
 
 .post-avatar {
   width: 64px;
   height: 64px;
+
   border-radius: 50%;
 
-  background: linear-gradient(135deg,#ffb68f,#ff8b6a);
+  background: linear-gradient(
+    135deg,
+    #ffb68f,
+    #ff8b6a
+  );
 
   color: white;
+
   font-size: 28px;
   font-weight: bold;
 
@@ -170,85 +211,155 @@ body {
 
 .post-time {
   color: #aaa;
+
   margin-top: 6px;
 }
 
 .post-content {
   font-size: 18px;
-  line-height: 1.6;
-  margin-bottom: 18px;
+
+  line-height: 1.7;
+
+  white-space: pre-wrap;
+
+  word-break: break-word;
+}
+
+.post-image {
+  width: 100%;
+
+  border-radius: 24px;
+
+  margin-top: 16px;
 }
 
 .post-stats {
   border-top: 1px solid #eee;
+
   padding-top: 14px;
+  margin-top: 18px;
 
   display: flex;
-  gap: 28px;
 
-  color: #777;
+  gap: 28px;
 }
 
-/* 发帖层 */
+/* SVG按钮 */
+
+.stat-btn {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: #777;
+
+  cursor: pointer;
+}
+
+.stat-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* 发帖页 */
 
 .editor-overlay {
   position: fixed;
   inset: 0;
 
-  background: rgba(0,0,0,0.3);
+  background: white;
 
-  display: none;
-  align-items: center;
-  justify-content: center;
+  z-index: 9999;
 
-  z-index: 999;
+  overflow-y: auto;
+
+  clip-path: circle(0% at 100% 0%);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition:
+    clip-path 0.55s
+      cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s;
 }
 
 .editor-overlay.active {
-  display: flex;
+  clip-path: circle(150% at 100% 0%);
+
+  opacity: 1;
+
+  pointer-events: auto;
+}
+
+.editor-overlay.closing {
+  clip-path: circle(0% at 100% 0%);
+
+  opacity: 0;
 }
 
 .editor-box {
-  width: 92%;
-  max-width: 600px;
+  min-height: 100vh;
 
-  background: white;
-
-  border-radius: 32px;
-
-  padding: 22px;
+  padding: 26px;
 }
 
 .editor-top {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  align-items: center;
+
+  margin-bottom: 30px;
 }
 
 .editor-top button {
   border: none;
   background: none;
 
-  font-size: 18px;
-
   cursor: pointer;
 }
 
-#submitPost {
-  color: #ff8b6a;
-  font-weight: bold;
+/* 关闭 */
+
+.close-btn {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: #f5f5f5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 24px;
 }
+
+/* 发布 */
+
+#submitPost {
+  font-size: 18px;
+  font-weight: bold;
+
+  color: #ff8b6a;
+}
+
+/* 输入 */
 
 #postInput {
   width: 100%;
-  height: 220px;
+
+  min-height: 280px;
 
   border: none;
   outline: none;
 
   resize: none;
 
-  font-size: 18px;
+  font-size: 22px;
   line-height: 1.7;
 }
 
@@ -268,7 +379,7 @@ body {
   cursor: pointer;
 }
 
-/* 图片预览 */
+/* 预览 */
 
 .preview-image {
   width: 100%;
@@ -278,14 +389,4 @@ body {
   margin-top: 18px;
 
   display: none;
-}
-
-/* 帖子图片 */
-
-.post-image {
-  width: 100%;
-
-  border-radius: 24px;
-
-  margin-top: 16px;
 }
