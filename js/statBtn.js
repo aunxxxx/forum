@@ -18,7 +18,14 @@ export function createStatBtn(type, count, onClick) {
 
   div.innerHTML = `
     ${icons[type]}
-    <span>${count}</span>
+   <span class="
+    ${type === "like"
+        ? "like-count-trigger"
+        : ""
+    }
+">
+    ${count}
+</span>
   `;
 
   /* 点击事件统一在组件层绑定 */
