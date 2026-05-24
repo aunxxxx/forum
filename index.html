@@ -1,77 +1,187 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Forum1.2</title>
 
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Forum2.2</title>
+
+  <!-- 基础 -->
+  <link rel="stylesheet" href="css/base.css">
+
+  <!-- 发帖页 -->
+  <link rel="stylesheet" href="css/editor.css">
+
+  <!-- FAB -->
+  <link rel="stylesheet" href="css/fab.css">
+
+  <!-- 主论坛 -->
   <link rel="stylesheet" href="css/forum.css">
+
 </head>
 
 <body>
 
   <!-- 发帖页 -->
-  <div class="editor-overlay" id="editor">
+  <div
+    class="editor-overlay"
+    id="editor"
+  >
+
     <div class="editor-box">
 
+      <!-- 顶部 -->
       <div class="editor-top">
-        <button id="closeEditor" class="close-btn">✕</button>
-        <button id="submitPost">发布</button>
+
+        <button
+          id="closeEditor"
+          class="close-btn"
+        >
+          ✕
+        </button>
+
+        <button id="submitPost">
+          发布
+        </button>
+
       </div>
 
-      <textarea id="postInput" placeholder="分享点什么吧..."></textarea>
+      <!-- 输入框 -->
+      <textarea
+        id="postInput"
+        placeholder="分享点什么吧..."
+      ></textarea>
 
-      <input type="file" id="imageInput" accept="image/*" hidden />
+      <!-- 上传 -->
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        hidden
+      />
 
-      <div class="upload-btn" id="uploadBtn">上传图片</div>
+      <div
+        class="upload-btn"
+        id="uploadBtn"
+      >
+        上传图片
+      </div>
 
-      <img id="previewImage" class="preview-image" />
+      <!-- 预览 -->
+      <img
+        id="previewImage"
+        class="preview-image"
+      />
 
     </div>
+
   </div>
 
-  <!-- 顶部 -->
+  <!-- 顶部导航 -->
   <header class="topbar">
-    <div class="logo">铁</div>
 
+    <!-- Logo -->
+    <div class="logo">
+      铁
+    </div>
+
+    <!-- 导航 -->
     <nav class="nav">
-      <span>Home</span>
-      <span>大事件</span>
-      <span class="active">铁汁窝</span>
+
+      <span>
+        Home
+      </span>
+
+      <span>
+        大事件
+      </span>
+
+      <span class="active">
+        铁汁窝
+      </span>
+
     </nav>
 
-    <div class="user-avatar">🐯</div>
+    <!-- 用户 -->
+    <div class="user-avatar">
+      🐯
+    </div>
+
   </header>
 
   <!-- 主体 -->
   <main class="container">
 
+    <!-- 热门 -->
     <section class="hot-section">
+
       <div class="hot-header">
-        <div class="hot-title">🔥 热门词条</div>
-        <div class="publish-btn">+</div>
+
+        <div class="hot-title">
+          🔥 热门词条
+        </div>
+
       </div>
 
+      <!-- 热门列表 -->
       <div class="hot-list">
+
         <div class="hot-item">
-          <span>第一位认证用户</span>
-          <span>🔥 3</span>
+
+          <span>
+            第一位认证用户
+          </span>
+
+          <span>
+            🔥 3
+          </span>
+
         </div>
 
         <div class="hot-item">
-          <span>户报到</span>
-          <span>🔥 3</span>
+
+          <span>
+            契弟广场
+          </span>
+
+          <span>
+            🔥 2
+          </span>
+
         </div>
+
       </div>
+
     </section>
 
-    <section class="posts-list" id="postsList"></section>
+    <!-- 帖子 -->
+    <section
+      class="posts-list"
+      id="postsList"
+    ></section>
 
   </main>
 
-  <div class="fab" id="fab">+</div>
+  <!-- FAB -->
+  <div
+    class="fab"
+    id="fab"
+  >
+    +
+  </div>
 
-  <script type="module" src="js/forum.js"></script>
+  <!-- JS -->
+  <script
+    type="module"
+    src="js/forum.js"
+  ></script>
 
 </body>
+
 </html>
