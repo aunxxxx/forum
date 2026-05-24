@@ -1,3 +1,6 @@
+import { currentUser } from "./data.js";
+import { renderPosts } from "./postCard.js";
+
 export function initEditor(postsList) {
   const editor = document.getElementById("editor");
   const publishBtn = document.querySelector(".publish-btn");
@@ -8,19 +11,21 @@ export function initEditor(postsList) {
   let compressedImage = "";
   let isSubmitting = false;
 
-  if (publishBtn && currentUser.role !== "trainee") {
+  if (!currentUser || !publishBtn) return;
+
+  if (currentUser.role !== "trainee") {
     publishBtn.style.display = "none";
   }
 
-  publishBtn?.addEventListener("click", () => {
-    editor.classList.add("active");
+  publishBtn.addEventListener("click", () => {
+    editor?.classList.add("active");
   });
 
   closeEditor?.addEventListener("click", () => {
-    editor.classList.add("closing");
+    editor?.classList.add("closing");
 
     setTimeout(() => {
-      editor.classList.remove("active", "closing");
+      editor?.classList.remove("active", "closing");
     }, 550);
   });
 
