@@ -1,48 +1,25 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background: #f5f5f7;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #222;
-}
-
-/* 顶部 */
-
+//*顶部*//
 .topbar {
   height: 88px;
-
   background: white;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 0 20px;
-
   position: sticky;
   top: 0;
-
   z-index: 100;
 }
 
 .logo {
   width: 52px;
   height: 52px;
-
   border-radius: 16px;
-
   background: #ff8b6a;
-
   color: white;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 32px;
   font-weight: bold;
 }
@@ -50,7 +27,6 @@ body {
 .nav {
   display: flex;
   gap: 36px;
-
   font-size: 18px;
 }
 
@@ -62,37 +38,26 @@ body {
 .user-avatar {
   width: 52px;
   height: 52px;
-
   border-radius: 50%;
-
   background: #f6c39c;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 28px;
 }
 
-/* 主体 */
-
+/*主体*/
 .container {
   max-width: 760px;
-
   margin: 0 auto;
-
   padding: 22px;
 }
 
-/* 热门 */
-
+//*热门区*//
 .hot-section {
   background: #fff8ed;
-
   border-radius: 30px;
-
   padding: 22px;
-
   margin-bottom: 24px;
 }
 
@@ -100,35 +65,43 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   margin-bottom: 18px;
 }
 
 .hot-title {
   font-size: 20px;
   font-weight: bold;
-
   color: #ff8b6a;
 }
 
+.hot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hot-item {
+  background: white;
+  border-radius: 22px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+发帖按钮
 .publish-btn {
   width: 44px;
   height: 44px;
-
   border-radius: 50%;
-
   background: #ff8b6a;
-
   color: white;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 28px;
-
   cursor: pointer;
-
   transition: 0.2s;
 }
 
@@ -136,69 +109,33 @@ body {
   transform: scale(0.92);
 }
 
-.hot-list {
-  display: flex;
-  flex-direction: column;
-
-  gap: 14px;
-}
-
-.hot-item {
-  background: white;
-
-  border-radius: 22px;
-
-  padding: 18px 20px;
-
-  display: flex;
-  justify-content: space-between;
-
-  font-size: 18px;
-  font-weight: 600;
-}
-
-/* 帖子 */
-
+帖子系统
 .posts-list {
   display: flex;
   flex-direction: column;
-
   gap: 24px;
 }
 
 .post-card {
   background: white;
-
   border-radius: 30px;
-
   padding: 22px;
 }
 
 .post-header {
   display: flex;
-
   gap: 14px;
-
   margin-bottom: 18px;
 }
 
 .post-avatar {
   width: 64px;
   height: 64px;
-
   border-radius: 50%;
-
-  background: linear-gradient(
-    135deg,
-    #ffb68f,
-    #ff8b6a
-  );
-
+  background: linear-gradient(135deg, #ffb68f, #ff8b6a);
   color: white;
-
   font-size: 28px;
   font-weight: bold;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -211,182 +148,39 @@ body {
 
 .post-time {
   color: #aaa;
-
   margin-top: 6px;
 }
 
 .post-content {
   font-size: 18px;
-
   line-height: 1.7;
-
   white-space: pre-wrap;
-
   word-break: break-word;
 }
 
 .post-image {
   width: 100%;
-
   border-radius: 24px;
-
   margin-top: 16px;
 }
 
 .post-stats {
   border-top: 1px solid #eee;
-
   padding-top: 14px;
   margin-top: 18px;
-
   display: flex;
-
   gap: 28px;
 }
-
-/* SVG按钮 */
 
 .stat-btn {
   display: flex;
   align-items: center;
-
   gap: 6px;
-
   color: #777;
-
   cursor: pointer;
 }
 
 .stat-btn svg {
   width: 22px;
   height: 22px;
-}
-
-/* 发帖页 */
-
-.editor-overlay {
-  position: fixed;
-  inset: 0;
-
-  background: white;
-
-  z-index: 9999;
-
-  overflow-y: auto;
-
-  clip-path: circle(0% at 100% 0%);
-
-  opacity: 0;
-
-  pointer-events: none;
-
-  transition:
-    clip-path 0.55s
-      cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.25s;
-}
-
-.editor-overlay.active {
-  clip-path: circle(150% at 100% 0%);
-
-  opacity: 1;
-
-  pointer-events: auto;
-}
-
-.editor-overlay.closing {
-  clip-path: circle(0% at 100% 0%);
-
-  opacity: 0;
-}
-
-.editor-box {
-  min-height: 100vh;
-
-  padding: 26px;
-}
-
-.editor-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-bottom: 30px;
-}
-
-.editor-top button {
-  border: none;
-  background: none;
-
-  cursor: pointer;
-}
-
-/* 关闭 */
-
-.close-btn {
-  width: 42px;
-  height: 42px;
-
-  border-radius: 50%;
-
-  background: #f5f5f5;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 24px;
-}
-
-/* 发布 */
-
-#submitPost {
-  font-size: 18px;
-  font-weight: bold;
-
-  color: #ff8b6a;
-}
-
-/* 输入 */
-
-#postInput {
-  width: 100%;
-
-  min-height: 280px;
-
-  border: none;
-  outline: none;
-
-  resize: none;
-
-  font-size: 22px;
-  line-height: 1.7;
-}
-
-/* 上传 */
-
-.upload-btn {
-  margin-top: 20px;
-
-  background: #f5f5f5;
-
-  border-radius: 20px;
-
-  padding: 16px;
-
-  text-align: center;
-
-  cursor: pointer;
-}
-
-/* 预览 */
-
-.preview-image {
-  width: 100%;
-
-  border-radius: 24px;
-
-  margin-top: 18px;
-
-  display: none;
 }
