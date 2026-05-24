@@ -36,6 +36,16 @@
    BACKGROUND SCALE
 ========================= */
 
+.app{
+
+    transition:
+        transform .35s cubic-bezier(.22,1,.36,1),
+        border-radius .35s cubic-bezier(.22,1,.36,1),
+        filter .35s cubic-bezier(.22,1,.36,1);
+
+    transform-origin:center top;
+}
+
 body.drawer-open .app{
 
     transform:
@@ -45,14 +55,8 @@ body.drawer-open .app{
 
     overflow:hidden;
 
-    filter:blur(2px);
-
-    transition:
-        transform .35s cubic-bezier(.22,1,.36,1),
-        border-radius .35s cubic-bezier(.22,1,.36,1),
-        filter .35s cubic-bezier(.22,1,.36,1);
+    filter:blur(10px);
 }
-
 /* =========================
    DRAWER
 ========================= */
