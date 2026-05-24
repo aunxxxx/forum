@@ -1,6 +1,3 @@
-import { currentUser } from "./data.js";
-import { renderPosts } from "./postCard.js";
-
 export function initEditor(postsList) {
   const editor = document.getElementById("editor");
   const publishBtn = document.querySelector(".publish-btn");
@@ -11,36 +8,30 @@ export function initEditor(postsList) {
   let compressedImage = "";
   let isSubmitting = false;
 
-  /* =========================
-     权限
-  ========================= */
   if (publishBtn && currentUser.role !== "trainee") {
     publishBtn.style.display = "none";
   }
 
-  /* =========================
-     打开编辑器
-  ========================= */
   publishBtn?.addEventListener("click", () => {
     editor.classList.add("active");
   });
 
-  /* =========================
-     关闭编辑器
-  ========================= */
   closeEditor?.addEventListener("click", () => {
     editor.classList.add("closing");
+
+    setTimeout(() => {
+      editor.classList.remove("active", "closing");
+    }, 550);
   });
 
-  editor?.addEventListener("transitionend", () => {
+  editor?.addEventListener("transitionend", (e) => {
+    if (e.propertyName !== "clip-path") return;
+
     if (editor.classList.contains("closing")) {
       editor.classList.remove("active", "closing");
     }
   });
 
-  /* =========================
-     发布
-  ========================= */
   submitPost?.addEventListener("click", () => {
     if (isSubmitting) return;
 
