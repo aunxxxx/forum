@@ -7,64 +7,31 @@
 
   <link rel="stylesheet" href="css/forum.css">
 </head>
-  
-<!-- 发帖页 -->
 
-<div
-  class="editor-overlay"
-  id="editor"
->
-
-  <div class="editor-box">
-
-    <div class="editor-top">
-
-      <button
-        id="closeEditor"
-        class="close-btn"
-      >
-        ✕
-      </button>
-
-      <button id="submitPost">
-        发布
-      </button>
-
-    </div>
-
-    <textarea
-      id="postInput"
-      placeholder="分享点什么吧..."
-    ></textarea>
-
-    <input
-      type="file"
-      id="imageInput"
-      accept="image/*"
-      hidden
-    />
-
-    <div
-      class="upload-btn"
-      id="uploadBtn"
-    >
-      上传图片
-    </div>
-
-    <img
-      id="previewImage"
-      class="preview-image"
-    />
-
-  </div>
-
-</div>
-  
 <body>
+
+  <!-- 发帖页 -->
+  <div class="editor-overlay" id="editor">
+    <div class="editor-box">
+
+      <div class="editor-top">
+        <button id="closeEditor" class="close-btn">✕</button>
+        <button id="submitPost">发布</button>
+      </div>
+
+      <textarea id="postInput" placeholder="分享点什么吧..."></textarea>
+
+      <input type="file" id="imageInput" accept="image/*" hidden />
+
+      <div class="upload-btn" id="uploadBtn">上传图片</div>
+
+      <img id="previewImage" class="preview-image" />
+
+    </div>
+  </div>
 
   <!-- 顶部 -->
   <header class="topbar">
-
     <div class="logo">铁</div>
 
     <nav class="nav">
@@ -74,22 +41,18 @@
     </nav>
 
     <div class="user-avatar">🐯</div>
-
   </header>
 
   <!-- 主体 -->
   <main class="container">
 
-    <!-- 热门 -->
     <section class="hot-section">
-
       <div class="hot-header">
         <div class="hot-title">🔥 热门词条</div>
         <div class="publish-btn">+</div>
       </div>
 
       <div class="hot-list">
-
         <div class="hot-item">
           <span>第一位认证用户</span>
           <span>🔥 3</span>
@@ -99,19 +62,15 @@
           <span>户报到</span>
           <span>🔥 3</span>
         </div>
-
       </div>
-
     </section>
 
-    <!-- 帖子 -->
     <section class="posts-list" id="postsList"></section>
 
   </main>
 
-<!-- ⭐ FAB必须放这里 -->
   <div class="fab" id="fab">+</div>
-  
+
   <script type="module" src="js/forum.js"></script>
 
 </body>
