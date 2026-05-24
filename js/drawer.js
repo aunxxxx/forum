@@ -78,48 +78,46 @@ function bind(overlayId, drawerId, trigger, app) {
         drawer.style.transition = "none";
     };
 
-    const move = (e) => {
+  const move = (e) => {
 
-        if (!dragging) return;
+    if (!dragging) return;
 
-        const y = e.touches
-            ? e.touches[0].clientY
-            : e.clientY;
+    const y = e.touches
+        ? e.touches[0].clientY
+        : e.clientY;
 
-        let diff = y - startY;
+    let diff = y - startY;
 
-        currentY = diff;
+    const MAX_UP = -120;
+    const MAX_DOWN = 220;
 
-        /* =========================
-           限制范围（关键修复）
-        ========================= */
+    /* ⭐ 统一边界（关键） */
+    diff = Math.max(MAX_UP, Math.min(diff, MAX_DOWN));
 
-        if (currentY < MAX_UP) currentY = MAX_UP;
-        if (currentY > MAX_DOWN) currentY = MAX_DOWN;
+    currentY = diff;
 
-        drawer.style.transform =
-            `translateY(${currentY}px)`;
+    drawer.style.transform =
+        `translateY(${currentY}px)`;
 
-        /* =========================
-           背景缩放逻辑（修正方向）
-        ========================= */
+    /* =========================
+       背景缩放（修正后）
+    ========================= */
 
-        let progress = currentY / MAX_DOWN;
+    let progress =
+        (currentY - MAX_UP) / (MAX_DOWN - MAX_UP);
 
-        /* ⬇️ 下拉：变大 + 清晰 */
-        let scale = 0.92 + progress * 0.08;
+    let scale = 0.92 + progress * 0.08;
 
-        /* ⬆️ 上拉：变小 + 模糊 */
-        let blur = Math.max(0, -currentY / 200);
+    let blur = Math.max(0, -currentY / 200);
 
-        app.style.transform = `scale(${scale})`;
+    app.style.transform = `scale(${scale})`;
 
-        app.style.filter =
-            `blur(${blur}px) brightness(${1 - blur * 0.3})`;
+    app.style.filter =
+        `blur(${blur}px) brightness(${1 - blur * 0.3})`;
 
-        overlay.style.background =
-            `rgba(0,0,0,${0.25 + progress * 0.25})`;
-    };
+    overlay.style.background =
+        `rgba(0,0,0,${0.25 + progress * 0.25})`;
+};
 
     const end = () => {
 
