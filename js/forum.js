@@ -1,15 +1,20 @@
-import { renderPosts } from "./postCard.js";
 import { posts } from "./data.js";
+import { renderPosts } from "./postCard.js";
 import { initEditor } from "./editor.js";
 import { initUpload } from "./upload.js";
+import { initFAB } from "./fab.js";
 
-const postsList = document.getElementById("postsList");
+const postsContainer = document.getElementById("postsList");
 const previewImage = document.getElementById("previewImage");
 
-renderPosts(postsList);
+/* 初始渲染 */
+renderPosts(postsContainer);
 
+/* 上传 */
 const getImage = initUpload(previewImage);
-initEditor(postsList);
 
-import { initFAB } from "./fab.js";
+/* 编辑器 */
+initEditor(postsContainer, getImage);
+
+/* FAB */
 initFAB();
