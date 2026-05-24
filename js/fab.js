@@ -1,6 +1,8 @@
 export function initFAB() {
   const fab = document.getElementById("fab");
-  if (!fab) return;
+  const editor = document.getElementById("editor");
+
+  if (!fab || !editor) return;
 
   let locked = false;
 
@@ -20,13 +22,16 @@ export function initFAB() {
 
     document.body.style.overflow = "hidden";
 
+    // 👉 打开 editor（关键）
     setTimeout(() => {
-      window.location.href = "post.html";
-    }, 550);
+      editor.classList.add("active");
+    }, 300);
 
-    // 清理 DOM（防止残留）
+    // 清理
     setTimeout(() => {
       circle.remove();
-    }, 800);
+      fab.classList.remove("active");
+      locked = false;
+    }, 700);
   });
 }
