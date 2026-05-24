@@ -288,3 +288,32 @@ body.drawer-open{
     overflow:hidden;
     touch-action:none;
 }
+
+
+
+
+.drawer-header{
+    padding:14px 18px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.drawer-title{
+    font-size:18px;
+    font-weight:700;
+    color:#111;
+}
+
+/* ⭐ PC 视觉分隔线 */
+@media (min-width:769px){
+
+    .drawer-header{
+        border-bottom:1px solid #eee;
+        margin-bottom:8px;
+    }
+
+    .drawer-title{
+        font-size:20px;
+    }
+}
