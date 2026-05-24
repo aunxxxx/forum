@@ -1,21 +1,18 @@
-
 /* =========================
    OVERLAY
 ========================= */
 
 .drawer-overlay{
-
     position:fixed;
     inset:0;
 
-    backdrop-filter:blur(10px);
     background:rgba(0,0,0,.18);
+    backdrop-filter:blur(10px);
 
     opacity:0;
     pointer-events:none;
 
     transition:.28s ease;
-
     z-index:3000;
 }
 
@@ -25,11 +22,10 @@
 }
 
 /* =========================
-   APP SCALE
+   APP
 ========================= */
 
 .app{
-
     position:relative;
     min-height:100vh;
     background:var(--bg);
@@ -38,36 +34,23 @@
 
     transition:
         transform .38s cubic-bezier(.22,1,.36,1),
-        border-radius .38s cubic-bezier(.22,1,.36,1),
-        filter .38s cubic-bezier(.22,1,.36,1);
+        filter .38s cubic-bezier(.22,1,.36,1),
+        border-radius .38s cubic-bezier(.22,1,.36,1);
 
     will-change:transform, filter;
 }
 
-/* drawer open */
 body.drawer-open .app{
-
     transform:scale(.94) translateY(12px);
-
     border-radius:32px;
-
-    overflow:hidden;
-
     opacity:.92;
 }
 
-/* editor open */
-body.editor-open .app{
-    transform:scale(.96);
-    filter:blur(2px) brightness(.9);
-}
-
 /* =========================
-   DRAWER (MOBILE BASE)
+   MOBILE DRAWER
 ========================= */
 
 .drawer{
-
     position:absolute;
     left:0;
     right:0;
@@ -75,21 +58,18 @@ body.editor-open .app{
 
     height:92vh;
 
-    background:white;
+    background:#fff;
     border-radius:28px 28px 0 0;
 
     transform:translateY(100%);
-
-    transition:transform .42s cubic-bezier(.22,1,.36,1);
-
-    overflow:hidden;
+    transition:transform .38s cubic-bezier(.22,1,.36,1);
 
     display:flex;
     flex-direction:column;
 
-    touch-action:none;
+    overflow:hidden;
 
-    will-change:transform;
+    touch-action:none;
 }
 
 .drawer.active{
@@ -97,14 +77,13 @@ body.editor-open .app{
 }
 
 /* =========================
-   PC MODE（关键修复：居中）
+   PC MODE（稳定居中）
 ========================= */
 
 @media (min-width: 769px){
 
     .drawer{
-
-        position:fixed;   /* ⭐ 核心修复 */
+        position:absolute;
 
         left:50%;
         top:50%;
@@ -112,96 +91,21 @@ body.editor-open .app{
         width:680px;
         height:82vh;
 
-        transform:
-            translate(-50%, -50%)
-            scale(.96);
+        transform:translate(-50%,-50%) scale(.96);
 
         border-radius:28px;
-
-        margin:0;
     }
 
     .drawer.active{
-        transform:
-            translate(-50%, -50%)
-            scale(1);
+        transform:translate(-50%,-50%) scale(1);
     }
 }
 
 /* =========================
-   CLOSE BUTTON（PC only）
-========================= */
-
-.drawer-close{
-
-    position:absolute;
-    top:14px;
-    right:16px;
-
-    width:36px;
-    height:36px;
-
-    border-radius:10px;
-
-    background:rgba(0,0,0,0.06);
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:16px;
-    font-weight:600;
-
-    z-index:10;
-
-    cursor:pointer;
-}
-
-/* mobile hide */
-@media (max-width:768px){
-    .drawer-close{
-        display:none;
-    }
-}
-
-/* =========================
-   HEADER（你加的）
-========================= */
-
-.drawer-header{
-
-    padding:14px 18px 8px;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.drawer-title{
-    font-size:18px;
-    font-weight:700;
-    color:#111;
-}
-
-/* PC header */
-@media (min-width:769px){
-
-    .drawer-header{
-        border-bottom:1px solid #eee;
-        margin-bottom:8px;
-    }
-
-    .drawer-title{
-        font-size:20px;
-    }
-}
-
-/* =========================
-   HANDLE（mobile）
+   HANDLE
 ========================= */
 
 .drawer-handle-wrap{
-
     height:34px;
     display:flex;
     align-items:center;
@@ -216,9 +120,7 @@ body.editor-open .app{
 }
 
 @media (min-width:769px){
-    .drawer-handle-wrap{
-        display:none;
-    }
+    .drawer-handle-wrap{ display:none; }
 }
 
 /* =========================
@@ -226,108 +128,15 @@ body.editor-open .app{
 ========================= */
 
 .drawer-content{
-
     flex:1;
     overflow-y:auto;
-
     padding:0 18px 120px;
-
-    overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
 }
 
 /* =========================
-   ITEM
-========================= */
-
-.comment-item,
-.like-item{
-
-    padding:18px 0;
-    border-bottom:1px solid #f2f2f2;
-}
-
-/* comment */
-.comment-item{
-    display:flex;
-    gap:12px;
-}
-
-.comment-avatar{
-
-    width:46px;
-    height:46px;
-    border-radius:50%;
-
-    background:#ff8b6a;
-    color:white;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-weight:bold;
-    flex-shrink:0;
-}
-
-.comment-main{ flex:1; }
-
-.comment-name{
-    font-weight:700;
-    margin-bottom:4px;
-}
-
-.comment-text{
-    line-height:1.7;
-    color:#333;
-}
-
-/* like */
-.like-item{
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.like-left{
-
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-
-.like-avatar{
-
-    width:46px;
-    height:46px;
-    border-radius:50%;
-
-    background:#ff8b6a;
-    color:white;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-weight:bold;
-}
-
-.like-name{ font-weight:700; }
-
-.like-title{
-    font-size:14px;
-    color:#999;
-    margin-top:2px;
-}
-
-.like-count{
-    font-weight:bold;
-    color:#ff8b6a;
-}
-
-/* =========================
-   LOCK SCROLL
+   LOCK
 ========================= */
 
 body.drawer-open{
