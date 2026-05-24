@@ -231,3 +231,8 @@ body.editor-open .app{
 .fab:active{
     transform:scale(.92);
 }
+
+
+html, body {
+    background: #000;/* 防止缩放露白边 */
+}
