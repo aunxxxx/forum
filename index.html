@@ -4,32 +4,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forum2.55</title>
+  <title>Forum2.66</title>
 
-  <!-- 基础 -->
   <link rel="stylesheet" href="css/base.css">
-
-  <!-- 发帖页 -->
   <link rel="stylesheet" href="css/editor.css">
-
-  <!-- FAB -->
   <link rel="stylesheet" href="css/fab.css">
-
-  <!-- 主论坛 -->
   <link rel="stylesheet" href="css/forum.css">
-
-  <!-- 抽屉效果 -->
   <link rel="stylesheet" href="css/drawer.css">
 </head>
 
 <body>
 
-<!-- ✅ APP 主体（只包页面核心） -->
 <div class="app">
 
-  <!-- 顶部导航 -->
   <header class="topbar">
-
     <div class="logo">铁</div>
 
     <nav class="nav">
@@ -39,21 +27,16 @@
     </nav>
 
     <div class="user-avatar">🐯</div>
-
   </header>
 
-  <!-- 主体 -->
   <main class="container">
 
-    <!-- 热门 -->
     <section class="hot-section">
-
       <div class="hot-header">
         <div class="hot-title">🔥 热门词条</div>
       </div>
 
       <div class="hot-list">
-
         <div class="hot-item">
           <span>第一位认证用户</span>
           <span>🔥 3</span>
@@ -63,26 +46,20 @@
           <span>契弟广场</span>
           <span>🔥 2</span>
         </div>
-
       </div>
 
     </section>
 
-    <!-- 帖子 -->
     <section class="posts-list" id="postsList"></section>
 
   </main>
 
-  <!-- FAB -->
   <div class="fab" id="fab">+</div>
 
 </div>
-<!-- ❗ APP 结束 -->
-
-
 
 <!-- =========================
-     发帖 Editor（独立浮层）
+     Editor
 ========================= -->
 <div class="editor-overlay" id="editor">
 
@@ -105,21 +82,20 @@
 
 </div>
 
-
-
 <!-- =========================
-     评论 Drawer
+     Comment Drawer
 ========================= -->
 <div class="drawer-overlay" id="commentOverlay">
 
   <div class="drawer" id="commentDrawer">
 
-    <!-- handle -->
+    <!-- ⭐ PC关闭按钮（必须有） -->
+    <button class="drawer-close">✕</button>
+
     <div class="drawer-handle-wrap">
       <div class="drawer-handle"></div>
     </div>
 
-    <!-- content -->
     <div class="drawer-content" id="commentContent">
 
       <div class="comment-item">
@@ -144,21 +120,20 @@
 
 </div>
 
-
-
 <!-- =========================
-     点赞 Drawer
+     Like Drawer
 ========================= -->
 <div class="drawer-overlay" id="likeOverlay">
 
   <div class="drawer" id="likeDrawer">
 
-    <!-- handle -->
+    <!-- ⭐ PC关闭按钮（必须有） -->
+    <button class="drawer-close">✕</button>
+
     <div class="drawer-handle-wrap">
       <div class="drawer-handle"></div>
     </div>
 
-    <!-- content -->
     <div class="drawer-content">
 
       <div class="like-item">
@@ -197,9 +172,6 @@
 
 </div>
 
-
-
-<!-- JS -->
 <script type="module" src="js/forum.js"></script>
 
 </body>
