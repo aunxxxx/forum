@@ -8,16 +8,22 @@
   <link rel="stylesheet" href="css/forum.css">
 </head>
   
-<!-- 发帖层 -->
-<div class="editor-overlay" id="editor">
+<!-- 发帖页 -->
+
+<div
+  class="editor-overlay"
+  id="editor"
+>
 
   <div class="editor-box">
 
-    <!-- 顶部 -->
     <div class="editor-top">
 
-      <button id="closeEditor">
-        取消
+      <button
+        id="closeEditor"
+        class="close-btn"
+      >
+        ✕
       </button>
 
       <button id="submitPost">
@@ -26,13 +32,11 @@
 
     </div>
 
-    <!-- 输入 -->
     <textarea
       id="postInput"
       placeholder="分享点什么吧..."
     ></textarea>
 
-    <!-- 上传 -->
     <input
       type="file"
       id="imageInput"
@@ -40,11 +44,13 @@
       hidden
     />
 
-    <div class="upload-btn" id="uploadBtn">
+    <div
+      class="upload-btn"
+      id="uploadBtn"
+    >
       上传图片
     </div>
 
-    <!-- 预览 -->
     <img
       id="previewImage"
       class="preview-image"
