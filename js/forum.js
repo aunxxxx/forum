@@ -3,6 +3,29 @@ const currentUser = {
   role: "trainee"
 };
 
+const editor = document.getElementById("editor");
+
+const publishBtn =
+  document.querySelector(".publish-btn");
+
+const closeEditor =
+  document.getElementById("closeEditor");
+
+const submitPost =
+  document.getElementById("submitPost");
+
+const postInput =
+  document.getElementById("postInput");
+
+const uploadBtn =
+  document.getElementById("uploadBtn");
+
+const imageInput =
+  document.getElementById("imageInput");
+
+const previewImage =
+  document.getElementById("previewImage");
+
 const postsList = document.getElementById("postsList");
 
 const posts = [
