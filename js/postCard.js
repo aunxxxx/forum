@@ -1,26 +1,4 @@
 import { posts } from "./data.js";
-
-export function renderPosts(postsList) {
-  postsList.innerHTML = "";
-
-  posts.forEach((post) => {
-    const div = document.createElement("div");
-    div.className = "post-card";
-
-    div.innerHTML = `
-      <div class="post-header">
-        <div class="post-avatar">${post.user}</div>
-        <div>
-          <div class="author-name">${post.name}</div>
-          <div class="post-time">${post.time}</div>
-        </div>
-      </div>
-
-      <div class="post-content">${post.content}</div>
-
-      ${post.image ? `<img src="${post.image}" class="post-image" />` : ""}
-
-    import { posts } from "./data.js";
 import { createStatBtn } from "./statBtn.js";
 
 export function renderPosts(postsList) {
@@ -62,11 +40,6 @@ export function renderPosts(postsList) {
 
     div.innerHTML = header + content;
     div.appendChild(stats);
-
-    postsList.appendChild(div);
-  });
-}
-    `;
 
     postsList.appendChild(div);
   });
