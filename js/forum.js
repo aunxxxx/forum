@@ -1,3 +1,8 @@
+const currentUser = {
+  name: "练习生001",
+  role: "trainee"
+};
+
 const postsList = document.getElementById("postsList");
 
 const posts = [
