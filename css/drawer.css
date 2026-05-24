@@ -1,0 +1,184 @@
+/* =========================
+   DRAWER OVERLAY
+========================= */
+
+.drawer-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.18);
+
+    backdrop-filter:blur(0px);
+
+    opacity:0;
+    pointer-events:none;
+
+    transition:
+        opacity .28s ease,
+        backdrop-filter .28s ease;
+
+    z-index:3000;
+}
+
+/* 打开 */
+.drawer-overlay.active{
+
+    opacity:1;
+
+    pointer-events:auto;
+
+    backdrop-filter:blur(6px);
+}
+
+/* =========================
+   BACKGROUND SCALE
+========================= */
+
+body.drawer-open .app{
+
+    transform:
+        scale(.94);
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    filter:blur(2px);
+
+    transition:
+        transform .35s cubic-bezier(.22,1,.36,1),
+        border-radius .35s cubic-bezier(.22,1,.36,1),
+        filter .35s cubic-bezier(.22,1,.36,1);
+}
+
+/* =========================
+   DRAWER
+========================= */
+
+.drawer{
+
+    position:absolute;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    height:92vh;
+
+    background:white;
+
+    border-radius:28px 28px 0 0;
+
+    transform:translateY(45vh);
+
+    transition:
+        transform .42s cubic-bezier(.22,1,.36,1);
+
+    touch-action:none;
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+}
+
+/* 打开 */
+.drawer.active{
+
+    transform:translateY(0);
+}
+
+/* =========================
+   HANDLE
+========================= */
+
+.drawer-handle-wrap{
+
+    height:34px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    flex-shrink:0;
+}
+
+.drawer-handle{
+
+    width:44px;
+    height:5px;
+
+    border-radius:999px;
+
+    background:#d8d8d8;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.drawer-content{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:0 18px 120px;
+}
+
+/* =========================
+   COMMENT ITEM
+========================= */
+
+.comment-item{
+
+    padding:18px 0;
+
+    border-bottom:1px solid #f2f2f2;
+
+    display:flex;
+
+    gap:12px;
+}
+
+.comment-avatar{
+
+    width:46px;
+    height:46px;
+
+    border-radius:50%;
+
+    background:#ff8b6a;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:bold;
+
+    flex-shrink:0;
+
+    cursor:pointer;
+}
+
+.comment-main{
+    flex:1;
+}
+
+.comment-name{
+
+    font-weight:700;
+
+    margin-bottom:4px;
+}
+
+.comment-text{
+
+    line-height:1.7;
+
+    color:#333;
+}
