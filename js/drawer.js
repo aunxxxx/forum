@@ -138,9 +138,7 @@ function initDrag(drawer, overlay, app) {
     let velocity = 0;
     let dragging = false;
 
-    drawer.style.touchAction = "none";
-
-    drawer.addEventListener("touchstart", (e) => {
+    overlay.addEventListener("touchstart", (e) => {
 
         dragging = true;
 
@@ -153,12 +151,14 @@ function initDrag(drawer, overlay, app) {
 
     }, { passive: true });
 
-    drawer.addEventListener("touchmove", (e) => {
+    overlay.addEventListener("touchmove", (e) => {
 
         if (!dragging) return;
 
-        let y = e.touches[0].clientY;
-        let now = Date.now();
+        e.preventDefault(); // ⭐ 必须
+
+        const y = e.touches[0].clientY;
+        const now = Date.now();
 
         let diff = y - startY;
 
@@ -169,32 +169,28 @@ function initDrag(drawer, overlay, app) {
 
         if (diff < 0) diff = 0;
 
-        const d = rubberBand(diff);
+        const d = diff;
 
-        drawer.style.transform = `translateY(${d}px)`;
+        drawer.style.transform =
+            `translateY(${d}px)`;
 
         app.style.transform =
             `scale(${1 - Math.min(d / 1800, 0.08)})`;
 
-        overlay.style.background =
-            `rgba(0,0,0,${Math.min(d / 500, 0.35)})`;
+    }, { passive: false });
 
-    }, { passive: true });
-
-    drawer.addEventListener("touchend", () => {
+    overlay.addEventListener("touchend", () => {
 
         dragging = false;
 
         const moved = lastY - startY;
 
-        const shouldClose = moved > 120 || velocity > 0.7;
-
-        if (shouldClose) {
-            closeDrawer(overlay, drawer, app);
+        if (moved > 120 || velocity > 0.7) {
+            drawer.classList.remove("active");
+            overlay.classList.remove("active");
+            document.body.classList.remove("drawer-open");
         } else {
-            drawer.style.transform = "translateY(36px)";
-            app.style.transform = "scale(.96)";
-            overlay.style.background = "rgba(0,0,0,0.25)";
+            drawer.style.transform = "translateY(0)";
         }
 
     });
