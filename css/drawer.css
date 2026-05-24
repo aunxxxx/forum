@@ -86,7 +86,7 @@ body.editor-open .app{
     display:flex;
     flex-direction:column;
 
-    /* ⭐ 关键：解决手机滑动 */
+    /* ⭐ 防止拖动冲突 */
     touch-action:none;
 }
 
@@ -121,11 +121,10 @@ body.editor-open .app{
     .drawer.active{
         transform:translate(-50%, -50%) scale(1);
     }
-
 }
 
 /* =========================
-   CLOSE BUTTON（PC only）
+   CLOSE BUTTON（PC ONLY）
 ========================= */
 
 .drawer-close{
@@ -161,10 +160,44 @@ body.editor-open .app{
 }
 
 /* =========================
+   HEADER（你新增的整合）
+========================= */
+
+.drawer-header{
+
+    padding:14px 18px 8px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+/* 标题 */
+.drawer-title{
+    font-size:18px;
+    font-weight:700;
+    color:#111;
+}
+
+/* PC header 分割线 */
+@media (min-width:769px){
+
+    .drawer-header{
+        border-bottom:1px solid #eee;
+        margin-bottom:8px;
+    }
+
+    .drawer-title{
+        font-size:20px;
+    }
+}
+
+/* =========================
    HANDLE
 ========================= */
 
 .drawer-handle-wrap{
+
     height:34px;
     display:flex;
     align-items:center;
@@ -178,6 +211,7 @@ body.editor-open .app{
     background:#d8d8d8;
 }
 
+/* PC 隐藏 handle */
 @media (min-width:769px){
     .drawer-handle-wrap{
         display:none;
@@ -199,7 +233,7 @@ body.editor-open .app{
 }
 
 /* =========================
-   ITEM
+   ITEM（评论 + 点赞统一优化）
 ========================= */
 
 .comment-item,
@@ -216,14 +250,18 @@ body.editor-open .app{
 }
 
 .comment-avatar{
+
     width:46px;
     height:46px;
     border-radius:50%;
+
     background:#ff8b6a;
     color:white;
+
     display:flex;
     align-items:center;
     justify-content:center;
+
     font-weight:bold;
     flex-shrink:0;
 }
@@ -242,32 +280,36 @@ body.editor-open .app{
 
 /* like */
 .like-item{
+
     display:flex;
     align-items:center;
     justify-content:space-between;
 }
 
 .like-left{
+
     display:flex;
     align-items:center;
     gap:12px;
 }
 
 .like-avatar{
+
     width:46px;
     height:46px;
     border-radius:50%;
+
     background:#ff8b6a;
     color:white;
+
     display:flex;
     align-items:center;
     justify-content:center;
+
     font-weight:bold;
 }
 
-.like-name{
-    font-weight:700;
-}
+.like-name{ font-weight:700; }
 
 .like-title{
     font-size:14px;
@@ -287,33 +329,4 @@ body.editor-open .app{
 body.drawer-open{
     overflow:hidden;
     touch-action:none;
-}
-
-
-
-
-.drawer-header{
-    padding:14px 18px 8px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.drawer-title{
-    font-size:18px;
-    font-weight:700;
-    color:#111;
-}
-
-/* ⭐ PC 视觉分隔线 */
-@media (min-width:769px){
-
-    .drawer-header{
-        border-bottom:1px solid #eee;
-        margin-bottom:8px;
-    }
-
-    .drawer-title{
-        font-size:20px;
-    }
 }
