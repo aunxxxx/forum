@@ -14,13 +14,13 @@ body.drawer-open {
     background: #fff;
     min-height: 100vh;
 
-    transition: transform .25s ease, border-radius .25s ease, box-shadow .25s ease;
+    transition: transform .25s ease, filter .25s ease;
 }
 
-/* mobile 背景卡片效果 */
+/* mobile 背景卡片 */
 @media (max-width: 768px) {
     body.drawer-open .app {
-        transform: scale(0.96) translateY(6px);
+        transform: scale(0.965) translateY(6px);
         border-radius: 18px;
         overflow: hidden;
         box-shadow: 0 20px 60px rgba(0,0,0,0.18);
@@ -43,11 +43,9 @@ body.drawer-open {
     pointer-events: none;
 
     transition: opacity .25s ease, visibility 0s linear .25s;
-
-    isolation: isolate;
 }
 
-.drawer-overlay.is-open {
+.drawer-overlay.active {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -78,17 +76,14 @@ body.drawer-open {
     max-height: 85vh;
     overflow: hidden;
 
-    will-change: transform;
-
     transform: translate3d(0, 100%, 0);
 
     transition: transform .28s cubic-bezier(.22,1,.36,1);
+
+    will-change: transform;
 }
 
-/* =========================
-   CONTENT
-========================= */
-
+/* content */
 .drawer-content {
     flex: 1;
     overflow-y: auto;
@@ -96,10 +91,7 @@ body.drawer-open {
     padding: 16px;
 }
 
-/* =========================
-   HANDLE
-========================= */
-
+/* handle */
 .drawer-handle-wrap {
     padding: 10px 0;
     display: flex;
@@ -113,10 +105,7 @@ body.drawer-open {
     background: rgba(0,0,0,0.15);
 }
 
-/* =========================
-   HEADER
-========================= */
-
+/* header */
 .drawer-header {
     display: flex;
     justify-content: space-between;
@@ -128,10 +117,7 @@ body.drawer-open {
     cursor: pointer;
 }
 
-/* =========================
-   PC MODE
-========================= */
-
+/* PC */
 @media (min-width: 769px) {
 
     .drawer {
@@ -139,6 +125,12 @@ body.drawer-open {
         left: 50%;
         transform: translate3d(-50%, 100%, 0);
         border-radius: 18px;
+    }
+
+    .drawer-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     body.drawer-open .app {
