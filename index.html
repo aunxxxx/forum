@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forum2.72</title>
+  <title>Forum2.55</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -17,6 +17,9 @@
 
 <div class="app">
 
+  <!-- =========================
+       TOPBAR
+  ========================== -->
   <header class="topbar">
     <div class="logo">铁</div>
 
@@ -29,6 +32,9 @@
     <div class="user-avatar">🐯</div>
   </header>
 
+  <!-- =========================
+       MAIN
+  ========================== -->
   <main class="container">
 
     <section class="hot-section">
@@ -47,22 +53,21 @@
           <span>🔥 2</span>
         </div>
       </div>
-
     </section>
 
     <section class="posts-list" id="postsList"></section>
 
   </main>
 
+  <!-- FAB -->
   <div class="fab" id="fab">+</div>
 
 </div>
 
 <!-- =========================
-     Editor
+     EDITOR（独立层）
 ========================= -->
 <div class="editor-overlay" id="editor">
-
   <div class="editor-box">
 
     <div class="editor-top">
@@ -72,35 +77,36 @@
 
     <textarea id="postInput" placeholder="分享点什么吧..."></textarea>
 
-    <input type="file" id="imageInput" accept="image/*" hidden />
-
+    <input type="file" id="imageInput" hidden />
     <div class="upload-btn" id="uploadBtn">上传图片</div>
 
     <img id="previewImage" class="preview-image" />
 
   </div>
-
 </div>
 
 <!-- =========================
-     Comment Drawer
+     COMMENT DRAWER
 ========================= -->
 <div class="drawer-overlay" id="commentOverlay">
 
   <div class="drawer" id="commentDrawer">
 
-    <!-- ⭐ PC关闭按钮（必须有） -->
-    <button class="drawer-close">✕</button>
-
+    <!-- mobile handle -->
     <div class="drawer-handle-wrap">
       <div class="drawer-handle"></div>
     </div>
 
+    <!-- PC header（标题 + 关闭按钮） -->
     <div class="drawer-header">
-  <div class="drawer-title">评论</div>
-</div>
-    
-    <div class="drawer-content" id="commentContent">
+
+      <div class="drawer-title">评论</div>
+
+      <div class="drawer-close">✕</div>
+
+    </div>
+
+    <div class="drawer-content">
 
       <div class="comment-item">
         <div class="comment-avatar">李</div>
@@ -119,30 +125,30 @@
       </div>
 
     </div>
-
   </div>
-
 </div>
 
 <!-- =========================
-     Like Drawer
+     LIKE DRAWER
 ========================= -->
 <div class="drawer-overlay" id="likeOverlay">
 
   <div class="drawer" id="likeDrawer">
-    
 
-    <!-- ⭐ PC关闭按钮（必须有） -->
-    <button class="drawer-close">✕</button>
-
+    <!-- mobile handle -->
     <div class="drawer-handle-wrap">
       <div class="drawer-handle"></div>
     </div>
 
-     <div class="drawer-header">
-    <div class="drawer-title">点赞</div>
-  </div>
-    
+    <!-- PC header -->
+    <div class="drawer-header">
+
+      <div class="drawer-title">点赞</div>
+
+      <div class="drawer-close">✕</div>
+
+    </div>
+
     <div class="drawer-content">
 
       <div class="like-item">
@@ -178,7 +184,6 @@
     </div>
 
   </div>
-
 </div>
 
 <script type="module" src="js/forum.js"></script>
