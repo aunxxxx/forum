@@ -2,7 +2,10 @@
    forum.css
 ========================= */
 
-/* 顶部 */
+/* =========================
+   TOPBAR
+========================= */
+
 .topbar{
     height:88px;
     background:white;
@@ -21,13 +24,11 @@
     border-bottom:1px solid #eee;
 }
 
-/* logo */
 .logo{
     width:52px;
     height:52px;
 
     border-radius:16px;
-
     background:#ff8b6a;
     color:white;
 
@@ -41,11 +42,9 @@
     flex-shrink:0;
 }
 
-/* 导航 */
 .nav{
     display:flex;
     align-items:center;
-
     gap:36px;
 
     font-size:18px;
@@ -68,13 +67,10 @@
     font-weight:bold;
 }
 
-/* 用户头像 */
 .user-avatar{
     width:52px;
     height:52px;
-
     border-radius:50%;
-
     background:#f6c39c;
 
     display:flex;
@@ -82,66 +78,50 @@
     justify-content:center;
 
     font-size:28px;
-
-    flex-shrink:0;
 }
 
-/* 主体 */
+/* =========================
+   LAYOUT
+========================= */
+
 .container{
     width:100%;
     max-width:760px;
-
     margin:0 auto;
-
     padding:22px;
 }
 
-/* 热门区域 */
 .hot-section{
     background:#fff8ed;
-
     border-radius:30px;
-
     padding:22px;
-
     margin-bottom:24px;
 }
 
-/* 热门顶部 */
 .hot-header{
     display:flex;
-    align-items:center;
     justify-content:space-between;
-
     margin-bottom:18px;
 }
 
-/* 标题 */
 .hot-title{
     font-size:20px;
     font-weight:bold;
-
     color:#ff8b6a;
 }
 
-/* 热门列表 */
 .hot-list{
     display:flex;
     flex-direction:column;
-
     gap:14px;
 }
 
-/* 热门 item */
 .hot-item{
     background:white;
-
     border-radius:22px;
-
     padding:18px 20px;
 
     display:flex;
-    align-items:center;
     justify-content:space-between;
 
     font-size:18px;
@@ -154,125 +134,87 @@
     transform:translateY(-2px);
 }
 
-/* 帖子列表 */
 .posts-list{
     display:flex;
     flex-direction:column;
-
     gap:24px;
 }
 
-/* 帖子卡片 */
+/* =========================
+   POST CARD
+========================= */
+
 .post-card{
     background:white;
-
     border-radius:30px;
-
     padding:22px;
 
-    box-shadow:
-        0 4px 20px rgba(0,0,0,0.03);
+    box-shadow:0 4px 20px rgba(0,0,0,0.03);
 
-    animation:
-        cardEnter .45s cubic-bezier(.22,1,.36,1);
+    animation:cardEnter .45s cubic-bezier(.22,1,.36,1);
 }
 
-/* 帖子顶部 */
 .post-header{
     display:flex;
-
     gap:14px;
-
     margin-bottom:18px;
 }
 
-/* 帖子头像 */
 .post-avatar{
     width:64px;
     height:64px;
 
     border-radius:50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ffb68f,
-            #ff8b6a
-        );
-
+    background:linear-gradient(135deg,#ffb68f,#ff8b6a);
     color:white;
-
-    font-size:28px;
-    font-weight:bold;
 
     display:flex;
     align-items:center;
     justify-content:center;
 
-    flex-shrink:0;
+    font-size:28px;
+    font-weight:bold;
 }
 
-/* 作者 */
 .author-name{
     font-size:20px;
     font-weight:bold;
 }
 
-/* 时间 */
 .post-time{
     color:#aaa;
-
     margin-top:6px;
-
     font-size:14px;
 }
 
-/* 内容 */
 .post-content{
     font-size:18px;
-
     line-height:1.7;
-
     white-space:pre-wrap;
-
-    word-break:break-word;
 }
 
-/* 图片 */
 .post-image{
     width:100%;
-
     border-radius:24px;
-
     margin-top:16px;
-
-    display:block;
 }
 
-/* 底部统计 */
 .post-stats{
     border-top:1px solid #eee;
-
     padding-top:14px;
-
     margin-top:18px;
 
     display:flex;
-
     gap:28px;
 }
 
-/* 按钮 */
 .stat-btn{
     display:flex;
     align-items:center;
-
     gap:6px;
 
     color:#777;
-
     cursor:pointer;
-
     transition:0.2s;
 }
 
@@ -280,14 +222,128 @@
     transform:scale(1.04);
 }
 
-/* icon */
 .stat-btn svg{
     width:22px;
     height:22px;
 }
 
 /* =========================
-   移动端
+   COMMENT SYSTEM（升级版）
+========================= */
+
+.comment{
+    display:flex;
+    gap:10px;
+    padding:12px;
+    align-items:flex-start;
+}
+
+/* ⭐ 头像压层（你刚要的效果） */
+.comment .avatar{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    object-fit:cover;
+
+    border:2px solid #fff;
+    position:relative;
+    z-index:2;
+}
+
+.comment-main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+
+    margin-left:-6px;
+}
+
+.comment-content{
+    font-size:14px;
+    line-height:1.4;
+    color:#222;
+}
+
+/* =========================
+   RIGHT ACTIONS
+========================= */
+
+.comment-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-left:auto;
+}
+
+/* 统一按钮 */
+.action-btn{
+    background:none;
+    border:none;
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    gap:4px;
+
+    color:#888;
+    transition:all .2s ease;
+}
+
+/* =========================
+   LIKE SVG STATE
+========================= */
+
+.like-btn.active{
+    color:#ff4d4f;
+    transform:scale(1.15);
+}
+
+.like-btn svg{
+    transition:transform .2s ease;
+}
+
+.like-btn svg.pop{
+    transform:scale(1.3);
+}
+
+/* ripple */
+.like-btn{
+    position:relative;
+}
+
+.like-btn.ripple::after{
+    content:"";
+    position:absolute;
+    inset:-6px;
+    border-radius:50%;
+    border:2px solid #ff4d4f;
+
+    animation:ripple .5s ease-out;
+    opacity:0;
+}
+
+@keyframes ripple{
+    0%{transform:scale(0.6);opacity:0.8;}
+    100%{transform:scale(1.8);opacity:0;}
+}
+
+/* =========================
+   PC REPLY ONLY
+========================= */
+
+.reply-btn{
+    display:none;
+}
+
+@media (min-width:768px){
+    .reply-btn{
+        display:block;
+    }
+}
+
+/* =========================
+   MOBILE
 ========================= */
 
 @media (max-width:768px){
@@ -305,16 +361,13 @@
     .logo{
         width:44px;
         height:44px;
-
         font-size:24px;
-
         border-radius:14px;
     }
 
     .user-avatar{
         width:44px;
         height:44px;
-
         font-size:22px;
     }
 
@@ -327,11 +380,6 @@
         border-radius:22px;
     }
 
-    .hot-item{
-        padding:14px 16px;
-        font-size:16px;
-    }
-
     .post-card{
         padding:16px;
         border-radius:22px;
@@ -340,7 +388,6 @@
     .post-avatar{
         width:52px;
         height:52px;
-
         font-size:22px;
     }
 
@@ -351,73 +398,19 @@
     .post-content{
         font-size:16px;
     }
-
 }
 
 /* =========================
-   CARD ENTER
+   ANIMATION
 ========================= */
 
 @keyframes cardEnter{
-
     from{
         opacity:0;
         transform:translateY(20px) scale(.98);
     }
-
     to{
         opacity:1;
         transform:translateY(0) scale(1);
     }
-}
-
-/* =========================
-   COMMENT RIGHT ACTIONS
-========================= */
-
-.comment-right{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-/* 回复按钮（默认隐藏） */
-.reply-btn{
-  display:none;
-  background:none;
-  border:none;
-  cursor:pointer;
-
-  font-size:14px;
-  color:#888;
-
-  transition:transform .15s ease;
-}
-
-.reply-btn:active{
-  transform:scale(0.9);
-}
-
-/* 点赞 */
-.like-btn{
-  background:none;
-  border:none;
-  cursor:pointer;
-
-  display:flex;
-  align-items:center;
-  gap:4px;
-
-  color:#888;
-  font-size:13px;
-}
-
-/* =========================
-   PC端才显示回复按钮
-========================= */
-
-@media (min-width: 768px){
-  .reply-btn{
-    display:block;
-  }
 }
