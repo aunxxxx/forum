@@ -101,9 +101,17 @@
     font-weight: 700;
 }
 
-/* ❌ 默认隐藏关闭按钮 */
-.drawer-close {
-    display: none !important;
+/* 关闭按钮 */
+@media (max-width: 768px) {
+    .drawer-close {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .drawer-close {
+        display: flex !important;
+    }
 }
 
 /* =========================
@@ -212,17 +220,8 @@
     }
 
     .drawer {
-        touch-action: none;
-    }
-
-    /* ❌ 手机端禁止背景点击 */
-    .drawer-overlay {
-        pointer-events: none;
-    }
-
-    .drawer-overlay.is-open {
-        pointer-events: none;
-    }
+    touch-action: pan-y;
+   }
 }
 
 /* =========================
