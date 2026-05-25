@@ -58,7 +58,7 @@ function initApp() {
 
 function bindEvents() {
 
-    // ⭐ 防止重复绑定
+    // 防重复绑定
     if (window.__FORUM_EVENTS_BOUND__) return;
     window.__FORUM_EVENTS_BOUND__ = true;
 
@@ -73,7 +73,7 @@ function bindEvents() {
         const countEl = e.target.closest(".like-count");
 
         /* =========================
-           点数字 → drawer
+           点数字 → 打开 drawer
         ========================= */
         if (countEl) {
             openLikeDrawer(id);
@@ -81,20 +81,27 @@ function bindEvents() {
         }
 
         /* =========================
-           like toggle
+           点 like → toggle
         ========================= */
 
+        // 防抖锁
         if (likeBtn.dataset.locked === "1") return;
         likeBtn.dataset.locked = "1";
 
         const state = toggleLike(id);
-        syncLikeUI(id);
+
+        /* =========================
+           ⭐ 关键升级：局部更新数据 + UI
+        ========================= */
+
+        syncLikeUI(id);        // 如果你还有全局同步（保留）
+        updatePostUI?.(id);    // ⭐ 新增：局部更新（不会报错）
 
         animateLike(likeBtn, state.liked);
 
         setTimeout(() => {
             likeBtn.dataset.locked = "";
-        }, 250);
+        }, 200);
     });
 }
 
