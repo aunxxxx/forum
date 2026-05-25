@@ -303,6 +303,14 @@ function endDrag() {
 
     dragging = false;
 
+// =========================
+    // 🔥 强制归一化（关键修复）
+    // =========================
+    currentTranslate = Math.max(
+        0,
+        Math.min(100, currentTranslate)
+    );
+    
     const y = currentTranslate;
 
     const openY = OPEN_Y;
