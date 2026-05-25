@@ -10,98 +10,53 @@ function isMobile() {
 
 function createDrawerInstance(overlay, drawer, triggerSelector) {
 
-    if (!overlay || !drawer) {
-        console.warn("Drawer init failed:", overlay, drawer);
-        return;
-    }
+    if (!overlay || !drawer) return;
 
     const app = document.querySelector(".app");
 
     // =========================
-    // SINGLE SOURCE OF TRUTH
+    // STATE
     // =========================
-    const model = {
-        mode: STATE.CLOSED,
-        y: 0
-    };
+    let state = STATE.CLOSED;
+    let currentY = 0;
 
-    let dragging = false;
     let startY = 0;
-    let startYValue = 0;
+    let startYPos = 0;
+    let dragging = false;
+
     let scrollY = 0;
 
     // =========================
-    // HEIGHT SYSTEM
+    // SAFE HEIGHT SYSTEM
     // =========================
-    function H() {
-        return Math.min(window.innerHeight * 0.85, 720);
+    function getH() {
+        return window.innerHeight;
     }
 
-    function Y_OPEN() {
+    function getPeekY() {
+        return getH() * 0.65;
+    }
+
+    function getClosedY() {
+        return getH(); // 关键：必须和视觉一致
+    }
+
+    function getOpenY() {
         return 0;
     }
 
-    function Y_PEEK() {
-        return H() * 0.65;
-    }
-
-    function Y_CLOSED() {
-        return H();
-    }
-
-    function getTargetY(mode) {
-        if (mode === STATE.OPEN) return Y_OPEN();
-        if (mode === STATE.PEEK) return Y_PEEK();
-        return Y_CLOSED();
+    function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
     }
 
     // =========================
-    // RENDER (ONLY ONE ENTRY)
+    // SCROLL LOCK
     // =========================
-    function render(animate = false) {
-
-        const y = model.y;
-
-        drawer.style.transition = animate
-            ? "transform .35s cubic-bezier(.22,1,.36,1)"
-            : "none";
-
-        drawer.style.transform = `translateY(${y}px)`;
-
-        // blur
-        const p = Math.max(0, Math.min(1, 1 - y / Y_PEEK()));
-        if (app) {
-            app.style.transition = animate ? "filter .25s ease" : "none";
-            app.style.filter = p > 0 ? `blur(${p * 6}px)` : "none";
-        }
-
-        const open = model.mode !== STATE.CLOSED;
-
-        overlay.classList.toggle("is-open", open);
-        document.body.classList.toggle("drawer-open", open);
-
-        lockScroll(open);
-    }
-
-    // =========================
-    // STATE SETTER (ONLY ENTRY)
-    // =========================
-    function setState(nextMode, animate = true) {
-
-        if (model.mode === nextMode) return;
-
-        model.mode = nextMode;
-        model.y = getTargetY(nextMode);
-
-        render(animate);
-    }
-
     function lockScroll(lock) {
         const body = document.body;
 
         if (lock) {
             scrollY = window.scrollY || 0;
-
             body.style.position = "fixed";
             body.style.top = `-${scrollY}px`;
             body.style.left = "0";
@@ -113,17 +68,66 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
             body.style.left = "";
             body.style.right = "";
             body.style.width = "";
-
             window.scrollTo(0, scrollY);
         }
     }
 
     // =========================
+    // BLUR
+    // =========================
+    function setBlur(v, animate = false) {
+        if (!app) return;
+        app.style.transition = animate ? "filter .25s ease" : "none";
+        app.style.filter = v > 0 ? `blur(${v}px)` : "none";
+    }
+
+    // =========================
+    // RENDER
+    // =========================
+    function render(animate = false) {
+
+        const y = currentY;
+
+        drawer.style.transition = animate
+            ? "transform .35s cubic-bezier(.22,1,.36,1)"
+            : "none";
+
+        drawer.style.transform = `translateY(${y}px)`;
+
+        const peek = getPeekY();
+        const progress = 1 - clamp(y / peek, 0, 1);
+
+        setBlur(progress * 6, animate);
+
+        const open = state !== STATE.CLOSED;
+
+        overlay.classList.toggle("is-open", open);
+        document.body.classList.toggle("drawer-open", open);
+
+        lockScroll(open);
+    }
+
+    // =========================
+    // APPLY STATE
+    // =========================
+    function apply(next, animate = true) {
+        if (state === next) return;
+
+        state = next;
+
+        if (state === STATE.OPEN) currentY = getOpenY();
+        else if (state === STATE.PEEK) currentY = getPeekY();
+        else currentY = getClosedY();
+
+        render(animate);
+    }
+
+    // =========================
     // ACTIONS
     // =========================
-    const open = () => setState(STATE.OPEN);
-    const close = () => setState(STATE.CLOSED);
-    const peek = () => setState(STATE.PEEK);
+    const open = () => apply(STATE.OPEN);
+    const close = () => apply(STATE.CLOSED);
+    const peek = () => apply(STATE.PEEK);
 
     // =========================
     // TRIGGER
@@ -133,24 +137,18 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         const t = e.target.closest(triggerSelector);
         if (!t) return;
 
-        e.preventDefault();
+        console.log("CLICK TRIGGERED");
 
         if (!isMobile()) {
-            setState(
-                model.mode === STATE.OPEN ? STATE.CLOSED : STATE.OPEN
-            );
+            apply(state === STATE.OPEN ? STATE.CLOSED : STATE.OPEN);
             return;
         }
 
-        if (model.mode === STATE.CLOSED) {
-            setState(STATE.PEEK);
-        } else {
-            setState(STATE.CLOSED);
-        }
+        apply(state === STATE.CLOSED ? STATE.PEEK : STATE.CLOSED);
     });
 
     // =========================
-    // OVERLAY CLOSE
+    // OVERLAY
     // =========================
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay) close();
@@ -160,7 +158,7 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     if (closeBtn) closeBtn.addEventListener("click", close);
 
     // =========================
-    // DRAG (MOBILE ONLY)
+    // DRAG
     // =========================
     drawer.addEventListener("touchstart", (e) => {
 
@@ -169,7 +167,7 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         dragging = true;
 
         startY = e.touches[0].clientY;
-        startYValue = model.y;
+        startYPos = currentY;
 
         drawer.style.transition = "none";
         if (app) app.style.transition = "none";
@@ -180,23 +178,20 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         if (!dragging) return;
 
-        e.preventDefault();
-
         const delta = e.touches[0].clientY - startY;
 
-        let nextY = startYValue + delta;
+        let nextY = startYPos + delta;
 
-        nextY = Math.max(0, Math.min(Y_CLOSED(), nextY));
+        nextY = clamp(nextY, 0, getClosedY());
 
-        model.y = nextY;
+        currentY = nextY;
 
         drawer.style.transform = `translateY(${nextY}px)`;
 
-        const p = Math.max(0, Math.min(1, 1 - nextY / Y_PEEK()));
+        const peek = getPeekY();
+        const p = 1 - clamp(nextY / peek, 0, 1);
 
-        if (app) {
-            app.style.filter = `blur(${p * 6}px)`;
-        }
+        setBlur(p * 6, false);
 
     }, { passive: false });
 
@@ -205,18 +200,16 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         if (!dragging) return;
         dragging = false;
 
-        const y = model.y;
+        const y = currentY;
+        const peek = getPeekY();
+        const closed = getClosedY();
 
-        const openThreshold = Y_PEEK() * 0.25;
-        const closeThreshold = Y_PEEK() + (Y_CLOSED() - Y_PEEK()) * 0.5;
+        const openThreshold = peek * 0.3;
+        const closeThreshold = peek + (closed - peek) * 0.5;
 
-        if (y <= openThreshold) {
-            setState(STATE.OPEN);
-        } else if (y >= closeThreshold) {
-            setState(STATE.CLOSED);
-        } else {
-            setState(STATE.PEEK);
-        }
+        if (y <= openThreshold) apply(STATE.OPEN);
+        else if (y >= closeThreshold) apply(STATE.CLOSED);
+        else apply(STATE.PEEK);
     }
 
     drawer.addEventListener("touchend", endDrag);
@@ -226,22 +219,16 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     // RESIZE
     // =========================
     window.addEventListener("resize", () => {
-
-        model.y = getTargetY(model.mode);
-
-        render(false);
+        apply(state, false);
     });
 
     // =========================
     // INIT
     // =========================
-    model.y = Y_CLOSED();
+    currentY = getClosedY();
     render(false);
 }
 
-// =========================
-// EXPORT
-// =========================
 export function initDrawer() {
 
     createDrawerInstance(
@@ -252,7 +239,6 @@ export function initDrawer() {
 
     createDrawerInstance(
         document.getElementById("likeOverlay"),
-        document.getElementById("likeDrawer"),
-        ".like-count-trigger"
+        document.getElementById("like-count-trigger")
     );
 }
