@@ -1,20 +1,37 @@
-function createDrawer(overlay, drawer) {
+const config = {
+    OPEN_UP: -160,
+    CLOSE_DOWN: 160,
+    PEEK: 60,
+    VELOCITY_CLOSE: 0.65,
+    VELOCITY_OPEN: -0.6
+};
 
-    const STATE = {
-        CLOSED: "closed",
-        PEEK: "peek",
-        OPEN: "open"
-    };
+/* =========================
+   ENTRY
+========================= */
 
-    const config = {
-        OPEN_UP: -160,
-        PEEK: 60,
-        CLOSE_DOWN: 160,
-        VELOCITY_CLOSE: 0.65,
-        VELOCITY_OPEN: -0.6
-    };
+export function initDrawer() {
 
-    let state = STATE.CLOSED;
+    createDrawer(
+        document.getElementById("commentOverlay"),
+        document.getElementById("commentDrawer"),
+        ".comment-btn"
+    );
+
+    createDrawer(
+        document.getElementById("likeOverlay"),
+        document.getElementById("likeDrawer"),
+        ".like-count-trigger"
+    );
+}
+
+/* =========================
+   CORE FACTORY
+========================= */
+
+function createDrawer(overlay, drawer, triggerSelector) {
+
+    if (!overlay || !drawer) return;
 
     let startY = 0;
     let diff = 0;
@@ -22,51 +39,63 @@ function createDrawer(overlay, drawer) {
     let lastT = 0;
     let velocity = 0;
 
-    /* =========================
-       SET STATE
-    ========================= */
+    let state = "CLOSED";
 
-    function setState(next) {
+    function setState(s) {
 
-        if (state === next) return;
+        state = s;
 
-        state = next;
-
-        overlay.classList.toggle("active", state !== STATE.CLOSED);
-        document.body.classList.toggle("drawer-open", state !== STATE.CLOSED);
+        overlay.classList.toggle("active", s !== "CLOSED");
+        document.body.classList.toggle("drawer-open", s !== "CLOSED");
 
         drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
 
-        if (state === STATE.CLOSED) {
+        if (s === "CLOSED") {
             drawer.style.transform = "translateY(100%)";
         }
 
-        if (state === STATE.PEEK) {
+        if (s === "PEEK") {
             drawer.style.transform = `translateY(${config.PEEK}px)`;
         }
 
-        if (state === STATE.OPEN) {
+        if (s === "OPEN") {
             drawer.style.transform = "translateY(0)";
         }
     }
 
     /* =========================
-       CLOSE EVENTS
+       OPEN
+    ========================= */
+
+    document.addEventListener("click", (e) => {
+        if (e.target.closest(triggerSelector)) {
+            setState("OPEN");
+        }
+    });
+
+    /* =========================
+       CLOSE
     ========================= */
 
     overlay.addEventListener("click", (e) => {
-        if (e.target !== overlay) return;
-        setState(STATE.CLOSED);
+        if (e.target === overlay) {
+            setState("CLOSED");
+        }
     });
 
     const closeBtn = drawer.querySelector(".drawer-close");
     if (closeBtn) {
-        closeBtn.addEventListener("click", () => setState(STATE.CLOSED));
+        closeBtn.addEventListener("click", () => setState("CLOSED"));
     }
 
     /* =========================
-       DRAG
+       DRAG（mobile only）
     ========================= */
+
+    if (window.innerWidth >= 769) {
+        setState("CLOSED");
+        return;
+    }
 
     drawer.addEventListener("touchstart", (e) => {
 
@@ -98,14 +127,12 @@ function createDrawer(overlay, drawer) {
 
         diff = y - startY;
 
-        // 上限限制（无跳跃版）
-        if (diff < config.OPEN_UP) {
-            diff = config.OPEN_UP;
-        }
+        if (diff < config.OPEN_UP) diff = config.OPEN_UP;
 
-        let moveY = diff > 0 ? diff * 0.4 : diff;
+        let move = diff > 0 ? diff * 0.4 : diff;
 
-        drawer.style.transform = `translateY(${moveY}px)`;
+        drawer.style.transform = `translateY(${move}px)`;
+
     }, { passive: false });
 
     drawer.addEventListener("touchend", () => {
@@ -118,17 +145,11 @@ function createDrawer(overlay, drawer) {
         const shouldOpen =
             diff < -80 || velocity < config.VELOCITY_OPEN;
 
-        if (shouldClose) return setState(STATE.CLOSED);
-        if (shouldOpen) return setState(STATE.OPEN);
+        if (shouldClose) return setState("CLOSED");
+        if (shouldOpen) return setState("OPEN");
 
-        setState(STATE.PEEK);
+        setState("PEEK");
     });
 
-    /* =========================
-       INIT
-    ========================= */
-
-    setState(STATE.CLOSED);
-
-    return { setState };
+    setState("CLOSED");
 }
