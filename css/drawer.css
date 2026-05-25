@@ -1,90 +1,126 @@
-html, body {
-    height: 100%;
-}
-
-body.drawer-open {
-    overflow: hidden;
-    height: 100%;
-}
-
 /* =========================
-   APP（背景层）
-========================= */
-
-.app {
-    background: #fff;
-    min-height: 100vh;
-
-    transition: transform .28s cubic-bezier(.22,1,.36,1),
-                filter .25s ease;
-
-    will-change: transform, filter;
-}
-
-/* =========================
-   背景缩放（仅 mobile）
-========================= */
-
-@media (max-width: 768px) {
-    body.drawer-open .app {
-        transform: scale(0.965) translateY(6px);
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.18);
-    }
-}
-
-/* =========================
-   OVERLAY（核心遮罩层）
+   OVERLAY
 ========================= */
 
 .drawer-overlay {
     position: fixed;
     inset: 0;
-    z-index: 3000;
 
-    background: rgba(0,0,0,0);
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(2px);
 
     opacity: 0;
-
-    /* 关键：避免点击穿透 */
+    visibility: hidden;
     pointer-events: none;
 
-    transition: opacity .25s ease, background .25s ease;
+    transition: opacity .25s ease;
+
+    z-index: 999;
 }
 
-/* 打开状态 */
 .drawer-overlay.is-open {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
-
-    background: rgba(0,0,0,0.35);
 }
 
 /* =========================
-   DRAWER（核心容器）
+   DRAWER BASE
 ========================= */
 
 .drawer {
     position: fixed;
+
     left: 0;
     right: 0;
     bottom: 0;
 
     width: 100%;
-    max-height: 85vh;
+    height: 85vh;
 
     background: #fff;
 
-    border-radius: 22px 22px 0 0;
+    border-radius: 24px 24px 0 0;
+
+    transform: translateY(100%);
+
+    will-change: transform;
+
+    overflow: hidden;
 
     display: flex;
     flex-direction: column;
 
-    overflow: hidden;
+    z-index: 1000;
+}
 
-    /* 关键：只允许 JS 控制 transform */
-    will-change: transform;
+/* =========================
+   HANDLE
+========================= */
+
+.drawer-handle-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 10px 0 4px;
+
+    flex-shrink: 0;
+}
+
+.drawer-handle {
+    width: 42px;
+    height: 5px;
+
+    border-radius: 999px;
+
+    background: #d0d0d0;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.drawer-header {
+    height: 56px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 18px;
+
+    border-bottom: 1px solid #f1f1f1;
+
+    flex-shrink: 0;
+}
+
+.drawer-title {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.drawer-close {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f5f5f5;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    transition: background .2s ease;
+}
+
+.drawer-close:hover {
+    background: #ebebeb;
 }
 
 /* =========================
@@ -93,95 +129,136 @@ body.drawer-open {
 
 .drawer-content {
     flex: 1;
+
     overflow-y: auto;
+    overflow-x: hidden;
+
     -webkit-overflow-scrolling: touch;
-    padding: 16px;
+
+    padding: 14px 16px 28px;
 }
 
 /* =========================
-   HANDLE（移动端）
+   COMMENT ITEM
 ========================= */
 
-.drawer-handle-wrap {
-    padding: 10px 0;
+.comment-item,
+.like-item {
     display: flex;
-    justify-content: center;
-}
-
-.drawer-handle {
-    width: 45px;
-    height: 5px;
-    border-radius: 999px;
-    background: rgba(0,0,0,0.15);
-}
-
-/* =========================
-   HEADER（默认隐藏）
-========================= */
-
-.drawer-header {
-    display: none;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 16px;
-    border-bottom: 1px solid #eee;
+
+    gap: 12px;
+
+    padding: 14px 0;
+
+    border-bottom: 1px solid #f3f3f3;
 }
 
-.drawer-close {
+.comment-avatar,
+.like-avatar {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+
+    background: #111;
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 700;
+
+    flex-shrink: 0;
+}
+
+.comment-main {
+    flex: 1;
+}
+
+.comment-name,
+.like-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.comment-text,
+.like-title {
+    margin-top: 4px;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #666;
+}
+
+.like-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.like-count {
+    font-size: 14px;
+    font-weight: 700;
+
     cursor: pointer;
 }
 
 /* =========================
-   PC MODE
+   APP EFFECT
 ========================= */
 
-@media (min-width: 769px) {
-    .drawer-overlay {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .drawer {
-        position: relative;
-        width: 550px;
-        max-height: 75vh;
-
-        border-radius: 18px;
-    }
-
-    .drawer-header {
-        display: flex;
-    }
-
-    .drawer-handle-wrap {
-        display: none;
-    }
+.app {
+    transition:
+        transform .25s ease,
+        filter .25s ease;
 }
 
 /* =========================
-   MOBILE MODE
+   MOBILE ONLY EFFECT
 ========================= */
 
 @media (max-width: 768px) {
+
+    body.drawer-open .app {
+        transform: scale(.965);
+        filter: blur(2px);
+    }
+
     .drawer {
         touch-action: none;
-    }
-
-    .drawer-header {
-        display: none;
-    }
-
-    .drawer-handle-wrap {
-        display: flex;
     }
 }
 
 /* =========================
-   SAFE AREA（iOS）
+   PC
 ========================= */
 
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .drawer-content {
-        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+@media (min-width: 769px) {
+
+    body.drawer-open .app {
+        transform: none !important;
+        filter: none !important;
+    }
+
+    .drawer {
+        width: 420px;
+
+        left: 50%;
+        right: auto;
+
+        transform: translateX(-50%) translateY(100%);
+
+        border-radius: 28px 28px 0 0;
+
+        box-shadow:
+            0 10px 40px rgba(0,0,0,.18);
+    }
+
+    .drawer-overlay {
+        backdrop-filter: blur(4px);
     }
 }
