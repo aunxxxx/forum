@@ -1,20 +1,10 @@
-import { posts } from "./data.js";
-import { renderPosts } from "./postCard.js";
-import { initEditor } from "./editor.js";
-import { initUpload } from "./upload.js";
-import { initFAB } from "./fab.js";
-import { initDrawer } from "./drawer.js";
 import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
 
-/* =========================
-   DOM
-========================= */
-
 const postsContainer = document.getElementById("postsList");
-const previewImage = document.getElementById("previewImage");
+const overlay = document.getElementById("likeOverlay");
 
 /* =========================
-   INIT APP
+   INIT
 ========================= */
 
 function initApp() {
@@ -24,41 +14,16 @@ function initApp() {
         return;
     }
 
-    /* =========================
-       1. render posts
-    ========================= */
-    renderPosts(postsContainer);
-
-    /* =========================
-       2. editor / upload
-    ========================= */
-    const getImage = initUpload(previewImage);
-    initEditor(postsContainer, getImage);
-
-    /* =========================
-       3. FAB
-    ========================= */
-    initFAB();
-
-    /* =========================
-       4. drawer + engine
-    ========================= */
-    requestAnimationFrame(() => {
-        initDrawer();
-        initLikeEngine();
-        bindInteractionEvents();
-    });
+    initLikeEngine();
+    bindEvents();
+    bindDrawerEvents();
 }
 
 /* =========================
-   INTERACTION SYSTEM
+   EVENTS
 ========================= */
 
-function bindInteractionEvents() {
-
-    /* =========================
-       GLOBAL DELEGATION（关键）
-    ========================= */
+function bindEvents() {
 
     document.addEventListener("click", (e) => {
 
@@ -68,24 +33,31 @@ function bindInteractionEvents() {
         const id = likeBtn.dataset.likeId;
         if (!id) return;
 
-        const isCount = e.target.classList.contains("like-count");
+        const countEl = e.target.closest(".like-count");
 
         /* =========================
-           数字 → 打开 drawer
+           点数字 → 打开 drawer
         ========================= */
-        if (isCount) {
-            openLikeDrawer(likeBtn);
+        if (countEl) {
+            openLikeDrawer(id);
             return;
         }
 
         /* =========================
-           SVG / 按钮 → 点赞
+           点按钮 → like / unlike
         ========================= */
-        const state = toggleLike(id);
 
+        if (likeBtn.dataset.locked === "1") return;
+        likeBtn.dataset.locked = "1";
+
+        const state = toggleLike(id);
         syncLikeUI(id);
 
-        triggerLikeAnimation(likeBtn, state.liked);
+        animateLike(likeBtn, state.liked);
+
+        setTimeout(() => {
+            likeBtn.dataset.locked = "";
+        }, 250);
     });
 }
 
@@ -93,54 +65,63 @@ function bindInteractionEvents() {
    LIKE ANIMATION
 ========================= */
 
-function triggerLikeAnimation(btn, liked) {
+function animateLike(btn, liked) {
 
-    const svg = btn.querySelector("svg");
-    const count = btn.querySelector(".like-count");
+    const icon =
+        btn.querySelector(".like-icon") ||
+        btn.querySelector("svg");
 
+    btn.classList.toggle("active", liked);
     btn.classList.add("ripple");
 
-    if (liked) {
-        btn.classList.add("active");
-    } else {
-        btn.classList.remove("active");
+    if (icon) {
+        icon.classList.remove("pop");
+        void icon.offsetWidth;
+        icon.classList.add("pop");
     }
-
-    void btn.offsetWidth;
 
     setTimeout(() => {
         btn.classList.remove("ripple");
-    }, 500);
-
-    if (svg) {
-        svg.classList.add("pop");
-
-        setTimeout(() => {
-            svg.classList.remove("pop");
-        }, 200);
-    }
-
-    if (count && liked) {
-        // 只在 like 时视觉增强（避免重复 + UI漂移）
-        count.style.transform = "scale(1.1)";
-        setTimeout(() => {
-            count.style.transform = "scale(1)";
-        }, 150);
-    }
+    }, 300);
 }
 
 /* =========================
    DRAWER
 ========================= */
 
-function openLikeDrawer(btn) {
+function openLikeDrawer(id) {
 
-    const overlay = document.getElementById("likeOverlay");
     if (!overlay) return;
 
     overlay.classList.add("active");
+    document.body.classList.add("drawer-open");
 
-    // 未来扩展：根据 btn.dataset.likeId 拉用户列表
+    // TODO: 未来可根据 id 拉取点赞用户列表
+}
+
+function closeLikeDrawer() {
+
+    if (!overlay) return;
+
+    overlay.classList.remove("active");
+    document.body.classList.remove("drawer-open");
+}
+
+/* =========================
+   DRAWER EVENTS
+========================= */
+
+function bindDrawerEvents() {
+
+    if (!overlay) return;
+
+    overlay.addEventListener("click", closeLikeDrawer);
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeLikeDrawer();
+        }
+    });
 }
 
 /* =========================
@@ -149,14 +130,14 @@ function openLikeDrawer(btn) {
 
 function start() {
 
-    if (window.__APP_INIT__) return;
-    window.__APP_INIT__ = true;
+    if (window.__FORUM_INIT__) return;
+    window.__FORUM_INIT__ = true;
 
     initApp();
 }
 
 /* =========================
-   DOM READY
+   BOOT
 ========================= */
 
 if (document.readyState === "loading") {
