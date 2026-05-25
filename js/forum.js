@@ -4,7 +4,7 @@ import { initEditor } from "./editor.js";
 import { initUpload } from "./upload.js";
 import { initFAB } from "./fab.js";
 import { initDrawer } from "./drawer.js";
-import { initUserUI } from "./userUI.js";
+import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
 
 /* =========================
    DOM
@@ -25,35 +25,28 @@ function initApp() {
     }
 
     /* =========================
-       1. 渲染帖子
+       1. render posts
     ========================= */
     renderPosts(postsContainer);
 
-    /* ⭐ UI系统（头像 + badge统一）
-       必须在 renderPosts 之后 */
-    initUserUI();
-
     /* =========================
-       2. 上传系统
+       2. editor / upload
     ========================= */
     const getImage = initUpload(previewImage);
-
-    /* =========================
-       3. 编辑器
-    ========================= */
     initEditor(postsContainer, getImage);
 
     /* =========================
-       4. FAB
+       3. FAB
     ========================= */
     initFAB();
 
     /* =========================
-       5. Drawer
+       4. drawer + engine
     ========================= */
     requestAnimationFrame(() => {
         initDrawer();
-        bindInteractionEvents(); // ⭐新增（点赞/评论统一入口）
+        initLikeEngine();
+        bindInteractionEvents();
     });
 }
 
@@ -64,53 +57,35 @@ function initApp() {
 function bindInteractionEvents() {
 
     /* =========================
-       LIKE SYSTEM
+       GLOBAL DELEGATION（关键）
     ========================= */
 
-    document.querySelectorAll(".like-btn").forEach(btn => {
+    document.addEventListener("click", (e) => {
 
-        const svg = btn.querySelector("svg");
-        const count = btn.querySelector(".like-count");
+        const likeBtn = e.target.closest(".like-btn");
+        if (!likeBtn) return;
 
-        // ⭐ SVG：只做动画（不打开drawer）
-        if (svg) {
-            svg.addEventListener("click", (e) => {
-                e.stopPropagation();
-                triggerLikeAnimation(btn);
-            });
+        const id = likeBtn.dataset.likeId;
+        if (!id) return;
+
+        const isCount = e.target.classList.contains("like-count");
+
+        /* =========================
+           数字 → 打开 drawer
+        ========================= */
+        if (isCount) {
+            openLikeDrawer(likeBtn);
+            return;
         }
 
-        // ⭐ 数字：打开点赞drawer
-        if (count) {
-            count.addEventListener("click", (e) => {
-                e.stopPropagation();
-                openLikeDrawer(btn);
-            });
-        }
-    });
+        /* =========================
+           SVG / 按钮 → 点赞
+        ========================= */
+        const state = toggleLike(id);
 
-    /* =========================
-       COMMENT LIKE SYSTEM
-    ========================= */
+        syncLikeUI(id);
 
-    document.querySelectorAll(".comment .like-btn").forEach(btn => {
-
-        const svg = btn.querySelector("svg");
-        const count = btn.querySelector(".like-count");
-
-        if (svg) {
-            svg.addEventListener("click", (e) => {
-                e.stopPropagation();
-                triggerLikeAnimation(btn);
-            });
-        }
-
-        if (count) {
-            count.addEventListener("click", (e) => {
-                e.stopPropagation();
-                openLikeDrawer(btn);
-            });
-        }
+        triggerLikeAnimation(likeBtn, state.liked);
     });
 }
 
@@ -118,13 +93,18 @@ function bindInteractionEvents() {
    LIKE ANIMATION
 ========================= */
 
-function triggerLikeAnimation(btn) {
+function triggerLikeAnimation(btn, liked) {
 
     const svg = btn.querySelector("svg");
     const count = btn.querySelector(".like-count");
 
-    btn.classList.add("active");
     btn.classList.add("ripple");
+
+    if (liked) {
+        btn.classList.add("active");
+    } else {
+        btn.classList.remove("active");
+    }
 
     void btn.offsetWidth;
 
@@ -140,8 +120,12 @@ function triggerLikeAnimation(btn) {
         }, 200);
     }
 
-    if (count) {
-        count.textContent = (parseInt(count.textContent || 0) + 1);
+    if (count && liked) {
+        // 只在 like 时视觉增强（避免重复 + UI漂移）
+        count.style.transform = "scale(1.1)";
+        setTimeout(() => {
+            count.style.transform = "scale(1)";
+        }, 150);
     }
 }
 
@@ -150,10 +134,13 @@ function triggerLikeAnimation(btn) {
 ========================= */
 
 function openLikeDrawer(btn) {
+
     const overlay = document.getElementById("likeOverlay");
     if (!overlay) return;
 
     overlay.classList.add("active");
+
+    // 未来扩展：根据 btn.dataset.likeId 拉用户列表
 }
 
 /* =========================
@@ -161,6 +148,7 @@ function openLikeDrawer(btn) {
 ========================= */
 
 function start() {
+
     if (window.__APP_INIT__) return;
     window.__APP_INIT__ = true;
 
