@@ -1,96 +1,55 @@
-// postCard.js
+export function createPostCard(post, actions = {}) {
 
-import { posts } from "./data.js";
-import { createStatBtn } from "./statBtn.js";
+    const card = document.createElement("div");
+    card.className = "post-card";
+    card.dataset.postId = post.id;
 
-export function renderPosts(container) {
-
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    posts.forEach((post) => {
-
-        const card = document.createElement("div");
-
-        card.className = "post-card";
-
-        /* 顶部 */
-        const header = `
-            <div class="post-header">
-
-                <div class="post-avatar">
-                    ${post.user}
-                </div>
-
-                <div>
-
-                    <div class="author-name">
-                        ${post.name}
-                    </div>
-
-                    <div class="post-time">
-                        ${post.time}
-                    </div>
-
-                </div>
-
+    card.innerHTML = `
+        <div class="post-header">
+            <div class="post-avatar">${post.user}</div>
+            <div>
+                <div class="author-name">${post.name}</div>
+                <div class="post-time">${post.time}</div>
             </div>
-        `;
+        </div>
 
-        /* 内容 */
-        const content = `
-            <div class="post-content">
-                ${post.content}
-            </div>
+        <div class="post-content">${post.content}</div>
 
-            ${
-                post.image
-                ? `<img src="${post.image}" class="post-image" />`
-                : ""
-            }
-        `;
+        ${post.image ? `<img class="post-image" src="${post.image}">` : ""}
+    `;
 
-        /* 底部统计 */
-        const stats = document.createElement("div");
+    const stats = document.createElement("div");
+    stats.className = "post-stats";
 
-        stats.className = "post-stats";
+    // like
+    const likeBtn = document.createElement("button");
+    likeBtn.className = "stat-btn like-btn";
+    likeBtn.dataset.likeId = post.id;
 
-        /* 点赞 */
-        const likeBtn = createStatBtn(
-            "like",
-            post.likes,
-            () => {
+    likeBtn.innerHTML = `
+        <svg class="like-icon" viewBox="0 0 24 24">
+            <path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/>
+        </svg>
+        <span class="like-count">${post.likes}</span>
+    `;
 
-                post.likes++;
-
-                renderPosts(container);
-
-            }
-        );
-
-        /* 评论 */
-        const commentBtn = createStatBtn(
-            "comment",
-            post.comments,
-            () => {
-
-                console.log("打开评论系统");
-
-            }
-        );
-
-        stats.appendChild(likeBtn);
-
-        stats.appendChild(commentBtn);
-
-        /* 合并 */
-        card.innerHTML = header + content;
-
-        card.appendChild(stats);
-
-        container.appendChild(card);
-
+    likeBtn.addEventListener("click", () => {
+        actions.onLike(post.id, likeBtn);
     });
 
+    // comment
+    const commentBtn = document.createElement("button");
+    commentBtn.className = "stat-btn";
+    commentBtn.textContent = `评论 ${post.comments}`;
+
+    commentBtn.addEventListener("click", () => {
+        actions.onComment(post.id);
+    });
+
+    stats.appendChild(likeBtn);
+    stats.appendChild(commentBtn);
+
+    card.appendChild(stats);
+
+    return card;
 }
