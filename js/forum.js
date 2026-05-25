@@ -1,10 +1,36 @@
+import { createPostCard } from "./postCard.js";
 import { posts } from "./data.js";
-import { renderPosts } from "./postCard.js";
 
 import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
 
 const postsContainer = document.getElementById("postsList");
 const overlay = document.getElementById("likeOverlay");
+
+ function renderPosts(container) {
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    posts.forEach(post => {
+
+        const card = createPostCard(post, {
+            onLike: (id, btn) => {
+
+                const state = toggleLike(id);
+                syncLikeUI(id);
+
+                animateLike(btn, state.liked);
+            },
+
+            onComment: (id) => {
+                console.log("comment:", id);
+            }
+        });
+
+        container.appendChild(card);
+    });
+}
 
 /* =========================
    INIT
