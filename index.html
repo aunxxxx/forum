@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+修改：<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forum3.44</title>
+  <title>Forum3.3</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -29,7 +29,10 @@
       <span class="active">铁汁窝</span>
     </nav>
 
-    <img class="avatar" src="https://i.pravatar.cc/40" data-user-id="me">
+    <!-- avatar（未来用户页入口） -->
+    <div class="avatar-wrap">
+      <img class="avatar" src="https://i.pravatar.cc/40" data-user-id="me">
+    </div>
   </header>
 
   <!-- =========================
@@ -44,19 +47,19 @@
       </div>
 
       <div class="hot-list">
-        <div class="hot-item" data-hot-id="hot_1">
+        <div class="hot-item">
           <span>第一位认证用户</span>
           <span>🔥 3</span>
         </div>
 
-        <div class="hot-item" data-hot-id="hot_2">
+        <div class="hot-item">
           <span>契弟广场</span>
           <span>🔥 2</span>
         </div>
       </div>
     </section>
 
-    <!-- POSTS（JS只负责填充） -->
+    <!-- POSTS -->
     <section class="posts-list" id="postsList"></section>
 
   </main>
@@ -99,13 +102,15 @@
 
     <div class="drawer-header">
       <div class="drawer-title">评论</div>
-      <button class="drawer-close">✕</button>
+      <div class="drawer-close">✕</div>
     </div>
 
     <div class="drawer-content">
 
+      <!-- COMMENT ITEM -->
       <div class="comment">
 
+        <!-- PC reply -->
         <div class="comment-left">
           <button class="reply-btn">↩</button>
         </div>
@@ -113,7 +118,9 @@
         <div class="comment-main">
 
           <div class="user-line">
-            <img class="avatar" src="https://i.pravatar.cc/40?img=2" data-user-id="1">
+            <a class="avatar-wrap">
+              <img class="avatar" src="https://i.pravatar.cc/40?img=2" data-user-id="1">
+            </a>
 
             <div class="user-info">
               <span class="badge">VIP</span>
@@ -127,13 +134,12 @@
 
         </div>
 
+        <!-- like（⭐关键：补 data-like-id） -->
         <div class="comment-right">
           <button class="like-btn" data-like-id="comment_demo_1">
-            <span class="like-icon-wrap">
-              <svg class="like-icon" viewBox="0 0 24 24">
-                <path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/>
-              </svg>
-            </span>
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/>
+            </svg>
             <span class="like-count">12</span>
           </button>
         </div>
@@ -157,22 +163,22 @@
 
     <div class="drawer-header">
       <div class="drawer-title">点赞</div>
-      <button class="drawer-close">✕</button>
+      <div class="drawer-close">✕</div>
     </div>
 
     <div class="drawer-content">
 
-      <div class="like-item" data-user-id="3">
+      <div class="like-item">
 
         <div class="like-left">
-
-          <img class="avatar" src="https://i.pravatar.cc/40?img=3">
+          <a class="avatar-wrap">
+            <img class="avatar" src="https://i.pravatar.cc/40?img=3" data-user-id="3">
+          </a>
 
           <div class="user-info">
             <span class="badge">创始</span>
             <span class="username">马睿婕</span>
           </div>
-
         </div>
 
         <div class="like-right">×18</div>
