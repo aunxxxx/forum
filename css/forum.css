@@ -414,3 +414,85 @@
         transform:translateY(0) scale(1);
     }
 }
+
+
+
+
+
+
+.icon{
+  width:20px;
+  height:20px;
+  flex-shrink:0;
+}
+
+.name-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.badge{
+
+  height:20px;
+
+  padding:0 8px;
+
+  border-radius:999px;
+
+  border:1px solid rgba(0,0,0,.08);
+
+  background:rgba(255,255,255,.75);
+
+  backdrop-filter:blur(12px);
+
+  display:flex;
+  align-items:center;
+
+  font-size:11px;
+  font-weight:600;
+
+  color:#666;
+
+  flex-shrink:0;
+}
+
+.badge.founder{
+  border-color:rgba(255,186,0,.25);
+  color:#c48a00;
+  background:rgba(255,215,0,.08);
+}
+
+.badge.vip{
+  border-color:rgba(255,120,80,.2);
+  color:#ff7a59;
+}
+
+.avatar-link{
+  text-decoration:none;
+  color:inherit;
+}
+
+.like-btn.active{
+  color:#ff5a5f;
+}
+
+.like-icon.pop{
+  animation:likePop .22s ease;
+}
+
+@keyframes likePop{
+
+  0%{
+    transform:scale(1);
+  }
+
+  50%{
+    transform:scale(1.16);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+
+}
