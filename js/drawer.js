@@ -227,7 +227,22 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     // ❌ 所有端禁止点击背景关闭
     e.stopPropagation();
 });
+    
+    // =========================
+// CLOSE BUTTON
+// =========================
+const closeBtn = drawer.querySelector(".drawer-close");
 
+if (closeBtn) {
+
+    closeBtn.addEventListener("click", (e) => {
+
+        e.stopPropagation();
+
+        close();
+    });
+}
+    
     // =========================
     // MOBILE DRAG
     // =========================
