@@ -1,9 +1,3 @@
-const STATE = {
-    CLOSED: 1,
-    PEEK: 0.6,
-    OPEN: 0
-};
-
 export function initDrawer() {
 
     bindDrawer(
@@ -19,35 +13,72 @@ export function initDrawer() {
     );
 }
 
+/* =========================
+   CORE
+========================= */
+
 function bindDrawer(overlay, drawer, triggerSelector) {
 
     if (!overlay || !drawer) return;
 
-    let progress = 1; // 1=closed, 0=open
+    const app = document.querySelector(".app");
+
+    let state = "CLOSED";
+
+    const CLOSED = 100;
+    const OPEN = 0;
+
     let startY = 0;
-    let startProgress = 1;
-    let dragging = false;
+    let startTranslate = 100;
+    let current = 100;
 
-    const SNAP = {
-        OPEN: 0.25,
-        MID: 0.65
-    };
+    const isMobile = () => window.innerWidth <= 768;
 
-    function render(p) {
+    /* =========================
+       RENDER
+    ========================= */
 
-        progress = Math.max(0, Math.min(1, p));
-
-        const y = progress * 100;
+    function render(y) {
+        current = y;
         drawer.style.transform = `translate3d(0, ${y}%, 0)`;
-
-        const isOpen = progress < 0.95;
-        overlay.classList.toggle("is-open", isOpen);
-        document.body.classList.toggle("drawer-open", isOpen);
     }
 
-    function open() { render(STATE.OPEN); }
-    function close() { render(STATE.CLOSED); }
-    function peek() { render(STATE.PEEK); }
+    function setBlur(open) {
+        if (!app) return;
+        app.style.filter = open ? "blur(4px)" : "none";
+    }
+
+    function setOverlay(open) {
+        overlay.classList.toggle("active", open);
+    }
+
+    function setBody(open) {
+        document.body.classList.toggle("drawer-open", open);
+    }
+
+    /* =========================
+       STATE
+    ========================= */
+
+    function open() {
+        state = "OPEN";
+        setOverlay(true);
+        setBody(true);
+        setBlur(true);
+        render(OPEN);
+    }
+
+    function close() {
+        state = "CLOSED";
+        setOverlay(false);
+        setBody(false);
+        setBlur(false);
+        render(CLOSED);
+    }
+
+    function toggle() {
+        state === "OPEN" ? close() : open();
+    }
 
     /* =========================
        TRIGGER
@@ -55,9 +86,7 @@ function bindDrawer(overlay, drawer, triggerSelector) {
 
     document.addEventListener("click", (e) => {
         if (!e.target.closest(triggerSelector)) return;
-
-        if (progress < 0.2) close();
-        else open();
+        toggle();
     });
 
     overlay.addEventListener("click", close);
@@ -66,43 +95,8 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     if (closeBtn) closeBtn.addEventListener("click", close);
 
     /* =========================
-       GESTURE
+       INIT
     ========================= */
 
-    drawer.addEventListener("touchstart", (e) => {
-        dragging = true;
-        startY = e.touches[0].clientY;
-        startProgress = progress;
-
-        drawer.style.transition = "none";
-    });
-
-    drawer.addEventListener("touchmove", (e) => {
-        if (!dragging) return;
-
-        const delta = startY - e.touches[0].clientY;
-
-        const newProgress = startProgress + delta / 300;
-
-        render(newProgress);
-
-    }, { passive: false });
-
-    drawer.addEventListener("touchend", () => {
-
-        dragging = false;
-
-        drawer.style.transition = "transform .28s cubic-bezier(.22,1,.36,1)";
-
-        if (progress > SNAP.MID) {
-            close();
-        } else if (progress > SNAP.OPEN) {
-            peek();
-        } else {
-            open();
-        }
-    });
-
-    /* init */
-    close();
+    render(CLOSED);
 }
