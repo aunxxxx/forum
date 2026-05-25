@@ -1,134 +1,134 @@
-const STATE = {
-    CLOSED: "closed",
-    OPEN: "open"
-};
+function createDrawer(overlay, drawer) {
 
-export function initDrawer() {
-    initComment();
-    initLike();
-}
+    const STATE = {
+        CLOSED: "closed",
+        PEEK: "peek",
+        OPEN: "open"
+    };
 
-/* =========================
-   COMMENT
-========================= */
+    const config = {
+        OPEN_UP: -160,
+        PEEK: 60,
+        CLOSE_DOWN: 160,
+        VELOCITY_CLOSE: 0.65,
+        VELOCITY_OPEN: -0.6
+    };
 
-function initComment() {
-
-    const overlay = document.getElementById("commentOverlay");
-    const drawer = document.getElementById("commentDrawer");
-
-    if (!overlay || !drawer) return;
-
-    bind(overlay, drawer, ".comment-btn");
-}
-
-/* =========================
-   LIKE
-========================= */
-
-function initLike() {
-
-    const overlay = document.getElementById("likeOverlay");
-    const drawer = document.getElementById("likeDrawer");
-
-    if (!overlay || !drawer) return;
-
-    bind(overlay, drawer, ".like-count-trigger");
-}
-
-/* =========================
-   CORE
-========================= */
-
-function bind(overlay, drawer, trigger) {
-
-    const app = document.querySelector(".app");
+    let state = STATE.CLOSED;
 
     let startY = 0;
     let diff = 0;
-    let dragging = false;
-
-    const MAX_UP = -140;
-    const CLOSE_THRESHOLD = 160;
-
-    /* =========================
-       OPEN
-    ========================= */
-
-    document.addEventListener("click", (e) => {
-
-        if (!e.target.closest(trigger)) return;
-
-        overlay.classList.add("active");
-        document.body.classList.add("drawer-open");
-
-        drawer.style.transform = "translateY(0)";
-    });
+    let lastY = 0;
+    let lastT = 0;
+    let velocity = 0;
 
     /* =========================
-       CLOSE
+       SET STATE
     ========================= */
 
-    overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) close();
-    });
+    function setState(next) {
 
-    function close() {
-        overlay.classList.remove("active");
-        document.body.classList.remove("drawer-open");
-        drawer.style.transform = "translateY(100%)";
+        if (state === next) return;
+
+        state = next;
+
+        overlay.classList.toggle("active", state !== STATE.CLOSED);
+        document.body.classList.toggle("drawer-open", state !== STATE.CLOSED);
+
+        drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
+
+        if (state === STATE.CLOSED) {
+            drawer.style.transform = "translateY(100%)";
+        }
+
+        if (state === STATE.PEEK) {
+            drawer.style.transform = `translateY(${config.PEEK}px)`;
+        }
+
+        if (state === STATE.OPEN) {
+            drawer.style.transform = "translateY(0)";
+        }
     }
 
     /* =========================
-       DRAG (mobile only)
+       CLOSE EVENTS
     ========================= */
 
-    if (window.innerWidth >= 769) return;
+    overlay.addEventListener("click", (e) => {
+        if (e.target !== overlay) return;
+        setState(STATE.CLOSED);
+    });
+
+    const closeBtn = drawer.querySelector(".drawer-close");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => setState(STATE.CLOSED));
+    }
+
+    /* =========================
+       DRAG
+    ========================= */
 
     drawer.addEventListener("touchstart", (e) => {
-        dragging = true;
+
         startY = e.touches[0].clientY;
+        lastY = startY;
+        lastT = Date.now();
+
+        diff = 0;
+        velocity = 0;
+
         drawer.style.transition = "none";
     });
 
     drawer.addEventListener("touchmove", (e) => {
 
-        if (!dragging) return;
+        e.preventDefault();
 
-        let y = e.touches[0].clientY;
+        const y = e.touches[0].clientY;
+        const now = Date.now();
+
+        const dt = now - lastT;
+
+        if (dt > 0) {
+            velocity = (y - lastY) / dt;
+        }
+
+        lastY = y;
+        lastT = now;
+
         diff = y - startY;
 
-        // 上限（不能拉过头）
-        if (diff < MAX_UP) diff = MAX_UP;
-
-        // 下拉阻尼
-        if (diff > 0) diff *= 0.35;
-
-        drawer.style.transform = `translateY(${diff}px)`;
-
-        /* =========================
-           背景（只模糊，不缩放）
-        ========================= */
-
-        if (app) {
-            const p = Math.min(Math.abs(diff) / 300, 1);
-            app.style.filter = `blur(${p * 4}px)`;
+        // 上限限制（无跳跃版）
+        if (diff < config.OPEN_UP) {
+            diff = config.OPEN_UP;
         }
-    });
+
+        let moveY = diff > 0 ? diff * 0.4 : diff;
+
+        drawer.style.transform = `translateY(${moveY}px)`;
+    }, { passive: false });
 
     drawer.addEventListener("touchend", () => {
 
-        dragging = false;
         drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
 
-        // 关闭
-        if (diff > CLOSE_THRESHOLD) {
-            close();
-            return;
-        }
+        const shouldClose =
+            diff > config.CLOSE_DOWN || velocity > config.VELOCITY_CLOSE;
 
-        // 回弹
-        drawer.style.transform = "translateY(0)";
-        if (app) app.style.filter = "blur(6px)";
+        const shouldOpen =
+            diff < -80 || velocity < config.VELOCITY_OPEN;
+
+        if (shouldClose) return setState(STATE.CLOSED);
+        if (shouldOpen) return setState(STATE.OPEN);
+
+        setState(STATE.PEEK);
     });
+
+    /* =========================
+       INIT
+    ========================= */
+
+    setState(STATE.CLOSED);
+
+    return { setState };
 }
