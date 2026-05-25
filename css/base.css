@@ -75,6 +75,8 @@ body{
 body.drawer-open .app{
     transform:scale(.92) translateY(-6px);
     filter:blur(2px) brightness(.85);
+    border-radius:16px;
+    overflow:hidden;
 }
 
 /* editor状态 */
