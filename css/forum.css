@@ -1,6 +1,3 @@
-/* =========================
-   forum.css
-========================= */
 
 /* =========================
    TOPBAR
@@ -228,90 +225,93 @@
 }
 
 /* =========================
-   COMMENT SYSTEM（升级版）
+   COMMENT SYSTEM
 ========================= */
 
 .comment{
     display:flex;
-    gap:10px;
-    padding:12px;
-    align-items:flex-start;
+    align-items:center;
+    gap:12px;
 }
 
-/* ⭐ 头像压层（你刚要的效果） */
+/* avatar */
 .comment .avatar{
     width:52px;
     height:52px;
     border-radius:50%;
-    object-fit:cover;
-
-    border:2px solid #fff;
-    position:relative;
-    z-index:2;
+    flex-shrink:0;
 }
 
+/* content */
 .comment-main{
     flex:1;
     display:flex;
     flex-direction:column;
     gap:6px;
-
-    margin-left:-6px;
 }
 
-.comment-content{
-    font-size:14px;
-    line-height:1.4;
-    color:#222;
-}
-
-/* =========================
-   RIGHT ACTIONS
-========================= */
-
+/* right */
 .comment-right{
     display:flex;
     align-items:center;
     gap:10px;
-    margin-left:auto;
 }
 
-/* 统一按钮 */
-.action-btn{
+/* =========================
+   BUTTONS
+========================= */
+
+.action-btn,
+.reply-btn,
+.like-btn{
     background:none;
     border:none;
     cursor:pointer;
 
     display:flex;
     align-items:center;
-    gap:4px;
+    gap:6px;
+}
 
+/* reply */
+.reply-btn{
     color:#888;
-    transition:all .2s ease;
 }
 
 /* =========================
-   LIKE SVG STATE
+   LIKE SYSTEM (FIXED)
 ========================= */
 
-.like-btn.active{
-    color:#ff4d4f;
-    transform:scale(1.15);
+.like-btn{
+    position:relative;
+    color:#999;
 }
 
-.like-btn svg{
-    transition:transform .2s ease;
+/* icon base */
+.like-icon{
+    width:20px;
+    height:20px;
+    fill:#999;
+    transition:fill .2s ease;
 }
 
-.like-btn svg.pop{
-    transform:scale(1.3);
+/* active only changes color (NO TRANSFORM HERE) */
+.like-btn.active .like-icon{
+    fill:#ff4d4f;
+}
+
+/* pop animation layer (NO CONFLICT WITH ACTIVE) */
+.like-icon.pop{
+    animation: pop .25s ease;
+}
+
+@keyframes pop{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.3);}
+    100%{transform:scale(1);}
 }
 
 /* ripple */
-.like-btn{
-    position:relative;
-}
-
 .like-btn.ripple::after{
     content:"";
     position:absolute;
@@ -319,27 +319,14 @@
     border-radius:50%;
     border:2px solid #ff4d4f;
 
-    animation:ripple .5s ease-out;
+    pointer-events:none;
+    animation:ripple .4s ease-out;
     opacity:0;
 }
 
 @keyframes ripple{
     0%{transform:scale(0.6);opacity:0.8;}
-    100%{transform:scale(1.8);opacity:0;}
-}
-
-/* =========================
-   PC REPLY ONLY
-========================= */
-
-.reply-btn{
-    display:none;
-}
-
-@media (min-width:768px){
-    .reply-btn{
-        display:block;
-    }
+    100%{transform:scale(1.6);opacity:0;}
 }
 
 /* =========================
@@ -373,11 +360,6 @@
 
     .container{
         padding:14px;
-    }
-
-    .hot-section{
-        padding:16px;
-        border-radius:22px;
     }
 
     .post-card{
