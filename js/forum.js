@@ -6,7 +6,11 @@ import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
 const postsContainer = document.getElementById("postsList");
 const overlay = document.getElementById("likeOverlay");
 
- function renderPosts(container) {
+/* =========================
+   RENDER
+========================= */
+
+function renderPosts(container) {
 
     if (!container) return;
 
@@ -45,7 +49,6 @@ function initApp() {
 
     initLikeEngine();
 
-    // ⭐ 关键修复：首次渲染
     renderPosts(postsContainer);
 
     bindEvents();
@@ -58,7 +61,6 @@ function initApp() {
 
 function bindEvents() {
 
-    // 防重复绑定
     if (window.__FORUM_EVENTS_BOUND__) return;
     window.__FORUM_EVENTS_BOUND__ = true;
 
@@ -73,7 +75,7 @@ function bindEvents() {
         const countEl = e.target.closest(".like-count");
 
         /* =========================
-           点数字 → 打开 drawer
+           点数字 → drawer
         ========================= */
         if (countEl) {
             openLikeDrawer(id);
@@ -81,21 +83,20 @@ function bindEvents() {
         }
 
         /* =========================
-           点 like → toggle
+           like toggle
         ========================= */
 
-        // 防抖锁
         if (likeBtn.dataset.locked === "1") return;
         likeBtn.dataset.locked = "1";
 
         const state = toggleLike(id);
 
-        /* =========================
-           ⭐ 关键升级：局部更新数据 + UI
-        ========================= */
+        syncLikeUI(id);
 
-        syncLikeUI(id);        // 如果你还有全局同步（保留）
-        updatePostUI?.(id);    // ⭐ 新增：局部更新（不会报错）
+        // ⭐ 安全调用（防止未定义报错）
+        if (typeof updatePostUI === "function") {
+            updatePostUI(id);
+        }
 
         animateLike(likeBtn, state.liked);
 
@@ -159,7 +160,6 @@ function bindDrawerEvents() {
 
     if (!overlay) return;
 
-    // 防止重复绑定
     if (window.__DRAWER_EVENTS_BOUND__) return;
     window.__DRAWER_EVENTS_BOUND__ = true;
 
@@ -173,7 +173,7 @@ function bindDrawerEvents() {
 }
 
 /* =========================
-   SAFE START
+   BOOT
 ========================= */
 
 function start() {
@@ -183,10 +183,6 @@ function start() {
 
     initApp();
 }
-
-/* =========================
-   BOOT
-========================= */
 
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", start);
