@@ -145,3 +145,8 @@ if (document.readyState === "loading") {
 } else {
     start();
 }
+
+
+console.log("postsContainer =", postsContainer);
+console.log("posts =", posts);
+console.log("renderPosts =", renderPosts);
