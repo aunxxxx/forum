@@ -5,23 +5,30 @@ const STATE = {
 };
 
 // =========================
-// BASIC UTILS
+// DEVICE DETECT
 // =========================
 
 function isMobile() {
     return window.innerWidth <= 768;
 }
 
+// =========================
+// CORE HEIGHT
+// =========================
+
 function getDrawerHeight() {
     return Math.min(window.innerHeight * 0.85, 680);
 }
 
 // =========================
-// DRAWER INSTANCE
+// DRAWER ENGINE
 // =========================
 
 function createDrawerInstance(overlay, drawer, triggerSelector) {
-    if (!overlay || !drawer) return;
+    if (!overlay || !drawer) {
+        console.warn("Drawer init failed:", overlay, drawer);
+        return;
+    }
 
     const app = document.querySelector(".app");
 
@@ -35,7 +42,7 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     let dragging = false;
     let scrollY = 0;
 
-    let PEEK = getPeekHeight();
+    let PEEK = 0;
 
     function getPeekHeight() {
         const h = getDrawerHeight();
@@ -79,10 +86,8 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     function setBlur(v, animate = false) {
         if (!app) return;
 
-        requestAnimationFrame(() => {
-            app.style.transition = animate ? "filter .25s ease" : "none";
-            app.style.filter = v > 0 ? `blur(${v}px)` : "none";
-        });
+        app.style.transition = animate ? "filter .25s ease" : "none";
+        app.style.filter = v > 0 ? `blur(${v}px)` : "none";
     }
 
     function render(s, animate = false) {
@@ -111,10 +116,11 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         currentY = y;
 
         const h = getDrawerHeight();
-        const peekY = h - PEEK;
 
         drawer.style.transition = "none";
         drawer.style.transform = `translateY(${y}px)`;
+
+        const peekY = h - PEEK;
 
         let progress = 0;
         if (y <= peekY) {
@@ -139,29 +145,30 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         render(state, true);
     }
 
-    function open() {
-        apply(STATE.OPEN);
-    }
+    function open() { apply(STATE.OPEN); }
+    function close() { apply(STATE.CLOSED); }
+    function peek() { apply(STATE.PEEK); }
 
-    function close() {
-        apply(STATE.CLOSED);
-    }
-
-    function peek() {
-        apply(STATE.PEEK);
-    }
+    // =========================
+    // TRIGGER (PC / MOBILE FIX)
+    // =========================
 
     document.addEventListener("click", (e) => {
         const t = e.target.closest(triggerSelector);
         if (!t) return;
 
+        // 🔥 PC 行为：直接 OPEN / CLOSE
         if (!isMobile()) {
             apply(state === STATE.OPEN ? STATE.CLOSED : STATE.OPEN);
             return;
         }
 
-        if (state === STATE.CLOSED) apply(STATE.PEEK);
-        else apply(STATE.CLOSED);
+        // 🔥 Mobile 行为：CLOSED → PEEK → CLOSE
+        if (state === STATE.CLOSED) {
+            apply(STATE.PEEK);
+        } else {
+            apply(STATE.CLOSED);
+        }
     });
 
     overlay.addEventListener("click", (e) => {
@@ -170,6 +177,10 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
     const closeBtn = drawer.querySelector(".drawer-close");
     if (closeBtn) closeBtn.addEventListener("click", close);
+
+    // =========================
+    // TOUCH (ONLY MOBILE)
+    // =========================
 
     drawer.addEventListener("touchstart", (e) => {
         if (!isMobile()) return;
@@ -192,22 +203,25 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
             const y = e.touches[0].clientY;
 
-            let newY = startTranslate + (y - startY);
+            let nextY = startTranslate + (y - startY);
 
-            newY = Math.max(0, Math.min(getDrawerHeight(), newY));
+            const h = getDrawerHeight();
+            nextY = Math.max(0, Math.min(h, nextY));
 
-            renderDrag(newY);
+            renderDrag(nextY);
         },
         { passive: false }
     );
 
     function endDrag() {
+        if (!dragging) return;
+
         dragging = false;
 
         const h = getDrawerHeight();
         const peekY = h - PEEK;
 
-        const openThreshold = peekY * 0.4;
+        const openThreshold = peekY * 0.35;
         const closeThreshold = h - PEEK * 0.5;
 
         if (currentY < openThreshold) {
@@ -222,10 +236,18 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchend", endDrag);
     drawer.addEventListener("touchcancel", endDrag);
 
+    // =========================
+    // RESIZE
+    // =========================
+
     window.addEventListener("resize", () => {
         refreshPeek();
         render(state, false);
     });
+
+    // =========================
+    // INIT
+    // =========================
 
     refreshPeek();
     apply(STATE.CLOSED);
