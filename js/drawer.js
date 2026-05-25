@@ -17,9 +17,6 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
     const app = document.querySelector(".app");
 
-    // =========================
-    // STATE
-    // =========================
     let state = STATE.CLOSED;
 
     let startY = 0;
@@ -30,9 +27,6 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
     let scrollY = 0;
 
-    // =========================
-    // POSITION SYSTEM (%)
-    // =========================
     const CLOSED_Y = 100;
     const PEEK_Y = 35;
     const OPEN_Y = 0;
@@ -75,7 +69,7 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         if (!app) return;
 
-        // PC 不缩放不模糊
+        // PC 不模糊
         if (!isMobile()) {
             app.style.filter = "none";
             app.style.transform = "none";
@@ -99,7 +93,7 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // CORE RENDER
+    // RENDER
     // =========================
     function render(y, animate = false) {
 
@@ -109,9 +103,32 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
             ? "transform .35s cubic-bezier(.22,1,.36,1)"
             : "none";
 
-        drawer.style.transform = `translateY(${y}%)`;
+        // =========================
+        // PC
+        // =========================
+        if (!isMobile()) {
 
-        // progress
+            // OPEN
+            if (y < 100) {
+                drawer.style.transform =
+                    `translate(-50%, -50%)`;
+            }
+
+            // CLOSED
+            else {
+                drawer.style.transform =
+                    `translate(-50%, calc(-50% + 100vh))`;
+            }
+        }
+
+        // =========================
+        // MOBILE
+        // =========================
+        else {
+            drawer.style.transform =
+                `translateY(${y}%)`;
+        }
+
         let progress = 0;
 
         if (y <= PEEK_Y) {
@@ -124,9 +141,12 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         overlay.classList.toggle("is-open", open);
 
-        // ⭐ 关键修复：PC 不加 drawer-open
+        // ⭐ 只有手机端允许缩放
         if (isMobile()) {
-            document.body.classList.toggle("drawer-open", open);
+            document.body.classList.toggle(
+                "drawer-open",
+                open
+            );
         } else {
             document.body.classList.remove("drawer-open");
         }
@@ -135,7 +155,7 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // APPLY STATE
+    // APPLY
     // =========================
     function apply(next) {
 
@@ -177,7 +197,6 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         if (!trigger) return;
 
-        // 防闪
         e.stopPropagation();
 
         // PC
@@ -205,19 +224,12 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     // =========================
     overlay.addEventListener("click", (e) => {
 
+        if (isMobile()) return;
+
         if (e.target === overlay) {
             close();
         }
     });
-
-    // =========================
-    // CLOSE BTN
-    // =========================
-    const closeBtn = drawer.querySelector(".drawer-close");
-
-    if (closeBtn) {
-        closeBtn.addEventListener("click", close);
-    }
 
     // =========================
     // MOBILE DRAG
@@ -247,7 +259,6 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         const deltaY = e.touches[0].clientY - startY;
 
-        // px -> %
         const deltaPercent =
             (deltaY / window.innerHeight) * 100;
 
@@ -266,17 +277,14 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         dragging = false;
 
-        // OPEN
         if (currentTranslate < 15) {
             open();
         }
 
-        // CLOSE
         else if (currentTranslate > 65) {
             close();
         }
 
-        // PEEK
         else {
             peek();
         }
@@ -325,6 +333,6 @@ export function initDrawer() {
     createDrawerInstance(
         document.getElementById("likeOverlay"),
         document.getElementById("likeDrawer"),
-        ".like-count"
+        ".stat-btn.like-btn"
     );
 }
