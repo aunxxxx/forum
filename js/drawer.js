@@ -178,12 +178,19 @@ function bindDrag(overlay, drawer) {
 
     if (window.innerWidth >= 769) return;
 
+    const MAX_UP = -120;     // 最上
+    const MAX_DOWN = 180;    // 最下（关键修复）
+    const CLOSE_THRESHOLD = 160;
+
     let startY = 0;
     let currentY = 0;
     let lastY = 0;
     let lastT = 0;
     let velocity = 0;
     let dragging = false;
+
+    const clamp = (v, min, max) =>
+        Math.max(min, Math.min(max, v));
 
     drawer.addEventListener("touchstart", (e) => {
 
@@ -209,45 +216,54 @@ function bindDrag(overlay, drawer) {
         lastY = y;
         lastT = now;
 
-        currentY = Math.min(
-            config.MAX_DOWN,
-            Math.max(config.MAX_UP, diff)
-        );
+        // ⭐ 关键：直接 clamp 物理位移
+        currentY = clamp(diff, MAX_UP, MAX_DOWN);
 
-        const move =
-            currentY > 0
-                ? currentY
-                : rubber(currentY);
+        let move = currentY;
 
-        drawer.style.transform =
-            `translateY(${move}px)`;
+        // iOS弹性只在“上拉”
+        if (currentY < 0) {
+            move = currentY * (1 - Math.exp(-Math.abs(currentY) / 120));
+        }
 
+        drawer.style.transform = `translateY(${move}px)`;
+
+        // ⭐ 背景只做轻微变化（不反转）
         const app = document.querySelector(".app");
 
         if (app) {
+            const progress = Math.abs(currentY) / 200;
+
             app.style.transform =
-                `scale(${1 - Math.min(Math.abs(currentY)/3000, 0.05)})`;
+                `scale(${1 - Math.min(progress * 0.04, 0.05)})`;
         }
+
+        overlay.style.background =
+            `rgba(0,0,0,${0.18 + Math.min(Math.abs(currentY) / 500, 0.25)})`;
+
     });
 
     drawer.addEventListener("touchend", () => {
 
         dragging = false;
 
+        drawer.style.transition =
+            "transform .35s cubic-bezier(.22,1,.36,1)";
+
         const shouldClose =
-            currentY > config.CLOSE_THRESHOLD || velocity > 0.6;
+            currentY > CLOSE_THRESHOLD || velocity > 0.6;
 
         if (shouldClose) {
 
             setState(overlay, drawer, STATE.CLOSED);
+            return;
+        }
 
+        // ⭐ 吸附逻辑（关键修复）
+        if (currentY < -60) {
+            setState(overlay, drawer, STATE.OPEN);
         } else {
-
-            if (currentY < -80) {
-                setState(overlay, drawer, STATE.OPEN);
-            } else {
-                setState(overlay, drawer, STATE.PEEK);
-            }
+            setState(overlay, drawer, STATE.PEEK);
         }
 
         currentY = 0;
