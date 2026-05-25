@@ -1,3 +1,4 @@
+
 import { posts } from "./data.js";
 import { renderPosts } from "./postCard.js";
 import { initEditor } from "./editor.js";
@@ -6,47 +7,70 @@ import { initFAB } from "./fab.js";
 import { initDrawer } from "./drawer.js";
 
 /* =========================
-   DOM 元素
+   DOM
 ========================= */
 
 const postsContainer = document.getElementById("postsList");
 const previewImage = document.getElementById("previewImage");
 
 /* =========================
-   App 初始化入口
+   INIT APP
 ========================= */
 
 function initApp() {
 
-    if (!postsContainer) return;
+    // ❗ 安全检查：避免 DOM 未挂载直接报错
+    if (!postsContainer) {
+        console.warn("postsList not found");
+        return;
+    }
 
-    /* 初始渲染 */
+    /* =========================
+       1. 渲染帖子
+    ========================= */
     renderPosts(postsContainer);
 
-    /* 上传系统 */
+    /* =========================
+       2. 上传系统
+    ========================= */
     const getImage = initUpload(previewImage);
 
-    /* 编辑器 */
+    /* =========================
+       3. 编辑器
+    ========================= */
     initEditor(postsContainer, getImage);
 
-    /* FAB */
+    /* =========================
+       4. FAB
+    ========================= */
     initFAB();
 
-    /* Drawer（最后初始化，避免事件冲突） */
-    initDrawer();
-
+    /* =========================
+       5. Drawer（关键：最后初始化）
+    ========================= */
+    requestAnimationFrame(() => {
+        initDrawer();
+    });
 }
 
 /* =========================
-   等 DOM ready 再启动
+   SAFE START
+========================= */
+
+function start() {
+    // 防止重复初始化
+    if (window.__APP_INIT__) return;
+    window.__APP_INIT__ = true;
+
+    initApp();
+}
+
+/* =========================
+   DOM READY
 ========================= */
 
 if (document.readyState === "loading") {
-
-    document.addEventListener("DOMContentLoaded", initApp);
-
+    document.addEventListener("DOMContentLoaded", start);
 } else {
-
-    initApp();
-
+    start();
 }
