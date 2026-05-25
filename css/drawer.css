@@ -101,7 +101,7 @@
     font-weight: 700;
 }
 
-/* ❌ 删除关闭按钮 */
+/* ❌ 默认隐藏关闭按钮 */
 .drawer-close {
     display: none !important;
 }
@@ -214,10 +214,19 @@
     .drawer {
         touch-action: none;
     }
+
+    /* ❌ 手机端禁止背景点击 */
+    .drawer-overlay {
+        pointer-events: none;
+    }
+
+    .drawer-overlay.is-open {
+        pointer-events: none;
+    }
 }
 
 /* =========================
-   PC FIX
+   PC DESKTOP MODAL
 ========================= */
 
 @media (min-width: 769px) {
@@ -228,38 +237,43 @@
         filter: none !important;
     }
 
-    /* ❌ PC 不显示 handle */
+    /* ❌ PC 不显示拖拽条 */
     .drawer-handle-wrap {
         display: none;
     }
 
-    /* ⭐ PC 真正弹窗 */
+    /* ⭐ 真正桌面弹窗 */
     .drawer {
 
-        width: 480px;
-        height: 680px;
+        position: fixed;
 
-        max-height: 80vh;
+        width: 520px;
+        height: 720px;
+
+        max-height: 82vh;
 
         left: 50%;
         top: 50%;
-        bottom: auto;
+
         right: auto;
+        bottom: auto;
 
         border-radius: 28px;
 
-        transform:
-            translateX(-50%)
-            translateY(calc(-50% + 100vh));
+        background: #fff;
+
+        overflow: hidden;
 
         box-shadow:
-            0 20px 60px rgba(0,0,0,.18);
+            0 30px 80px rgba(0,0,0,.18);
+
+        transform:
+            translate(-50%, calc(-50% + 100vh));
 
         touch-action: auto;
     }
 
-    /* ⭐ JS 打开的 transform 会覆盖这里 */
     .drawer-overlay {
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(6px);
     }
 }
