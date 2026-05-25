@@ -20,27 +20,26 @@
     --text:#222;
     --sub:#888;
     --border:#ececec;
+
+    /* 👇 新增：系统 badge 预留色（后面用） */
+    --badge-border:#b5b5b5;
+    --badge-text:#666;
 }
 
 /* =========================
    HTML / BODY
-   （关键：统一底层，不再分裂）
 ========================= */
 
 html{
     -webkit-text-size-adjust:100%;
     scroll-behavior:smooth;
-
-    /* 缩放露底颜色 */
     background:#000;
 }
 
 body{
     margin:0;
     padding:0;
-
     background:#000;
-
     color:var(--text);
 
     font-family:
@@ -54,7 +53,7 @@ body{
 }
 
 /* =========================
-   APP（真正UI层）
+   APP
 ========================= */
 
 .app{
@@ -71,22 +70,21 @@ body{
     transform-origin:center;
 }
 
-/* drawer打开时缩放背景 */
+/* ✔ 优化：减少 blur 抖动风险 */
 body.drawer-open .app{
-    transform:scale(.92) translateY(-6px);
-    filter:blur(2px) brightness(.85);
+    transform:scale(.94) translateY(-4px);
+    filter:brightness(.85);
     border-radius:16px;
     overflow:hidden;
 }
 
-/* editor状态 */
 body.editor-open .app{
-    transform:scale(.96);
-    filter:blur(2px) brightness(.9);
+    transform:scale(.97);
+    filter:brightness(.9);
 }
 
 /* =========================
-   BUTTON / INPUT / IMG / A
+   GLOBAL ELEMENTS
 ========================= */
 
 button{
@@ -114,7 +112,74 @@ a{
 }
 
 /* =========================
-   DRAWER OVERLAY
+   ⭐ USER SYSTEM（新增重点）
+========================= */
+
+/* 用户行容器 */
+.user-line{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+/* 头像外层 */
+.avatar-wrap{
+    display:inline-block;
+    flex-shrink:0;
+}
+
+/* 头像 */
+.avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+    cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+
+/* hover反馈 */
+.avatar:hover{
+    transform:scale(1.05);
+}
+
+/* 点击反馈（手机） */
+.avatar:active{
+    transform:scale(0.96);
+}
+
+/* 用户信息 */
+.user-info{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+/* ⭐ 头衔 badge（重点） */
+.badge{
+    font-size:12px;
+    padding:2px 6px;
+
+    border:1px solid var(--badge-border);
+    border-radius:6px;
+
+    color:var(--badge-text);
+    background:transparent;
+
+    line-height:1;
+    white-space:nowrap;
+
+    /* 后面可以扩展颜色系统 */
+}
+
+/* 用户名 */
+.username{
+    font-size:14px;
+    font-weight:500;
+}
+
+/* =========================
+   DRAWER
 ========================= */
 
 .drawer-overlay{
@@ -138,10 +203,6 @@ a{
     pointer-events:auto;
     background:rgba(0,0,0,.35);
 }
-
-/* =========================
-   DRAWER
-========================= */
 
 .drawer{
     width:100%;
