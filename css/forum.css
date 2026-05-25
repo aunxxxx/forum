@@ -370,3 +370,54 @@
         transform:translateY(0) scale(1);
     }
 }
+
+/* =========================
+   COMMENT RIGHT ACTIONS
+========================= */
+
+.comment-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* 回复按钮（默认隐藏） */
+.reply-btn{
+  display:none;
+  background:none;
+  border:none;
+  cursor:pointer;
+
+  font-size:14px;
+  color:#888;
+
+  transition:transform .15s ease;
+}
+
+.reply-btn:active{
+  transform:scale(0.9);
+}
+
+/* 点赞 */
+.like-btn{
+  background:none;
+  border:none;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  gap:4px;
+
+  color:#888;
+  font-size:13px;
+}
+
+/* =========================
+   PC端才显示回复按钮
+========================= */
+
+@media (min-width: 768px){
+  .reply-btn{
+    display:block;
+  }
+}
