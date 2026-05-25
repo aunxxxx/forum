@@ -6,10 +6,6 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-}
-
-/* iOS click */
-*{
     -webkit-tap-highlight-color:transparent;
 }
 
@@ -27,22 +23,23 @@
 }
 
 /* =========================
-   HTML / BODY (关键修复点)
+   HTML / BODY
+   （关键：统一底层，不再分裂）
 ========================= */
 
 html{
     -webkit-text-size-adjust:100%;
     scroll-behavior:smooth;
 
-    /* 防缩放露边 */
-    background: var(--bg);
+    /* 缩放露底颜色 */
+    background:#000;
 }
 
 body{
     margin:0;
     padding:0;
 
-    background: var(--bg);
+    background:#000;
 
     color:var(--text);
 
@@ -53,44 +50,34 @@ body{
         sans-serif;
 
     overflow-x:hidden;
-
     min-height:100vh;
-
-    /* 防 iOS 缩放白边 */
-    position: relative;
-}
-
-/* 额外保险层（防缩放露底） */
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background: var(--bg);
-    z-index:-1;
 }
 
 /* =========================
-   APP MOTION LAYER
+   APP（真正UI层）
 ========================= */
 
 .app{
+    background: var(--bg);
+    min-height:100vh;
+
+    position:relative;
+    z-index:1;
+
     transition:
         transform .35s cubic-bezier(.2,.9,.2,1),
         filter .35s ease;
 
     transform-origin:center;
-
-    background: var(--bg);
-    min-height:100vh;
 }
 
-/* Drawer open state */
+/* drawer打开时缩放背景 */
 body.drawer-open .app{
     transform:scale(.92) translateY(-6px);
     filter:blur(2px) brightness(.85);
 }
 
-/* Editor open state */
+/* editor状态 */
 body.editor-open .app{
     transform:scale(.96);
     filter:blur(2px) brightness(.9);
@@ -125,7 +112,7 @@ a{
 }
 
 /* =========================
-   DRAWER BASE
+   DRAWER OVERLAY
 ========================= */
 
 .drawer-overlay{
@@ -149,6 +136,10 @@ a{
     pointer-events:auto;
     background:rgba(0,0,0,.35);
 }
+
+/* =========================
+   DRAWER
+========================= */
 
 .drawer{
     width:100%;
