@@ -1,8 +1,5 @@
-/* =========================
-   OVERLAY
-========================= */
-
 .drawer-overlay{
+
     position:fixed;
     inset:0;
 
@@ -12,7 +9,8 @@
     opacity:0;
     pointer-events:none;
 
-    transition:.28s ease;
+    transition:.25s ease;
+
     z-index:3000;
 }
 
@@ -22,35 +20,37 @@
 }
 
 /* =========================
-   APP
+   APP（只做视觉，不参与拖动）
 ========================= */
 
 .app{
     position:relative;
     min-height:100vh;
     background:var(--bg);
-
-    transform-origin:center top;
-
-    transition:
-        transform .38s cubic-bezier(.22,1,.36,1),
-        filter .38s cubic-bezier(.22,1,.36,1),
-        border-radius .38s cubic-bezier(.22,1,.36,1);
-
-    will-change:transform, filter;
 }
 
-body.drawer-open .app{
-    transform:scale(.94) translateY(12px);
-    border-radius:32px;
-    opacity:.92;
+/* 手机：轻微缩小 */
+@media (max-width:768px){
+    body.drawer-open .app{
+        transform:scale(.97);
+        transition:transform .25s ease;
+    }
+}
+
+/* PC：只模糊，不缩放 */
+@media (min-width:769px){
+    body.drawer-open .app{
+        filter:blur(6px) brightness(.9);
+        transition:filter .25s ease;
+    }
 }
 
 /* =========================
-   MOBILE DRAWER
+   DRAWER
 ========================= */
 
 .drawer{
+
     position:absolute;
     left:0;
     right:0;
@@ -58,10 +58,11 @@ body.drawer-open .app{
 
     height:92vh;
 
-    background:#fff;
+    background:white;
     border-radius:28px 28px 0 0;
 
     transform:translateY(100%);
+
     transition:transform .38s cubic-bezier(.22,1,.36,1);
 
     display:flex;
@@ -76,28 +77,25 @@ body.drawer-open .app{
     transform:translateY(0);
 }
 
-/* =========================
-   PC MODE（稳定居中）
-========================= */
-
-@media (min-width: 769px){
+/* PC 居中 */
+@media (min-width:769px){
 
     .drawer{
-        position:absolute;
-
-        left:50%;
-        top:50%;
 
         width:680px;
         height:82vh;
 
-        transform:translate(-50%,-50%) scale(.96);
+        left:50%;
+        top:50%;
+        bottom:auto;
+        right:auto;
 
+        transform:translate(-50%, calc(-50% + 40px));
         border-radius:28px;
     }
 
     .drawer.active{
-        transform:translate(-50%,-50%) scale(1);
+        transform:translate(-50%, -50%);
     }
 }
 
@@ -119,6 +117,7 @@ body.drawer-open .app{
     background:#d8d8d8;
 }
 
+/* PC隐藏 */
 @media (min-width:769px){
     .drawer-handle-wrap{ display:none; }
 }
@@ -131,15 +130,34 @@ body.drawer-open .app{
     flex:1;
     overflow-y:auto;
     padding:0 18px 120px;
-    -webkit-overflow-scrolling:touch;
     overscroll-behavior:contain;
 }
 
 /* =========================
-   LOCK
+   ITEM
 ========================= */
 
-body.drawer-open{
-    overflow:hidden;
-    touch-action:none;
+.comment-item,
+.like-item{
+    padding:18px 0;
+    border-bottom:1px solid #f2f2f2;
+}
+
+.comment-item{
+    display:flex;
+    gap:12px;
+}
+
+.comment-avatar,
+.like-avatar{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    background:#ff8b6a;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    flex-shrink:0;
 }
