@@ -5,35 +5,41 @@ const STATE = {
 };
 
 const config = {
-    MAX_UP: -140,     // 上拉极限
-    MAX_DOWN: 260,    // 下拉极限
+    MAX_UP: -140,
+    MAX_DOWN: 260,
     CLOSE_THRESHOLD: 160
 };
 
 let currentState = STATE.CLOSED;
+let active = null;
+
+/* =========================
+   INIT
+========================= */
 
 export function initDrawer() {
-
     initCommentDrawer();
     initLikeDrawer();
 }
 
 /* =========================
-   OPEN / CLOSE
+   STATE CORE
 ========================= */
 
 function setState(overlay, drawer, state) {
 
     const app = document.querySelector(".app");
-
     currentState = state;
 
     overlay.classList.toggle("active", state !== STATE.CLOSED);
     document.body.classList.toggle("drawer-open", state !== STATE.CLOSED);
 
+    active = { overlay, drawer };
+
     if (state === STATE.CLOSED) {
 
         drawer.style.transform = "translateY(100%)";
+
         if (app) resetApp(app);
 
         return;
@@ -43,13 +49,7 @@ function setState(overlay, drawer, state) {
 
         drawer.style.transform = "translateY(0)";
 
-        if (app) {
-            if (window.innerWidth >= 769) {
-                app.style.filter = "blur(6px) brightness(.92)";
-            } else {
-                app.style.transform = "scale(.97)";
-            }
-        }
+        if (app) applyApp(app, "open");
 
         return;
     }
@@ -58,14 +58,32 @@ function setState(overlay, drawer, state) {
 
         drawer.style.transform = "translateY(40px)";
 
-        if (app) {
-            if (window.innerWidth >= 769) {
-                app.style.filter = "blur(3px) brightness(.95)";
-            } else {
-                app.style.transform = "scale(.985)";
-            }
-        }
+        if (app) applyApp(app, "peek");
     }
+}
+
+/* =========================
+   APP EFFECTS
+========================= */
+
+function applyApp(app, mode) {
+
+    if (window.innerWidth >= 769) {
+
+        // PC：只 blur
+        app.style.filter =
+            mode === "open"
+                ? "blur(6px)"
+                : "blur(3px)";
+
+        return;
+    }
+
+    // mobile
+    app.style.transform =
+        mode === "open"
+            ? "scale(.97)"
+            : "scale(.985)";
 }
 
 function resetApp(app) {
@@ -143,7 +161,7 @@ function bindClose(overlay, drawer) {
 }
 
 /* =========================
-   RUBBER
+   RUBBER BAND
 ========================= */
 
 function rubber(n) {
@@ -153,7 +171,7 @@ function rubber(n) {
 }
 
 /* =========================
-   DRAG STATE MACHINE
+   DRAG ENGINE (FIXED)
 ========================= */
 
 function bindDrag(overlay, drawer) {
@@ -191,22 +209,24 @@ function bindDrag(overlay, drawer) {
         lastY = y;
         lastT = now;
 
-        currentY = diff;
+        currentY = Math.min(
+            config.MAX_DOWN,
+            Math.max(config.MAX_UP, diff)
+        );
 
-        currentY = Math.min(config.MAX_DOWN, Math.max(config.MAX_UP, currentY));
+        const move =
+            currentY > 0
+                ? currentY
+                : rubber(currentY);
 
-        const move = currentY > 0 ? currentY : rubber(currentY);
-
-        drawer.style.transform = `translateY(${move}px)`;
+        drawer.style.transform =
+            `translateY(${move}px)`;
 
         const app = document.querySelector(".app");
 
         if (app) {
-            if (window.innerWidth >= 769) {
-                app.style.filter = `blur(${Math.min(Math.abs(currentY) / 60, 6)}px) brightness(.92)`;
-            } else {
-                app.style.transform = `scale(${1 - Math.min(Math.abs(currentY) / 3000, 0.05)})`;
-            }
+            app.style.transform =
+                `scale(${1 - Math.min(Math.abs(currentY)/3000, 0.05)})`;
         }
     });
 
@@ -218,14 +238,16 @@ function bindDrag(overlay, drawer) {
             currentY > config.CLOSE_THRESHOLD || velocity > 0.6;
 
         if (shouldClose) {
-            setState(overlay, drawer, STATE.CLOSED);
-            return;
-        }
 
-        if (currentY < -80) {
-            setState(overlay, drawer, STATE.OPEN);
+            setState(overlay, drawer, STATE.CLOSED);
+
         } else {
-            setState(overlay, drawer, STATE.PEEK);
+
+            if (currentY < -80) {
+                setState(overlay, drawer, STATE.OPEN);
+            } else {
+                setState(overlay, drawer, STATE.PEEK);
+            }
         }
 
         currentY = 0;
