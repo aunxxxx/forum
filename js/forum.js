@@ -1,3 +1,6 @@
+import { posts } from "./data.js";
+import { renderPosts } from "./postCard.js";
+
 import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
 
 const postsContainer = document.getElementById("postsList");
