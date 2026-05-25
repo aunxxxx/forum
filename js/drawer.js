@@ -10,8 +10,6 @@ function isMobile() {
 
 function createDrawerInstance(overlay, drawer, triggerSelector) {
 
-    if (!overlay || !drawer) return;
-
     const app = document.querySelector(".app");
 
     let state = STATE.CLOSED;
@@ -23,9 +21,6 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
     let scrollY = 0;
 
-    // =========================
-    // HEIGHT SYSTEM
-    // =========================
     function h() {
         return window.innerHeight;
     }
@@ -71,7 +66,6 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     function render(s, animate = false) {
 
         let y;
-
         if (s === STATE.OPEN) y = openY();
         else if (s === STATE.PEEK) y = peekY();
         else y = closedY();
@@ -102,15 +96,11 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // TRIGGER (修复重点：不用不存在 selector）
+    // ⭐ 关键修复：严格绑定 triggerSelector（不再兜底）
     // =========================
     document.addEventListener("click", (e) => {
 
-        // 关键修复：自动兼容你当前 HTML
-        const trigger =
-            e.target.closest(triggerSelector) ||
-            e.target.closest(".like-count") ||
-            e.target.closest(".comment-btn");
+        const trigger = e.target.closest(triggerSelector);
 
         if (!trigger) return;
 
@@ -125,9 +115,6 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         else apply(STATE.CLOSED);
     });
 
-    // =========================
-    // OVERLAY CLOSE
-    // =========================
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay) {
             state = STATE.CLOSED;
@@ -141,16 +128,10 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         render(STATE.CLOSED, true);
     });
 
-    // =========================
-    // INIT
-    // =========================
     currentY = closedY();
     render(STATE.CLOSED, false);
 }
 
-// =========================
-// INIT ENTRY
-// =========================
 export function initDrawer() {
 
     createDrawerInstance(
