@@ -138,7 +138,10 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         if (!t) return;
 
         console.log("CLICK TRIGGERED");
-
+        console.log("TRIGGER FOUND:", trigger);
+        console.log("IS MOBILE:", isMobile());
+        console.log("STATE BEFORE:", state);
+        
         if (!isMobile()) {
             apply(state === STATE.OPEN ? STATE.CLOSED : STATE.OPEN);
             return;
