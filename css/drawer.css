@@ -14,13 +14,13 @@ body.drawer-open {
     background: #fff;
     min-height: 100vh;
 
-    transition: transform .28s cubic-bezier(.22,1,.36,1), filter .25s ease;
+    transition: transform .25s ease, border-radius .25s ease, box-shadow .25s ease;
 }
 
-/* 手机背景缩放（只在 open） */
+/* mobile 背景卡片效果 */
 @media (max-width: 768px) {
     body.drawer-open .app {
-        transform: scale(0.965) translateY(6px);
+        transform: scale(0.96) translateY(6px);
         border-radius: 18px;
         overflow: hidden;
         box-shadow: 0 20px 60px rgba(0,0,0,0.18);
@@ -43,6 +43,8 @@ body.drawer-open {
     pointer-events: none;
 
     transition: opacity .25s ease, visibility 0s linear .25s;
+
+    isolation: isolate;
 }
 
 .drawer-overlay.is-open {
@@ -76,14 +78,11 @@ body.drawer-open {
     max-height: 85vh;
     overflow: hidden;
 
-    /* 关键：只用 class 控制 */
-    transform: translateY(100%);
-    transition: transform .35s cubic-bezier(.22,1,.36,1);
-}
+    will-change: transform;
 
-/* OPEN 状态 */
-.drawer.is-open {
-    transform: translateY(0);
+    transform: translate3d(0, 100%, 0);
+
+    transition: transform .28s cubic-bezier(.22,1,.36,1);
 }
 
 /* =========================
@@ -138,14 +137,13 @@ body.drawer-open {
     .drawer {
         width: 550px;
         left: 50%;
-        transform: translateX(-50%) translateY(100%);
-    }
-
-    .drawer.is-open {
-        transform: translateX(-50%) translateY(0);
+        transform: translate3d(-50%, 100%, 0);
+        border-radius: 18px;
     }
 
     body.drawer-open .app {
         transform: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
     }
 }
