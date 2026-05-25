@@ -10,93 +10,166 @@ function isMobile() {
 
 function createDrawerInstance(overlay, drawer, triggerSelector) {
 
+    if (!overlay || !drawer) {
+        console.warn("Drawer init failed");
+        return;
+    }
+
     const app = document.querySelector(".app");
 
+    // =========================
+    // STATE
+    // =========================
     let state = STATE.CLOSED;
-    let currentY = 0;
 
     let startY = 0;
-    let startYPos = 0;
+    let startTranslate = 100;
+    let currentTranslate = 100;
+
     let dragging = false;
 
     let scrollY = 0;
 
-    function h() {
-        return window.innerHeight;
-    }
+    // =========================
+    // POSITION SYSTEM (%)
+    // =========================
+    const CLOSED_Y = 100;
+    const PEEK_Y = 35;
+    const OPEN_Y = 0;
 
-    function peekY() {
-        return h() * 0.65;
-    }
-
-    function closedY() {
-        return h();
-    }
-
-    function openY() {
-        return 0;
-    }
-
+    // =========================
+    // SCROLL LOCK
+    // =========================
     function lockScroll(lock) {
+
         const body = document.body;
 
         if (lock) {
+
             scrollY = window.scrollY || 0;
+
             body.style.position = "fixed";
             body.style.top = `-${scrollY}px`;
             body.style.left = "0";
             body.style.right = "0";
             body.style.width = "100%";
+            body.style.overflow = "hidden";
+
         } else {
+
             body.style.position = "";
             body.style.top = "";
             body.style.left = "";
             body.style.right = "";
             body.style.width = "";
+            body.style.overflow = "";
+
             window.scrollTo(0, scrollY);
         }
     }
 
-    function setBlur(v, animate = false) {
+    // =========================
+    // BLUR
+    // =========================
+    function setBlur(progress, animate = false) {
+
         if (!app) return;
-        app.style.transition = animate ? "filter .25s ease" : "none";
-        app.style.filter = v > 0 ? `blur(${v}px)` : "none";
+
+        // PC 不缩放不模糊
+        if (!isMobile()) {
+            app.style.filter = "none";
+            app.style.transform = "none";
+            return;
+        }
+
+        app.style.transition = animate
+            ? "filter .25s ease, transform .25s ease"
+            : "none";
+
+        const blur = progress * 6;
+        const scale = 1 - progress * 0.035;
+
+        app.style.filter = blur > 0
+            ? `blur(${blur}px)`
+            : "none";
+
+        app.style.transform = progress > 0
+            ? `scale(${scale})`
+            : "none";
     }
 
-    function render(s, animate = false) {
+    // =========================
+    // CORE RENDER
+    // =========================
+    function render(y, animate = false) {
 
-        let y;
-        if (s === STATE.OPEN) y = openY();
-        else if (s === STATE.PEEK) y = peekY();
-        else y = closedY();
-
-        currentY = y;
+        currentTranslate = y;
 
         drawer.style.transition = animate
             ? "transform .35s cubic-bezier(.22,1,.36,1)"
             : "none";
 
-        drawer.style.transform = `translateY(${y}px)`;
+        drawer.style.transform = `translateY(${y}%)`;
 
-        const p = 1 - Math.min(1, y / peekY());
-        setBlur(p * 6, animate);
+        // progress
+        let progress = 0;
 
-        const open = s !== STATE.CLOSED;
+        if (y <= PEEK_Y) {
+            progress = 1 - (y / PEEK_Y);
+        }
+
+        setBlur(progress, animate);
+
+        const open = y < CLOSED_Y;
 
         overlay.classList.toggle("is-open", open);
-        document.body.classList.toggle("drawer-open", open);
+
+        // ⭐ 关键修复：PC 不加 drawer-open
+        if (isMobile()) {
+            document.body.classList.toggle("drawer-open", open);
+        } else {
+            document.body.classList.remove("drawer-open");
+        }
 
         lockScroll(open);
     }
 
+    // =========================
+    // APPLY STATE
+    // =========================
     function apply(next) {
+
         if (state === next) return;
+
         state = next;
-        render(state, true);
+
+        if (state === STATE.OPEN) {
+            render(OPEN_Y, true);
+        }
+
+        else if (state === STATE.PEEK) {
+            render(PEEK_Y, true);
+        }
+
+        else {
+            render(CLOSED_Y, true);
+        }
+    }
+
+    function open() {
+        apply(STATE.OPEN);
+    }
+
+    function close() {
+        apply(STATE.CLOSED);
+    }
+
+    function peek() {
+        apply(STATE.PEEK);
     }
 
     // =========================
-    // ⭐ 关键修复：严格绑定 triggerSelector（不再兜底）
+    // TRIGGER
     // =========================
     document.addEventListener("click", (e) => {
 
@@ -104,42 +177,151 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         if (!trigger) return;
 
-        e.preventDefault();
+        // 防闪
+        e.stopPropagation();
 
+        // PC
         if (!isMobile()) {
-            apply(state === STATE.OPEN ? STATE.CLOSED : STATE.OPEN);
+
+            if (state === STATE.OPEN) {
+                close();
+            } else {
+                open();
+            }
+
             return;
         }
 
-        if (state === STATE.CLOSED) apply(STATE.PEEK);
-        else apply(STATE.CLOSED);
-    });
-
-    overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) {
-            state = STATE.CLOSED;
-            render(STATE.CLOSED, true);
+        // MOBILE
+        if (state === STATE.CLOSED) {
+            peek();
+        } else {
+            close();
         }
     });
 
-    const closeBtn = drawer.querySelector(".drawer-close");
-    if (closeBtn) closeBtn.addEventListener("click", () => {
-        state = STATE.CLOSED;
-        render(STATE.CLOSED, true);
+    // =========================
+    // OVERLAY CLOSE
+    // =========================
+    overlay.addEventListener("click", (e) => {
+
+        if (e.target === overlay) {
+            close();
+        }
     });
 
-    currentY = closedY();
-    render(STATE.CLOSED, false);
+    // =========================
+    // CLOSE BTN
+    // =========================
+    const closeBtn = drawer.querySelector(".drawer-close");
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", close);
+    }
+
+    // =========================
+    // MOBILE DRAG
+    // =========================
+    drawer.addEventListener("touchstart", (e) => {
+
+        if (!isMobile()) return;
+
+        dragging = true;
+
+        startY = e.touches[0].clientY;
+        startTranslate = currentTranslate;
+
+        drawer.style.transition = "none";
+
+        if (app) {
+            app.style.transition = "none";
+        }
+
+    }, { passive: true });
+
+    drawer.addEventListener("touchmove", (e) => {
+
+        if (!dragging) return;
+
+        e.preventDefault();
+
+        const deltaY = e.touches[0].clientY - startY;
+
+        // px -> %
+        const deltaPercent =
+            (deltaY / window.innerHeight) * 100;
+
+        let next =
+            startTranslate + deltaPercent;
+
+        next = Math.max(0, Math.min(100, next));
+
+        render(next, false);
+
+    }, { passive: false });
+
+    function endDrag() {
+
+        if (!dragging) return;
+
+        dragging = false;
+
+        // OPEN
+        if (currentTranslate < 15) {
+            open();
+        }
+
+        // CLOSE
+        else if (currentTranslate > 65) {
+            close();
+        }
+
+        // PEEK
+        else {
+            peek();
+        }
+    }
+
+    drawer.addEventListener("touchend", endDrag);
+    drawer.addEventListener("touchcancel", endDrag);
+
+    // =========================
+    // RESIZE
+    // =========================
+    window.addEventListener("resize", () => {
+
+        if (state === STATE.OPEN) {
+            render(OPEN_Y, false);
+        }
+
+        else if (state === STATE.PEEK) {
+            render(PEEK_Y, false);
+        }
+
+        else {
+            render(CLOSED_Y, false);
+        }
+    });
+
+    // =========================
+    // INIT
+    // =========================
+    render(CLOSED_Y, false);
 }
 
+// =========================
+// INIT
+// =========================
 export function initDrawer() {
 
+    // 评论
     createDrawerInstance(
         document.getElementById("commentOverlay"),
         document.getElementById("commentDrawer"),
         ".comment-btn"
     );
 
+    // 点赞
     createDrawerInstance(
         document.getElementById("likeOverlay"),
         document.getElementById("likeDrawer"),
