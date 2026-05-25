@@ -297,7 +297,7 @@ if (closeBtn) {
 
     }, { passive: false });
 
- function endDrag() {
+function endDrag() {
 
     if (!dragging) return;
 
@@ -305,24 +305,41 @@ if (closeBtn) {
 
     const y = currentTranslate;
 
-    // =========================
-    // 向下关闭
-    // =========================
-    const closeThreshold = PEEK_Y + 10;
+    const openY = OPEN_Y;
+    const peekY = PEEK_Y;
+    const closedY = 100;
 
     // =========================
-    // 向上展开
+    // ① 强制关闭阈值（关键）
     // =========================
-    const expandThreshold = PEEK_Y - 8;
+    const closeThreshold = peekY + 25;
 
-    // =========================
-    // CLOSE
-    // =========================
     if (y > closeThreshold) {
-
         close();
         return;
     }
+
+    // =========================
+    // ② 最近点吸附
+    // =========================
+    const distanceToOpen = Math.abs(y - openY);
+    const distanceToPeek = Math.abs(y - peekY);
+    const distanceToClosed = Math.abs(y - closedY);
+
+    const min = Math.min(
+        distanceToOpen,
+        distanceToPeek,
+        distanceToClosed
+    );
+
+    if (min === distanceToOpen) {
+        open();
+    } else if (min === distanceToPeek) {
+        peek();
+    } else {
+        close();
+    }
+}
 
     // =========================
     // EXPAND
