@@ -28,8 +28,8 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     let scrollY = 0;
 
     const CLOSED_Y = 100;
-    const PEEK_Y = 35;
-    const OPEN_Y = 0;
+    const PEEK_Y = 20;  /* 默认高度 */
+    const OPEN_Y = 8;  /* 稍微展开一点 */
 
     // =========================
     // SCROLL LOCK
@@ -283,24 +283,47 @@ if (closeBtn) {
 
     }, { passive: false });
 
-    function endDrag() {
+ function endDrag() {
 
-        if (!dragging) return;
+    if (!dragging) return;
 
-        dragging = false;
+    dragging = false;
 
-        if (currentTranslate < 15) {
-            open();
-        }
+    const y = currentTranslate;
 
-        else if (currentTranslate > 65) {
-            close();
-        }
+    // =========================
+    // 向下关闭
+    // =========================
+    const closeThreshold = PEEK_Y + 10;
 
-        else {
-            peek();
-        }
+    // =========================
+    // 向上展开
+    // =========================
+    const expandThreshold = PEEK_Y - 8;
+
+    // =========================
+    // CLOSE
+    // =========================
+    if (y > closeThreshold) {
+
+        close();
+        return;
     }
+
+    // =========================
+    // EXPAND
+    // =========================
+    if (y < expandThreshold) {
+
+        open();
+        return;
+    }
+
+    // =========================
+    // DEFAULT
+    // =========================
+    peek();
+}
 
     drawer.addEventListener("touchend", endDrag);
     drawer.addEventListener("touchcancel", endDrag);
