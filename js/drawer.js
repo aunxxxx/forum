@@ -341,21 +341,6 @@ function endDrag() {
     }
 }
 
-    // =========================
-    // EXPAND
-    // =========================
-    if (y < expandThreshold) {
-
-        open();
-        return;
-    }
-
-    // =========================
-    // DEFAULT
-    // =========================
-    peek();
-}
-
     drawer.addEventListener("touchend", endDrag);
     drawer.addEventListener("touchcancel", endDrag);
 
