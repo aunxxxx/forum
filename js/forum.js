@@ -1,40 +1,11 @@
-import { createPostCard } from "./postCard.js";
 import { posts } from "./data.js";
+import { createPostCard } from "./postCard.js";
 
-import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
+import { initLikeEngine, toggleLike, syncLikeUI, getLikeList } from "./likeEngine.js";
 
 const postsContainer = document.getElementById("postsList");
 const overlay = document.getElementById("likeOverlay");
-
-/* =========================
-   RENDER
-========================= */
-
-function renderPosts(container) {
-
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    posts.forEach(post => {
-
-        const card = createPostCard(post, {
-            onLike: (id, btn) => {
-
-                const state = toggleLike(id);
-                syncLikeUI(id);
-
-                animateLike(btn, state.liked);
-            },
-
-            onComment: (id) => {
-                console.log("comment:", id);
-            }
-        });
-
-        container.appendChild(card);
-    });
-}
+const drawer = document.getElementById("likeDrawer");
 
 /* =========================
    INIT
@@ -42,17 +13,28 @@ function renderPosts(container) {
 
 function initApp() {
 
-    if (!postsContainer) {
-        console.warn("postsList not found");
-        return;
-    }
+    if (!postsContainer) return;
 
     initLikeEngine();
-
-    renderPosts(postsContainer);
-
+    renderPosts();
     bindEvents();
-    bindDrawerEvents();
+    bindDrawer();
+}
+
+/* =========================
+   RENDER (稳定局部重建)
+========================= */
+
+function renderPosts() {
+
+    postsContainer.innerHTML = "";
+
+    posts.forEach(post => {
+
+        const card = createPostCard(post);
+
+        postsContainer.appendChild(card);
+    });
 }
 
 /* =========================
@@ -61,8 +43,8 @@ function initApp() {
 
 function bindEvents() {
 
-    if (window.__FORUM_EVENTS_BOUND__) return;
-    window.__FORUM_EVENTS_BOUND__ = true;
+    if (window.__BOUND__) return;
+    window.__BOUND__ = true;
 
     document.addEventListener("click", (e) => {
 
@@ -70,51 +52,34 @@ function bindEvents() {
         if (!likeBtn) return;
 
         const id = likeBtn.dataset.likeId;
-        if (!id) return;
 
-        const countEl = e.target.closest(".like-count");
+        const isCount = e.target.closest(".like-count");
 
-        /* =========================
-           点数字 → drawer
-        ========================= */
-        if (countEl) {
+        /* =====================
+           打开drawer
+        ===================== */
+        if (isCount) {
             openLikeDrawer(id);
             return;
         }
 
-        /* =========================
-           like toggle
-        ========================= */
-
-        if (likeBtn.dataset.locked === "1") return;
-        likeBtn.dataset.locked = "1";
-
+        /* =====================
+           like
+        ===================== */
         const state = toggleLike(id);
 
         syncLikeUI(id);
-
-        // ⭐ 安全调用（防止未定义报错）
-        if (typeof updatePostUI === "function") {
-            updatePostUI(id);
-        }
-
         animateLike(likeBtn, state.liked);
-
-        setTimeout(() => {
-            likeBtn.dataset.locked = "";
-        }, 200);
     });
 }
 
 /* =========================
-   LIKE ANIMATION
+   ANIMATION
 ========================= */
 
 function animateLike(btn, liked) {
 
-    const icon =
-        btn.querySelector(".like-icon") ||
-        btn.querySelector("svg");
+    const icon = btn.querySelector(".like-icon");
 
     btn.classList.toggle("active", liked);
     btn.classList.add("ripple");
@@ -125,67 +90,61 @@ function animateLike(btn, liked) {
         icon.classList.add("pop");
     }
 
-    setTimeout(() => {
-        btn.classList.remove("ripple");
-    }, 300);
+    setTimeout(() => btn.classList.remove("ripple"), 300);
 }
 
 /* =========================
-   DRAWER
+   DRAWER（你要的：去重 + 头像 + title + count）
 ========================= */
 
-function openLikeDrawer(id) {
+function openLikeDrawer(postId) {
 
-    if (!overlay) return;
+    const list = getLikeList(postId);
 
     overlay.classList.add("active");
     document.body.classList.add("drawer-open");
 
-    console.log("open drawer for:", id);
+    const content = drawer.querySelector(".drawer-content");
+
+    content.innerHTML = "";
+
+    list.forEach((item) => {
+
+        const div = document.createElement("div");
+        div.className = "like-item";
+
+        div.innerHTML = `
+            <div class="like-left">
+                <img class="avatar" src="${item.avatar}">
+                <div class="user-info">
+                    <span class="badge">${item.title}</span>
+                    <span class="username">${item.name}</span>
+                </div>
+            </div>
+
+            <div class="like-right">×${item.count}</div>
+        `;
+
+        content.appendChild(div);
+    });
 }
 
-function closeLikeDrawer() {
+/* =========================
+   CLOSE
+========================= */
 
-    if (!overlay) return;
+function bindDrawer() {
 
+    overlay.addEventListener("click", closeDrawer);
+}
+
+function closeDrawer() {
     overlay.classList.remove("active");
     document.body.classList.remove("drawer-open");
 }
 
 /* =========================
-   DRAWER EVENTS
+   START
 ========================= */
 
-function bindDrawerEvents() {
-
-    if (!overlay) return;
-
-    if (window.__DRAWER_EVENTS_BOUND__) return;
-    window.__DRAWER_EVENTS_BOUND__ = true;
-
-    overlay.addEventListener("click", closeLikeDrawer);
-
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            closeLikeDrawer();
-        }
-    });
-}
-
-/* =========================
-   BOOT
-========================= */
-
-function start() {
-
-    if (window.__FORUM_INIT__) return;
-    window.__FORUM_INIT__ = true;
-
-    initApp();
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
-} else {
-    start();
-}
+initApp();
