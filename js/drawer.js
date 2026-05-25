@@ -4,27 +4,12 @@ const STATE = {
     OPEN: "OPEN"
 };
 
-// =========================
-// DEVICE DETECT
-// =========================
-
 function isMobile() {
     return window.innerWidth <= 768;
 }
 
-// =========================
-// CORE HEIGHT
-// =========================
-
-function getDrawerHeight() {
-    return Math.min(window.innerHeight * 0.85, 680);
-}
-
-// =========================
-// DRAWER ENGINE
-// =========================
-
 function createDrawerInstance(overlay, drawer, triggerSelector) {
+
     if (!overlay || !drawer) {
         console.warn("Drawer init failed:", overlay, drawer);
         return;
@@ -32,35 +17,40 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
     const app = document.querySelector(".app");
 
+    // =========================
+    // STATE
+    // =========================
     let state = STATE.CLOSED;
-
     let currentY = 0;
 
     let startY = 0;
-    let startTranslate = 0;
-
+    let startYPos = 0;
     let dragging = false;
+
     let scrollY = 0;
 
-    let PEEK = 0;
-
-    function getPeekHeight() {
-        const h = getDrawerHeight();
-        return Math.min(280, Math.max(180, h * 0.35));
+    // =========================
+    // SIZE SYSTEM (PX ONLY)
+    // =========================
+    function h() {
+        return Math.min(window.innerHeight * 0.85, 720);
     }
 
-    function refreshPeek() {
-        PEEK = getPeekHeight();
+    function peekY() {
+        return h() * 0.65;
     }
 
-    function getY(s) {
-        const h = getDrawerHeight();
-
-        if (s === STATE.OPEN) return 0;
-        if (s === STATE.PEEK) return h - PEEK;
-        return h;
+    function closedY() {
+        return h();
     }
 
+    function openY() {
+        return 0;
+    }
+
+    // =========================
+    // SCROLL LOCK
+    // =========================
     function lockScroll(lock) {
         const body = document.body;
 
@@ -83,6 +73,9 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         }
     }
 
+    // =========================
+    // BLUR
+    // =========================
     function setBlur(v, animate = false) {
         if (!app) return;
 
@@ -90,9 +83,16 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
         app.style.filter = v > 0 ? `blur(${v}px)` : "none";
     }
 
+    // =========================
+    // CORE RENDER (STATE DRIVEN)
+    // =========================
     function render(s, animate = false) {
-        const h = getDrawerHeight();
-        const y = getY(s);
+
+        let y = 0;
+
+        if (s === STATE.OPEN) y = openY();
+        else if (s === STATE.PEEK) y = peekY();
+        else y = closedY();
 
         currentY = y;
 
@@ -102,46 +102,24 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
 
         drawer.style.transform = `translateY(${y}px)`;
 
-        const peekY = h - PEEK;
+        // blur based on progress
+        const p = Math.max(0, Math.min(1, 1 - y / peekY()));
+        setBlur(p * 6, animate);
 
-        let progress = 0;
-        if (y <= peekY) {
-            progress = 1 - y / peekY;
-        }
-
-        setBlur(progress * 6, animate);
-    }
-
-    function renderDrag(y) {
-        currentY = y;
-
-        const h = getDrawerHeight();
-
-        drawer.style.transition = "none";
-        drawer.style.transform = `translateY(${y}px)`;
-
-        const peekY = h - PEEK;
-
-        let progress = 0;
-        if (y <= peekY) {
-            progress = 1 - y / peekY;
-        }
-
-        setBlur(progress * 6, false);
-    }
-
-    function apply(next) {
-        if (state === next) return;
-
-        state = next;
-
-        const open = state !== STATE.CLOSED;
+        const open = s !== STATE.CLOSED;
 
         overlay.classList.toggle("is-open", open);
         document.body.classList.toggle("drawer-open", open);
 
         lockScroll(open);
+    }
 
+    // =========================
+    // APPLY STATE
+    // =========================
+    function apply(next) {
+        if (state === next) return;
+        state = next;
         render(state, true);
     }
 
@@ -150,27 +128,27 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     function peek() { apply(STATE.PEEK); }
 
     // =========================
-    // TRIGGER (PC / MOBILE FIX)
+    // TRIGGER
     // =========================
-
     document.addEventListener("click", (e) => {
-        const t = e.target.closest(triggerSelector);
-        if (!t) return;
 
-        // 🔥 PC 行为：直接 OPEN / CLOSE
+        const trigger = e.target.closest(triggerSelector);
+        if (!trigger) return;
+
+        e.preventDefault();
+
         if (!isMobile()) {
             apply(state === STATE.OPEN ? STATE.CLOSED : STATE.OPEN);
             return;
         }
 
-        // 🔥 Mobile 行为：CLOSED → PEEK → CLOSE
-        if (state === STATE.CLOSED) {
-            apply(STATE.PEEK);
-        } else {
-            apply(STATE.CLOSED);
-        }
+        if (state === STATE.CLOSED) apply(STATE.PEEK);
+        else apply(STATE.CLOSED);
     });
 
+    // =========================
+    // OVERLAY CLOSE
+    // =========================
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay) close();
     });
@@ -179,54 +157,56 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     if (closeBtn) closeBtn.addEventListener("click", close);
 
     // =========================
-    // TOUCH (ONLY MOBILE)
+    // TOUCH DRAG (MOBILE ONLY)
     // =========================
-
     drawer.addEventListener("touchstart", (e) => {
+
         if (!isMobile()) return;
 
         dragging = true;
 
         startY = e.touches[0].clientY;
-        startTranslate = currentY;
+        startYPos = currentY;
 
         drawer.style.transition = "none";
         if (app) app.style.transition = "none";
-    });
 
-    drawer.addEventListener(
-        "touchmove",
-        (e) => {
-            if (!dragging) return;
+    }, { passive: true });
 
-            e.preventDefault();
+    drawer.addEventListener("touchmove", (e) => {
 
-            const y = e.touches[0].clientY;
-
-            let nextY = startTranslate + (y - startY);
-
-            const h = getDrawerHeight();
-            nextY = Math.max(0, Math.min(h, nextY));
-
-            renderDrag(nextY);
-        },
-        { passive: false }
-    );
-
-    function endDrag() {
         if (!dragging) return;
 
+        e.preventDefault();
+
+        const delta = e.touches[0].clientY - startY;
+
+        let nextY = startYPos + delta;
+
+        nextY = Math.max(0, Math.min(closedY(), nextY));
+
+        currentY = nextY;
+
+        drawer.style.transform = `translateY(${nextY}px)`;
+
+        const p = Math.max(0, Math.min(1, 1 - nextY / peekY()));
+        setBlur(p * 6, false);
+
+    }, { passive: false });
+
+    function endDrag() {
+
+        if (!dragging) return;
         dragging = false;
 
-        const h = getDrawerHeight();
-        const peekY = h - PEEK;
+        const y = currentY;
 
-        const openThreshold = peekY * 0.35;
-        const closeThreshold = h - PEEK * 0.5;
+        const openThreshold = peekY() * 0.25;
+        const closeThreshold = peekY() + (closedY() - peekY()) * 0.5;
 
-        if (currentY < openThreshold) {
+        if (y <= openThreshold) {
             apply(STATE.OPEN);
-        } else if (currentY > closeThreshold) {
+        } else if (y >= closeThreshold) {
             apply(STATE.CLOSED);
         } else {
             apply(STATE.PEEK);
@@ -239,25 +219,21 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     // =========================
     // RESIZE
     // =========================
-
     window.addEventListener("resize", () => {
-        refreshPeek();
         render(state, false);
     });
 
     // =========================
     // INIT
     // =========================
-
-    refreshPeek();
     apply(STATE.CLOSED);
 }
 
 // =========================
-// EXPORT
+// EXPORT INIT
 // =========================
-
 export function initDrawer() {
+
     createDrawerInstance(
         document.getElementById("commentOverlay"),
         document.getElementById("commentDrawer"),
