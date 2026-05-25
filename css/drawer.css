@@ -7,27 +7,18 @@ body.drawer-open {
 }
 
 /* =========================
-   APP（背景层）
+   APP（背景）
 ========================= */
 
 .app {
-    background: #fff;
     min-height: 100vh;
+    background: #fff;
 
-    transition:
-        transform .32s cubic-bezier(.22,1,.36,1),
-        filter .25s ease;
-
+    transition: transform .32s ease, filter .25s ease;
     will-change: transform, filter;
-
-    /* ⭐ 关键修复：防 stacking context 混乱 */
-    isolation: isolate;
 }
 
-/* =========================
-   MOBILE 卡片效果
-========================= */
-
+/* 背景缩放（只在手机） */
 @media (max-width: 768px) {
     body.drawer-open .app {
         transform: scale(0.965) translateY(6px);
@@ -52,7 +43,7 @@ body.drawer-open {
     visibility: hidden;
     pointer-events: none;
 
-    transition: opacity .25s ease, visibility .25s ease;
+    transition: opacity .25s ease, background .25s ease;
 }
 
 .drawer-overlay.active {
@@ -63,7 +54,7 @@ body.drawer-open {
 }
 
 /* =========================
-   DRAWER（关键层）
+   DRAWER（核心）
 ========================= */
 
 .drawer {
@@ -74,22 +65,28 @@ body.drawer-open {
 
     z-index: 4000;
 
-    width: 100%;
-    max-height: 85vh;
-
     background: #fff;
-
     border-radius: 22px 22px 0 0;
 
     transform: translateY(100%);
-    will-change: transform;
+    transition: transform .35s cubic-bezier(.22,1,.36,1);
 
     display: flex;
     flex-direction: column;
 
-    overflow: hidden;
+    max-height: 85vh;
 
-    touch-action: none;
+    overflow: hidden;
+}
+
+/* OPEN */
+.drawer.open {
+    transform: translateY(0);
+}
+
+/* PEEK */
+.drawer.peek {
+    transform: translateY(40vh);
 }
 
 /* =========================
@@ -99,25 +96,37 @@ body.drawer-open {
 .drawer-content {
     flex: 1;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     padding: 16px;
 }
 
 /* =========================
-   PC MODE
+   HEADER
 ========================= */
 
-@media (min-width: 769px) {
-    .drawer-overlay {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+}
 
-    .drawer {
-        position: relative;
-        width: 550px;
-        max-height: 75vh;
-        border-radius: 18px;
-    }
+.drawer-close {
+    cursor: pointer;
+}
+
+/* =========================
+   HANDLE
+========================= */
+
+.drawer-handle-wrap {
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.drawer-handle {
+    width: 45px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.15);
 }
