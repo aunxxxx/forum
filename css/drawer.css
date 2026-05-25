@@ -4,20 +4,27 @@ html, body {
 
 body.drawer-open {
     overflow: hidden;
+    height: 100%;
 }
 
 /* =========================
-   APP
+   APP（背景层）
 ========================= */
 
 .app {
     background: #fff;
     min-height: 100vh;
 
-    transition: transform .25s ease, filter .25s ease;
+    transition: transform .28s cubic-bezier(.22,1,.36,1),
+                filter .25s ease;
+
+    will-change: transform, filter;
 }
 
-/* mobile 背景卡片 */
+/* =========================
+   背景缩放（仅 mobile）
+========================= */
+
 @media (max-width: 768px) {
     body.drawer-open .app {
         transform: scale(0.965) translateY(6px);
@@ -28,7 +35,7 @@ body.drawer-open {
 }
 
 /* =========================
-   OVERLAY
+   OVERLAY（核心遮罩层）
 ========================= */
 
 .drawer-overlay {
@@ -39,24 +46,23 @@ body.drawer-open {
     background: rgba(0,0,0,0);
 
     opacity: 0;
-    visibility: hidden;
+
+    /* 关键：避免点击穿透 */
     pointer-events: none;
 
-    transition: opacity .25s ease, visibility 0s linear .25s;
+    transition: opacity .25s ease, background .25s ease;
 }
 
-.drawer-overlay.active {
+/* 打开状态 */
+.drawer-overlay.is-open {
     opacity: 1;
-    visibility: visible;
     pointer-events: auto;
 
     background: rgba(0,0,0,0.35);
-
-    transition: opacity .25s ease, visibility 0s;
 }
 
 /* =========================
-   DRAWER
+   DRAWER（核心容器）
 ========================= */
 
 .drawer {
@@ -65,25 +71,26 @@ body.drawer-open {
     right: 0;
     bottom: 0;
 
-    z-index: 3100;
+    width: 100%;
+    max-height: 85vh;
 
     background: #fff;
+
     border-radius: 22px 22px 0 0;
 
     display: flex;
     flex-direction: column;
 
-    max-height: 85vh;
     overflow: hidden;
 
-    transform: translate3d(0, 100%, 0);
-
-    transition: transform .28s cubic-bezier(.22,1,.36,1);
-
+    /* 关键：只允许 JS 控制 transform */
     will-change: transform;
 }
 
-/* content */
+/* =========================
+   CONTENT
+========================= */
+
 .drawer-content {
     flex: 1;
     overflow-y: auto;
@@ -91,7 +98,10 @@ body.drawer-open {
     padding: 16px;
 }
 
-/* handle */
+/* =========================
+   HANDLE（移动端）
+========================= */
+
 .drawer-handle-wrap {
     padding: 10px 0;
     display: flex;
@@ -105,9 +115,12 @@ body.drawer-open {
     background: rgba(0,0,0,0.15);
 }
 
-/* header */
+/* =========================
+   HEADER（默认隐藏）
+========================= */
+
 .drawer-header {
-    display: flex;
+    display: none;
     justify-content: space-between;
     padding: 16px;
     border-bottom: 1px solid #eee;
@@ -117,25 +130,58 @@ body.drawer-open {
     cursor: pointer;
 }
 
-/* PC */
+/* =========================
+   PC MODE
+========================= */
+
 @media (min-width: 769px) {
-
-    .drawer {
-        width: 550px;
-        left: 50%;
-        transform: translate3d(-50%, 100%, 0);
-        border-radius: 18px;
-    }
-
     .drawer-overlay {
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
-    body.drawer-open .app {
-        transform: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
+    .drawer {
+        position: relative;
+        width: 550px;
+        max-height: 75vh;
+
+        border-radius: 18px;
+    }
+
+    .drawer-header {
+        display: flex;
+    }
+
+    .drawer-handle-wrap {
+        display: none;
+    }
+}
+
+/* =========================
+   MOBILE MODE
+========================= */
+
+@media (max-width: 768px) {
+    .drawer {
+        touch-action: none;
+    }
+
+    .drawer-header {
+        display: none;
+    }
+
+    .drawer-handle-wrap {
+        display: flex;
+    }
+}
+
+/* =========================
+   SAFE AREA（iOS）
+========================= */
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .drawer-content {
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
 }
