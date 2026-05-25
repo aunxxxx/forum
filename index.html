@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forum2.81</title>
+  <title>Forum2.91</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -13,13 +13,11 @@
   <link rel="stylesheet" href="css/drawer.css">
 </head>
 
-<body>
+<body class="page">
 
 <div class="app">
 
-  <!-- =========================
-       TOPBAR
-  ========================== -->
+  <!-- TOPBAR -->
   <header class="topbar">
     <div class="logo">铁</div>
 
@@ -32,9 +30,7 @@
     <div class="user-avatar">🐯</div>
   </header>
 
-  <!-- =========================
-       MAIN
-  ========================== -->
+  <!-- MAIN -->
   <main class="container">
 
     <section class="hot-section">
@@ -64,9 +60,7 @@
 
 </div>
 
-<!-- =========================
-     EDITOR（独立层）
-========================= -->
+<!-- EDITOR -->
 <div class="editor-overlay" id="editor">
   <div class="editor-box">
 
@@ -75,7 +69,7 @@
       <button id="submitPost">发布</button>
     </div>
 
-    <textarea id="postInput" placeholder="分享点什么吧..."></textarea>
+    <textarea id="postInput"></textarea>
 
     <input type="file" id="imageInput" hidden />
     <div class="upload-btn" id="uploadBtn">上传图片</div>
@@ -85,29 +79,20 @@
   </div>
 </div>
 
-<!-- =========================
-     COMMENT DRAWER
-========================= -->
+<!-- COMMENT DRAWER -->
 <div class="drawer-overlay" id="commentOverlay">
-
   <div class="drawer" id="commentDrawer">
 
-    <!-- mobile handle -->
     <div class="drawer-handle-wrap">
       <div class="drawer-handle"></div>
     </div>
 
-    <!-- PC header（标题 + 关闭按钮） -->
     <div class="drawer-header">
-
       <div class="drawer-title">评论</div>
-
       <div class="drawer-close">✕</div>
-
     </div>
 
     <div class="drawer-content">
-
       <div class="comment-item">
         <div class="comment-avatar">李</div>
         <div class="comment-main">
@@ -115,72 +100,35 @@
           <div class="comment-text">这个 drawer 已经开始有 App 感了。</div>
         </div>
       </div>
-
-      <div class="comment-item">
-        <div class="comment-avatar">张</div>
-        <div class="comment-main">
-          <div class="comment-name">张三 · 创始成员</div>
-          <div class="comment-text">下一步可以开始做回复链。</div>
-        </div>
-      </div>
-
     </div>
+
   </div>
 </div>
 
-<!-- =========================
-     LIKE DRAWER
-========================= -->
+<!-- LIKE DRAWER -->
 <div class="drawer-overlay" id="likeOverlay">
-
   <div class="drawer" id="likeDrawer">
 
-    <!-- mobile handle -->
     <div class="drawer-handle-wrap">
       <div class="drawer-handle"></div>
     </div>
 
-    <!-- PC header -->
     <div class="drawer-header">
-
       <div class="drawer-title">点赞</div>
-
       <div class="drawer-close">✕</div>
-
     </div>
 
     <div class="drawer-content">
-
       <div class="like-item">
-
         <div class="like-left">
           <div class="like-avatar">马</div>
-
           <div>
             <div class="like-name">马睿婕</div>
             <div class="like-title">创始成员</div>
           </div>
         </div>
-
         <div class="like-count">×18</div>
-
       </div>
-
-      <div class="like-item">
-
-        <div class="like-left">
-          <div class="like-avatar">陈</div>
-
-          <div>
-            <div class="like-name">陈朗</div>
-            <div class="like-title">队长</div>
-          </div>
-        </div>
-
-        <div class="like-count">×5</div>
-
-      </div>
-
     </div>
 
   </div>
@@ -188,7 +136,5 @@
 
 <script type="module" src="js/forum.js"></script>
 
-<body class="page">
-  
 </body>
 </html>
