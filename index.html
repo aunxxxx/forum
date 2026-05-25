@@ -29,7 +29,7 @@
       <span class="active">铁汁窝</span>
     </nav>
 
-    <!-- ⭐ 改成统一 avatar -->
+    <!-- avatar（未来用户页入口） -->
     <div class="avatar-wrap">
       <img class="avatar" src="https://i.pravatar.cc/40" data-user-id="me">
     </div>
@@ -107,17 +107,16 @@
 
     <div class="drawer-content">
 
-      <!-- COMMENT ITEM（已升级结构） -->
+      <!-- COMMENT ITEM -->
       <div class="comment">
 
-        <!-- PC reply（你刚做的） -->
+        <!-- PC reply -->
         <div class="comment-left">
           <button class="reply-btn">↩</button>
         </div>
 
         <div class="comment-main">
 
-          <!-- user line（统一系统接管） -->
           <div class="user-line">
             <a class="avatar-wrap">
               <img class="avatar" src="https://i.pravatar.cc/40?img=2" data-user-id="1">
@@ -135,10 +134,13 @@
 
         </div>
 
-        <!-- like -->
+        <!-- like（⭐关键：补 data-like-id） -->
         <div class="comment-right">
-          <button class="like-btn">
-            👍 <span class="like-count">12</span>
+          <button class="like-btn" data-like-id="comment_demo_1">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/>
+            </svg>
+            <span class="like-count">12</span>
           </button>
         </div>
 
