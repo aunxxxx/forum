@@ -1,4 +1,3 @@
-
 export function initDrawer() {
     bindDrawer(
         document.getElementById("commentOverlay"),
@@ -22,27 +21,17 @@ function getPeekHeight() {
 }
 
 // =========================
-// STATE MACHINE CORE
+// SCROLL LOCK
 // =========================
-
-const STATE = {
-    CLOSED: "CLOSED",
-    PEEK: "PEEK",
-    OPEN: "OPEN"
-};
 
 function createScrollLock() {
     let scrollY = 0;
 
-    function getScrollY() {
-        return window.scrollY || document.documentElement.scrollTop;
-    }
-
-    function lock(lock) {
+    return function lock(isLock) {
         const body = document.body;
 
-        if (lock) {
-            scrollY = getScrollY();
+        if (isLock) {
+            scrollY = window.scrollY || document.documentElement.scrollTop;
 
             body.style.position = "fixed";
             body.style.top = `-${scrollY}px`;
@@ -60,13 +49,21 @@ function createScrollLock() {
 
             window.scrollTo(0, scrollY);
         }
-    }
-
-    return lock;
+    };
 }
 
 // =========================
-// DRAWER BIND
+// STATE
+// =========================
+
+const STATE = {
+    CLOSED: "CLOSED",
+    PEEK: "PEEK",
+    OPEN: "OPEN"
+};
+
+// =========================
+// CORE
 // =========================
 
 function bindDrawer(overlay, drawer, triggerSelector) {
@@ -78,9 +75,6 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     let state = STATE.CLOSED;
 
     let PEEK = getPeekHeight();
-
-    let startY = 0;
-    let startTranslate = 0;
     let currentY = window.innerHeight;
 
     const OPEN_Y = 0;
@@ -90,37 +84,33 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // PURE RENDER (唯一 DOM 输出点)
+    // RENDER（唯一入口）
     // =========================
 
-    function render(s, animate = true) {
-        const isOpen = s !== STATE.CLOSED;
+    function render(next, animate = true) {
+        const isOpen = next !== STATE.CLOSED;
 
-        // overlay
         overlay.classList.toggle("active", isOpen);
+        document.body.classList.toggle("drawer-open", isOpen);
 
-        // scroll lock
         lockScroll(isOpen);
 
-        // animation control
         drawer.style.transition = animate
             ? "transform .35s cubic-bezier(.22,1,.36,1)"
             : "none";
 
-        if (app) {
-            app.style.transition = animate
-                ? "transform .32s cubic-bezier(.22,1,.36,1), filter .25s ease"
-                : "none";
-        }
+        app.style.transition = animate
+            ? "transform .32s cubic-bezier(.22,1,.36,1), filter .25s ease"
+            : "none";
 
-        // state mapping
         let y = CLOSED_Y();
-
-        if (s === STATE.PEEK) y = PEEK;
-        if (s === STATE.OPEN) y = OPEN_Y;
+        if (next === STATE.PEEK) y = PEEK;
+        if (next === STATE.OPEN) y = OPEN_Y;
 
         currentY = y;
 
+        // drawer
+        drawer.style.display = "flex";
         drawer.style.transform = `translateY(${y}px)`;
 
         // blur
@@ -128,37 +118,27 @@ function bindDrawer(overlay, drawer, triggerSelector) {
         if (y <= 0) progress = 1;
         else if (y <= PEEK) progress = 1 - y / PEEK;
 
-        if (app) app.style.filter = `blur(${progress * 6}px)`;
+        app.style.filter = `blur(${progress * 6}px)`;
 
-        // visual depth (optional but stable)
-        if (app) {
-            app.style.transform =
-                isOpen && window.innerWidth <= 768
-                    ? "scale(0.965) translateY(6px)"
-                    : "none";
+        // mobile background effect
+        if (window.innerWidth <= 768) {
+            app.style.transform = isOpen
+                ? "scale(0.965) translateY(6px)"
+                : "none";
+        } else {
+            app.style.transform = "none";
+            app.style.filter = isOpen ? app.style.filter : "none";
         }
 
-        state = s;
+        state = next;
     }
+
+    function open() { render(STATE.OPEN); }
+    function close() { render(STATE.CLOSED); }
+    function peek() { render(STATE.PEEK); }
 
     // =========================
-    // STATE API（唯一入口）
-    // =========================
-
-    function open() {
-        render(STATE.OPEN);
-    }
-
-    function close() {
-        render(STATE.CLOSED);
-    }
-
-    function peek() {
-        render(STATE.PEEK);
-    }
-
-    // =========================
-    // INIT (关键：锁死初始状态)
+    // INIT
     // =========================
 
     render(STATE.CLOSED, false);
@@ -172,10 +152,9 @@ function bindDrawer(overlay, drawer, triggerSelector) {
 
         if (window.innerWidth >= 769) {
             state === STATE.OPEN ? close() : open();
-            return;
+        } else {
+            state === STATE.OPEN ? close() : peek();
         }
-
-        state === STATE.OPEN ? close() : peek();
     });
 
     overlay.addEventListener("click", () => close());
@@ -184,7 +163,7 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     if (closeBtn) closeBtn.addEventListener("click", close);
 
     // =========================
-    // DESKTOP LOCK
+    // DESKTOP
     // =========================
 
     if (window.innerWidth >= 769) {
@@ -193,64 +172,53 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // DRAG SYSTEM
+    // DRAG
     // =========================
+
+    let startY = 0;
+    let startTranslate = 0;
 
     drawer.addEventListener("touchstart", (e) => {
         startY = e.touches[0].clientY;
         startTranslate = currentY;
 
         drawer.style.transition = "none";
-        if (app) app.style.transition = "none";
+        app.style.transition = "none";
 
         PEEK = getPeekHeight();
     });
 
-    drawer.addEventListener(
-        "touchmove",
-        (e) => {
-            e.preventDefault();
+    drawer.addEventListener("touchmove", (e) => {
+        e.preventDefault();
 
-            const y = e.touches[0].clientY;
-            let newY = startTranslate + (y - startY);
+        const y = e.touches[0].clientY;
+        let newY = startTranslate + (y - startY);
 
-            newY = Math.max(0, Math.min(CLOSED_Y(), newY));
+        newY = Math.max(0, Math.min(CLOSED_Y(), newY));
 
-            currentY = newY;
-            drawer.style.transform = `translateY(${newY}px)`;
+        currentY = newY;
+        drawer.style.transform = `translateY(${newY}px)`;
 
-            let progress = 0;
-            if (newY <= 0) progress = 1;
-            else if (newY <= PEEK) progress = 1 - newY / PEEK;
+        let progress = 0;
+        if (newY <= 0) progress = 1;
+        else if (newY <= PEEK) progress = 1 - newY / PEEK;
 
-            if (app) app.style.filter = `blur(${progress * 6}px)`;
-        },
-        { passive: false }
-    );
+        app.style.filter = `blur(${progress * 6}px)`;
+    }, { passive: false });
 
     drawer.addEventListener("touchend", () => {
         drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
-        if (app) app.style.transition = "";
+        app.style.transition = "";
 
         const closeThreshold = PEEK * 0.6;
 
-        if (currentY > PEEK + closeThreshold) {
-            close();
-        } else if (currentY < PEEK / 2) {
-            open();
-        } else {
-            peek();
-        }
+        if (currentY > PEEK + closeThreshold) close();
+        else if (currentY < PEEK / 2) open();
+        else peek();
     });
-
-    // =========================
-    // RESIZE SAFETY
-    // =========================
 
     window.addEventListener("resize", () => {
         PEEK = getPeekHeight();
-        if (state === STATE.PEEK) {
-            render(STATE.PEEK, false);
-        }
+        if (state === STATE.PEEK) render(STATE.PEEK, false);
     });
 }
