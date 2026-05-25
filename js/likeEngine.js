@@ -1,74 +1,50 @@
-const likeStore = new Map();
+import { posts } from "./data.js";
 
-/* =========================
-   INIT STATE
-========================= */
+const likeMap = new Map(); // postId -> Set(userId)
 
 export function initLikeEngine() {
-    console.log("Like Engine ready");
+    posts.forEach(p => {
+        likeMap.set(p.id, new Set());
+    });
 }
 
-/* =========================
-   GET STATE
-========================= */
+/* ⭐ 无限点赞 + 去重 */
+export function toggleLike(postId) {
 
-export function getLike(id) {
-    return likeStore.get(id) || {
-        count: 0,
-        liked: false,
-        users: []
+    if (!likeMap.has(postId)) {
+        likeMap.set(postId, new Set());
+    }
+
+    const set = likeMap.get(postId);
+
+    // 模拟“当前用户”
+    const userId = "me";
+
+    if (set.has(userId)) {
+        set.delete(userId);
+    } else {
+        set.add(userId);
+    }
+
+    return {
+        liked: set.has(userId),
+        count: set.size
     };
 }
 
-/* =========================
-   TOGGLE LIKE
-========================= */
+/* ⭐ UI同步 */
+export function syncLikeUI(postId) {
 
-export function toggleLike(id, user = "me") {
+    const btn = document.querySelector(`[data-like-id="${postId}"]`);
+    if (!btn) return;
 
-    const state = getLike(id);
+    const set = likeMap.get(postId) || new Set();
 
-    const alreadyLiked = state.users.includes(user);
-
-    if (alreadyLiked) {
-        state.users = state.users.filter(u => u !== user);
-        state.count = Math.max(0, state.count - 1);
-        state.liked = false;
-    } else {
-        state.users.push(user);
-        state.count += 1;
-        state.liked = true;
-    }
-
-    likeStore.set(id, state);
-
-    return state;
+    const count = btn.querySelector(".like-count");
+    if (count) count.textContent = set.size;
 }
 
-/* =========================
-   SYNC UI
-========================= */
-
-export function syncLikeUI(id) {
-
-    const state = getLike(id);
-
-    document.querySelectorAll(`[data-like-id="${id}"]`).forEach(el => {
-
-        const countEl = el.querySelector(".like-count");
-        const btn = el.querySelector(".like-btn");
-        const icon = el.querySelector("svg");
-
-        if (countEl) {
-            countEl.textContent = state.count;
-        }
-
-        if (btn) {
-            btn.classList.toggle("active", state.liked);
-        }
-
-        if (icon) {
-            icon.classList.toggle("active", state.liked);
-        }
-    });
+/* ⭐ drawer数据（去重后的列表） */
+export function getLikeList(postId) {
+    return likeMap.get(postId) || new Set();
 }
