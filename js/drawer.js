@@ -1,3 +1,17 @@
+const STATE = {
+    CLOSED: "closed",
+    PEEK: "peek",
+    OPEN: "open"
+};
+
+const config = {
+    MAX_UP: -140,     // 上拉极限
+    MAX_DOWN: 260,    // 下拉极限
+    CLOSE_THRESHOLD: 160
+};
+
+let currentState = STATE.CLOSED;
+
 export function initDrawer() {
 
     initCommentDrawer();
@@ -8,30 +22,55 @@ export function initDrawer() {
    OPEN / CLOSE
 ========================= */
 
-function openDrawer(overlay, drawer) {
+function setState(overlay, drawer, state) {
 
-    overlay.classList.add("active");
+    const app = document.querySelector(".app");
 
-    requestAnimationFrame(() => {
-        drawer.classList.add("active");
-        document.body.classList.add("drawer-open");
-    });
+    currentState = state;
+
+    overlay.classList.toggle("active", state !== STATE.CLOSED);
+    document.body.classList.toggle("drawer-open", state !== STATE.CLOSED);
+
+    if (state === STATE.CLOSED) {
+
+        drawer.style.transform = "translateY(100%)";
+        if (app) resetApp(app);
+
+        return;
+    }
+
+    if (state === STATE.OPEN) {
+
+        drawer.style.transform = "translateY(0)";
+
+        if (app) {
+            if (window.innerWidth >= 769) {
+                app.style.filter = "blur(6px) brightness(.92)";
+            } else {
+                app.style.transform = "scale(.97)";
+            }
+        }
+
+        return;
+    }
+
+    if (state === STATE.PEEK) {
+
+        drawer.style.transform = "translateY(40px)";
+
+        if (app) {
+            if (window.innerWidth >= 769) {
+                app.style.filter = "blur(3px) brightness(.95)";
+            } else {
+                app.style.transform = "scale(.985)";
+            }
+        }
+    }
 }
 
-function closeDrawer(overlay, drawer) {
-
-    drawer.classList.remove("active");
-    document.body.classList.remove("drawer-open");
-
-    reset(drawer);
-
-    setTimeout(() => {
-        overlay.classList.remove("active");
-    }, 250);
-}
-
-function reset(drawer) {
-    drawer.style.transform = "";
+function resetApp(app) {
+    app.style.transform = "";
+    app.style.filter = "";
 }
 
 /* =========================
@@ -50,15 +89,11 @@ function initCommentDrawer() {
         const btn = e.target.closest(".comment-btn");
         if (!btn) return;
 
-        openDrawer(overlay, drawer);
+        setState(overlay, drawer, STATE.OPEN);
     });
 
-    overlay.addEventListener("click", (e) => {
-        if (e.target !== overlay) return;
-        closeDrawer(overlay, drawer);
-    });
-
-    initDrag(drawer, overlay);
+    bindClose(overlay, drawer);
+    bindDrag(overlay, drawer);
 }
 
 /* =========================
@@ -77,44 +112,58 @@ function initLikeDrawer() {
         const btn = e.target.closest(".like-count-trigger");
         if (!btn) return;
 
-        openDrawer(overlay, drawer);
+        setState(overlay, drawer, STATE.OPEN);
     });
 
-    overlay.addEventListener("click", (e) => {
-        if (e.target !== overlay) return;
-        closeDrawer(overlay, drawer);
-    });
-
-    initDrag(drawer, overlay);
+    bindClose(overlay, drawer);
+    bindDrag(overlay, drawer);
 }
 
 /* =========================
-   RUBBER BAND
+   CLOSE
+========================= */
+
+function bindClose(overlay, drawer) {
+
+    overlay.addEventListener("click", (e) => {
+        if (e.target !== overlay) return;
+        setState(overlay, drawer, STATE.CLOSED);
+    });
+
+    document.addEventListener("click", (e) => {
+
+        const btn = e.target.closest(".drawer-close");
+        if (!btn) return;
+
+        const ov = btn.closest(".drawer-overlay");
+        const dr = ov?.querySelector(".drawer");
+
+        setState(ov, dr, STATE.CLOSED);
+    });
+}
+
+/* =========================
+   RUBBER
 ========================= */
 
 function rubber(n) {
     const abs = Math.abs(n);
-    const val = abs * (1 - Math.exp(-abs / 120));
-    return n < 0 ? -val : val;
+    const v = abs * (1 - Math.exp(-abs / 120));
+    return n < 0 ? -v : v;
 }
 
 /* =========================
-   DRAG CORE (FINAL STABLE)
+   DRAG STATE MACHINE
 ========================= */
 
-function initDrag(drawer, overlay) {
+function bindDrag(overlay, drawer) {
 
-    // PC 不拖动
     if (window.innerWidth >= 769) return;
-
-    const MAX_UP = -140;     // 上拉极限（peek上限）
-    const MAX_DOWN = 280;    // 下拉极限（防飞出）
-    const CLOSE_THRESHOLD = 160;
 
     let startY = 0;
     let currentY = 0;
     let lastY = 0;
-    let lastTime = 0;
+    let lastT = 0;
     let velocity = 0;
     let dragging = false;
 
@@ -123,9 +172,8 @@ function initDrag(drawer, overlay) {
         dragging = true;
 
         startY = e.touches[0].clientY;
-
         lastY = startY;
-        lastTime = Date.now();
+        lastT = Date.now();
 
         drawer.style.transition = "none";
     });
@@ -139,51 +187,47 @@ function initDrag(drawer, overlay) {
 
         let diff = y - startY;
 
-        velocity = (y - lastY) / (now - lastTime);
+        velocity = (y - lastY) / (now - lastT);
         lastY = y;
-        lastTime = now;
+        lastT = now;
 
         currentY = diff;
 
-        // clamp（上下边界）
-        if (currentY < MAX_UP) currentY = MAX_UP;
-        if (currentY > MAX_DOWN) currentY = MAX_DOWN;
+        currentY = Math.min(config.MAX_DOWN, Math.max(config.MAX_UP, currentY));
 
         const move = currentY > 0 ? currentY : rubber(currentY);
 
         drawer.style.transform = `translateY(${move}px)`;
 
-        // 背景联动（只影响透明度，不缩放 app）
-        overlay.style.background =
-            `rgba(0,0,0,${0.18 + Math.min(Math.abs(currentY) / 500, 0.35)})`;
+        const app = document.querySelector(".app");
+
+        if (app) {
+            if (window.innerWidth >= 769) {
+                app.style.filter = `blur(${Math.min(Math.abs(currentY) / 60, 6)}px) brightness(.92)`;
+            } else {
+                app.style.transform = `scale(${1 - Math.min(Math.abs(currentY) / 3000, 0.05)})`;
+            }
+        }
     });
 
     drawer.addEventListener("touchend", () => {
 
         dragging = false;
 
-        drawer.style.transition =
-            "transform .35s cubic-bezier(.22,1,.36,1)";
-
         const shouldClose =
-            currentY > CLOSE_THRESHOLD || velocity > 0.65;
+            currentY > config.CLOSE_THRESHOLD || velocity > 0.6;
 
         if (shouldClose) {
-
-            closeDrawer(
-                overlay,
-                drawer
-            );
-
+            setState(overlay, drawer, STATE.CLOSED);
             return;
         }
 
-        // =========================
-        // SNAP 回中（关键）
-        // =========================
+        if (currentY < -80) {
+            setState(overlay, drawer, STATE.OPEN);
+        } else {
+            setState(overlay, drawer, STATE.PEEK);
+        }
 
         currentY = 0;
-
-        drawer.style.transform = "translateY(0)";
     });
 }
