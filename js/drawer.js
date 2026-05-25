@@ -28,8 +28,8 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     let scrollY = 0;
 
     const CLOSED_Y = 100;
-    const PEEK_Y = 9;  /* 默认高度 */
-    const OPEN_Y = 3;  /* 稍微展开一点 */
+    const PEEK_Y = 5;  /* 默认高度 */
+    const OPEN_Y = 1;  /* 稍微展开一点 */
 
     // =========================
     // SCROLL LOCK
@@ -81,7 +81,7 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
             : "none";
 
         const blur = progress * 6;
-        const scale = 1 - progress * 0.035;
+       const scale = 1 - progress * 0.06;
 
         app.style.filter = blur > 0
             ? `blur(${blur}px)`
@@ -129,11 +129,22 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
                 `translateY(${y}%)`;
         }
 
-        let progress = 0;
+        /*
+|--------------------------------------------------------------------------
+| progress
+|--------------------------------------------------------------------------
+| OPEN_Y   → 最模糊
+| CLOSED_Y → 最清晰
+|--------------------------------------------------------------------------
+*/
 
-        if (y <= PEEK_Y) {
-            progress = 1 - (y / PEEK_Y);
-        }
+let progress =
+    1 - (y / CLOSED_Y);
+
+progress = Math.max(
+    0,
+    Math.min(1, progress)
+);
 
         setBlur(progress, animate);
 
