@@ -1,4 +1,20 @@
 /* =========================
+   BASE PAGE
+========================= */
+
+body {
+    margin: 0;
+    background: #fff;
+}
+
+.app {
+    background: #fff;
+    min-height: 100vh;
+    transform: none !important;
+    filter: none !important;
+}
+
+/* =========================
    OVERLAY
 ========================= */
 
@@ -11,10 +27,11 @@
     justify-content: center;
 
     background: rgba(0,0,0,0);
+
     opacity: 0;
     visibility: hidden;
 
-    transition: opacity .25s ease, background .25s ease;
+    transition: .25s ease;
 
     z-index: 3000;
 }
@@ -26,7 +43,7 @@
 }
 
 /* =========================
-   DRAWER BASE
+   DRAWER
 ========================= */
 
 .drawer {
@@ -35,19 +52,20 @@
     height: 85vh;
 
     background: #fff;
+
     border-radius: 28px 28px 0 0;
 
     transform: translateY(100%);
-    will-change: transform;
-
     display: flex;
     flex-direction: column;
 
     overflow: hidden;
+
+    will-change: transform;
 }
 
 /* =========================
-   HANDLE (mobile)
+   HANDLE
 ========================= */
 
 .drawer-handle-wrap {
@@ -72,28 +90,31 @@
 }
 
 /* =========================
-   HEADER（关键统一结构）
+   HEADER
 ========================= */
 
 .drawer-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
 
-    padding: 14px 18px 10px;
-    font-size: 16px;
+    padding: 14px 18px;
+
     font-weight: 600;
 
     border-bottom: 1px solid #f2f2f2;
 }
 
-/* PC 优化 */
-@media (min-width: 769px) {
-    .drawer-header {
-        padding: 18px 20px;
-        font-size: 17px;
-        border-bottom: 1px solid #eee;
-    }
+/* =========================
+   CONTENT
+========================= */
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 0 18px 120px;
 }
 
 /* =========================
@@ -115,18 +136,6 @@
 }
 
 /* =========================
-   CONTENT
-========================= */
-
-.drawer-content {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-
-    padding: 0 18px 120px;
-}
-
-/* =========================
    ITEMS
 ========================= */
 
@@ -137,7 +146,7 @@
 }
 
 /* =========================
-   PC ONLY EFFECTS
+   PC ONLY
 ========================= */
 
 @media (min-width: 769px) {
