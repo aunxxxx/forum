@@ -19,6 +19,9 @@ body.drawer-open {
         filter .25s ease;
 
     will-change: transform, filter;
+
+    /* ⭐ 关键修复：防 stacking context 混乱 */
+    isolation: isolate;
 }
 
 /* =========================
@@ -35,7 +38,7 @@ body.drawer-open {
 }
 
 /* =========================
-   OVERLAY（独立层）
+   OVERLAY
 ========================= */
 
 .drawer-overlay {
@@ -46,19 +49,21 @@ body.drawer-open {
     background: rgba(0,0,0,0);
 
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
 
-    transition: opacity .25s ease;
+    transition: opacity .25s ease, visibility .25s ease;
 }
 
 .drawer-overlay.active {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
     background: rgba(0,0,0,0.35);
 }
 
 /* =========================
-   DRAWER（关键：fixed层）
+   DRAWER（关键层）
 ========================= */
 
 .drawer {
@@ -95,6 +100,7 @@ body.drawer-open {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    padding: 16px;
 }
 
 /* =========================
