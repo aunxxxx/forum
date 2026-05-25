@@ -1,96 +1,101 @@
-// postCard.js
-
 import { posts } from "./data.js";
 import { createStatBtn } from "./statBtn.js";
 
 export function renderPosts(container) {
 
-    if (!container) return;
+  if (!container) return;
 
-    container.innerHTML = "";
+  container.innerHTML = "";
 
-    posts.forEach((post) => {
+  posts.forEach((post) => {
 
-        const card = document.createElement("div");
+    const card = document.createElement("div");
 
-        card.className = "post-card";
+    card.className = "post-card";
 
-        /* 顶部 */
-        const header = `
-            <div class="post-header">
+    const header = `
 
-                <div class="post-avatar">
-                    ${post.user}
-                </div>
+      <div class="post-header">
 
-                <div>
+        <a
+          class="avatar-link"
+          href="/user.html?id=${post.userId || "1"}"
+        >
 
-                    <div class="author-name">
-                        ${post.name}
-                    </div>
+          <div class="post-avatar">
+            ${post.user}
+          </div>
 
-                    <div class="post-time">
-                        ${post.time}
-                    </div>
+        </a>
 
-                </div>
+        <div>
 
-            </div>
-        `;
-
-        /* 内容 */
-        const content = `
-            <div class="post-content">
-                ${post.content}
-            </div>
+          <div class="name-row">
 
             ${
-                post.image
-                ? `<img src="${post.image}" class="post-image" />`
+              post.badge
+                ? `
+                  <span class="badge ${post.badgeType || ""}">
+                    ${post.badge}
+                  </span>
+                `
                 : ""
             }
-        `;
 
-        /* 底部统计 */
-        const stats = document.createElement("div");
+            <div class="author-name">
+              ${post.name}
+            </div>
 
-        stats.className = "post-stats";
+          </div>
 
-        /* 点赞 */
-        const likeBtn = createStatBtn(
-            "like",
-            post.likes,
-            () => {
+          <div class="post-time">
+            ${post.time}
+          </div>
 
-                post.likes++;
+        </div>
 
-                renderPosts(container);
+      </div>
 
-            }
-        );
+    `;
 
-        /* 评论 */
-        const commentBtn = createStatBtn(
-            "comment",
-            post.comments,
-            () => {
+    const content = `
 
-                console.log("打开评论系统");
+      <div class="post-content">
+        ${post.content}
+      </div>
 
-            }
-        );
+      ${
+        post.image
+          ? `<img src="${post.image}" class="post-image" />`
+          : ""
+      }
 
-        stats.appendChild(likeBtn);
+    `;
 
-        stats.appendChild(commentBtn);
+    const stats = document.createElement("div");
 
-        /* 合并 */
-        card.innerHTML = header + content;
+    stats.className = "post-stats";
 
-        card.appendChild(stats);
+    const likeBtn = createStatBtn(
+      "like",
+      post.likes
+    );
 
-        container.appendChild(card);
+    const commentBtn = createStatBtn(
+      "comment",
+      post.comments
+    );
 
-    });
+    stats.appendChild(likeBtn);
+
+    stats.appendChild(commentBtn);
+
+    card.innerHTML = header + content;
+
+    card.appendChild(stats);
+
+    container.appendChild(card);
+
+  });
 
 }
