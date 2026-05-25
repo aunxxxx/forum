@@ -222,6 +222,28 @@ a{
 }
 
 /* =========================
+   LIKE DRAWER LIST（新增）
+========================= */
+
+.like-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 12px;
+}
+
+.like-item .left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.like-item .right{
+  font-size:12px;
+  color:#888;
+}
+
+/* =========================
    EDITOR
 ========================= */
 
