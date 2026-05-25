@@ -105,12 +105,20 @@
         right:auto;
         bottom:auto;
 
-        transform:translate(-50%, calc(-50% + 40px));
+        transform:none; /* ❗关键：彻底交给 JS/状态控制 */
+
         border-radius:28px;
     }
 
     .drawer.active{
-        transform:translate(-50%, -50%);
+        /* ❗不要再写 transform */
+        opacity:1;
+    }
+
+    .drawer-overlay{
+        display:flex;
+        align-items:center;
+        justify-content:center;
     }
 }
 
