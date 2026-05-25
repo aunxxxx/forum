@@ -5,7 +5,37 @@ export function initDrawer() {
 }
 
 /* =========================
-   COMMENT DRAWER
+   OPEN / CLOSE
+========================= */
+
+function openDrawer(overlay, drawer) {
+
+    overlay.classList.add("active");
+
+    requestAnimationFrame(() => {
+        drawer.classList.add("active");
+        document.body.classList.add("drawer-open");
+    });
+}
+
+function closeDrawer(overlay, drawer) {
+
+    drawer.classList.remove("active");
+    document.body.classList.remove("drawer-open");
+
+    reset(drawer);
+
+    setTimeout(() => {
+        overlay.classList.remove("active");
+    }, 250);
+}
+
+function reset(drawer) {
+    drawer.style.transform = "";
+}
+
+/* =========================
+   COMMENT
 ========================= */
 
 function initCommentDrawer() {
@@ -32,7 +62,7 @@ function initCommentDrawer() {
 }
 
 /* =========================
-   LIKE DRAWER
+   LIKE
 ========================= */
 
 function initLikeDrawer() {
@@ -59,69 +89,32 @@ function initLikeDrawer() {
 }
 
 /* =========================
-   OPEN / CLOSE
+   RUBBER BAND
 ========================= */
 
-function openDrawer(overlay, drawer) {
-
-    overlay.classList.add("active");
-
-    requestAnimationFrame(() => {
-        drawer.classList.add("active");
-        document.body.classList.add("drawer-open");
-    });
-}
-
-function closeDrawer(overlay, drawer) {
-
-    drawer.classList.remove("active");
-    document.body.classList.remove("drawer-open");
-
-    resetTransform(drawer);
-
-    setTimeout(() => {
-        overlay.classList.remove("active");
-    }, 280);
+function rubber(n) {
+    const abs = Math.abs(n);
+    const val = abs * (1 - Math.exp(-abs / 120));
+    return n < 0 ? -val : val;
 }
 
 /* =========================
-   RESET
-========================= */
-
-function resetTransform(drawer) {
-    drawer.style.transform = "";
-}
-
-/* =========================
-   RUBBER BAND（iOS弹性）
-========================= */
-
-function rubberBand(distance) {
-
-    const abs = Math.abs(distance);
-    const value = abs * (1 - Math.exp(-abs / 120));
-
-    return distance < 0 ? -value : value;
-}
-
-/* =========================
-   DRAG CORE
+   DRAG CORE (FINAL STABLE)
 ========================= */
 
 function initDrag(drawer, overlay) {
 
-    // ⭐ PC 不启用拖拽
+    // PC 不拖动
     if (window.innerWidth >= 769) return;
 
-    const MAX_UP = -120;      // 上拉最大
+    const MAX_UP = -140;     // 上拉极限（peek上限）
+    const MAX_DOWN = 280;    // 下拉极限（防飞出）
     const CLOSE_THRESHOLD = 160;
 
     let startY = 0;
     let currentY = 0;
-
     let lastY = 0;
     let lastTime = 0;
-
     let velocity = 0;
     let dragging = false;
 
@@ -142,7 +135,6 @@ function initDrag(drawer, overlay) {
         if (!dragging) return;
 
         const y = e.touches[0].clientY;
-
         const now = Date.now();
 
         let diff = y - startY;
@@ -153,42 +145,17 @@ function initDrag(drawer, overlay) {
 
         currentY = diff;
 
-        /* =========================
-           上拉限制（只限制上，不限制下）
-        ========================= */
+        // clamp（上下边界）
+        if (currentY < MAX_UP) currentY = MAX_UP;
+        if (currentY > MAX_DOWN) currentY = MAX_DOWN;
 
-        if (currentY < MAX_UP) {
-            currentY = MAX_UP;
-        }
+        const move = currentY > 0 ? currentY : rubber(currentY);
 
-        const damped = currentY > 0
-            ? currentY
-            : rubberBand(currentY);
+        drawer.style.transform = `translateY(${move}px)`;
 
-        drawer.style.transform = `translateY(${damped}px)`;
-
-        /* =========================
-           背景联动（稳定版本）
-        ========================= */
-
-        const app = document.querySelector(".app");
-
-        if (app) {
-
-            const upProgress = Math.abs(Math.min(currentY, 0)) / 120;
-            const downProgress = Math.max(currentY, 0) / 300;
-
-            let scale = 1 - upProgress * 0.05;
-
-            if (currentY > 0) {
-                scale = 1 + downProgress * 0.03;
-            }
-
-            app.style.transform = `scale(${scale})`;
-        }
-
+        // 背景联动（只影响透明度，不缩放 app）
         overlay.style.background =
-            `rgba(0,0,0,${0.18 + Math.min(Math.abs(currentY) / 400, 0.25)})`;
+            `rgba(0,0,0,${0.18 + Math.min(Math.abs(currentY) / 500, 0.35)})`;
     });
 
     drawer.addEventListener("touchend", () => {
@@ -199,27 +166,24 @@ function initDrag(drawer, overlay) {
             "transform .35s cubic-bezier(.22,1,.36,1)";
 
         const shouldClose =
-            currentY > CLOSE_THRESHOLD || velocity > 0.6;
+            currentY > CLOSE_THRESHOLD || velocity > 0.65;
 
         if (shouldClose) {
 
-            const overlayEl =
-                drawer.closest(".drawer-overlay");
+            closeDrawer(
+                overlay,
+                drawer
+            );
 
-            closeDrawer(overlayEl, drawer);
-
-        } else {
-
-            /* =========================
-               PEAK（回弹）
-            ========================= */
-
-            currentY = 0;
-
-            drawer.style.transform = "translateY(0)";
-
-            const app = document.querySelector(".app");
-            if (app) app.style.transform = "scale(.96)";
+            return;
         }
+
+        // =========================
+        // SNAP 回中（关键）
+        // =========================
+
+        currentY = 0;
+
+        drawer.style.transform = "translateY(0)";
     });
 }
