@@ -14,11 +14,14 @@ body.drawer-open {
     min-height: 100vh;
     background: #fff;
 
-    transition: transform .32s ease, filter .25s ease;
+    transition: transform .3s ease, filter .25s ease;
     will-change: transform, filter;
 }
 
-/* 背景缩放（只在手机） */
+/* =========================
+   只在手机做缩放
+========================= */
+
 @media (max-width: 768px) {
     body.drawer-open .app {
         transform: scale(0.965) translateY(6px);
@@ -43,7 +46,7 @@ body.drawer-open {
     visibility: hidden;
     pointer-events: none;
 
-    transition: opacity .25s ease, background .25s ease;
+    transition: opacity .25s ease;
 }
 
 .drawer-overlay.active {
@@ -54,7 +57,7 @@ body.drawer-open {
 }
 
 /* =========================
-   DRAWER（核心）
+   DRAWER
 ========================= */
 
 .drawer {
@@ -66,6 +69,7 @@ body.drawer-open {
     z-index: 4000;
 
     background: #fff;
+
     border-radius: 22px 22px 0 0;
 
     transform: translateY(100%);
@@ -79,12 +83,11 @@ body.drawer-open {
     overflow: hidden;
 }
 
-/* OPEN */
+/* 状态 */
 .drawer.open {
     transform: translateY(0);
 }
 
-/* PEEK */
 .drawer.peek {
     transform: translateY(40vh);
 }
