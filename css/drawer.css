@@ -1,25 +1,117 @@
+html, body {
+    height: 100%;
+}
+
+body.drawer-open {
+    overflow: hidden;
+}
+
+/* =========================
+   APP（背景层）
+========================= */
 
 .app {
+    background: #fff;
+    min-height: 100vh;
+
     transition:
-        transform .32s cubic-bezier(.22, 1, .36, 1),
-        filter .25s ease,
-        box-shadow .32s cubic-bezier(.22, 1, .36, 1);
+        transform .32s cubic-bezier(.22,1,.36,1),
+        filter .25s ease;
 
     will-change: transform, filter;
 }
 
 /* =========================
-   iOS CARD PRESSED STATE
+   MOBILE 卡片效果
 ========================= */
 
-body.drawer-open .app {
-    transform: scale(0.965) translateY(6px);
+@media (max-width: 768px) {
+    body.drawer-open .app {
+        transform: scale(0.965) translateY(6px);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+}
 
-    border-radius: 18px;
+/* =========================
+   OVERLAY（独立层）
+========================= */
 
-    box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.18),
-        0 6px 20px rgba(0, 0, 0, 0.10);
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+
+    background: rgba(0,0,0,0);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity .25s ease;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+    background: rgba(0,0,0,0.35);
+}
+
+/* =========================
+   DRAWER（关键：fixed层）
+========================= */
+
+.drawer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 4000;
+
+    width: 100%;
+    max-height: 85vh;
+
+    background: #fff;
+
+    border-radius: 22px 22px 0 0;
+
+    transform: translateY(100%);
+    will-change: transform;
+
+    display: flex;
+    flex-direction: column;
 
     overflow: hidden;
+
+    touch-action: none;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* =========================
+   PC MODE
+========================= */
+
+@media (min-width: 769px) {
+    .drawer-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .drawer {
+        position: relative;
+        width: 550px;
+        max-height: 75vh;
+        border-radius: 18px;
+    }
 }
