@@ -18,6 +18,10 @@ function initApp() {
     }
 
     initLikeEngine();
+
+    // ⭐ 关键修复：首次渲染
+    renderPosts(postsContainer);
+
     bindEvents();
     bindDrawerEvents();
 }
@@ -27,6 +31,10 @@ function initApp() {
 ========================= */
 
 function bindEvents() {
+
+    // ⭐ 防止重复绑定
+    if (window.__FORUM_EVENTS_BOUND__) return;
+    window.__FORUM_EVENTS_BOUND__ = true;
 
     document.addEventListener("click", (e) => {
 
@@ -39,7 +47,7 @@ function bindEvents() {
         const countEl = e.target.closest(".like-count");
 
         /* =========================
-           点数字 → 打开 drawer
+           点数字 → drawer
         ========================= */
         if (countEl) {
             openLikeDrawer(id);
@@ -47,7 +55,7 @@ function bindEvents() {
         }
 
         /* =========================
-           点按钮 → like / unlike
+           like toggle
         ========================= */
 
         if (likeBtn.dataset.locked === "1") return;
@@ -99,7 +107,7 @@ function openLikeDrawer(id) {
     overlay.classList.add("active");
     document.body.classList.add("drawer-open");
 
-    // TODO: 未来可根据 id 拉取点赞用户列表
+    console.log("open drawer for:", id);
 }
 
 function closeLikeDrawer() {
@@ -117,6 +125,10 @@ function closeLikeDrawer() {
 function bindDrawerEvents() {
 
     if (!overlay) return;
+
+    // 防止重复绑定
+    if (window.__DRAWER_EVENTS_BOUND__) return;
+    window.__DRAWER_EVENTS_BOUND__ = true;
 
     overlay.addEventListener("click", closeLikeDrawer);
 
