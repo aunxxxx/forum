@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forum3.0</title>
+  <title>Forum3.1</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -17,7 +17,9 @@
 
 <div class="app">
 
-  <!-- TOPBAR -->
+  <!-- =========================
+       TOPBAR
+  ========================== -->
   <header class="topbar">
     <div class="logo">铁</div>
 
@@ -27,12 +29,18 @@
       <span class="active">铁汁窝</span>
     </nav>
 
-    <div class="user-avatar">🐯</div>
+    <!-- ⭐ 改成统一 avatar -->
+    <div class="avatar-wrap">
+      <img class="avatar" src="https://i.pravatar.cc/40" data-user-id="me">
+    </div>
   </header>
 
-  <!-- MAIN -->
+  <!-- =========================
+       MAIN
+  ========================== -->
   <main class="container">
 
+    <!-- HOT -->
     <section class="hot-section">
       <div class="hot-header">
         <div class="hot-title">🔥 热门词条</div>
@@ -51,6 +59,7 @@
       </div>
     </section>
 
+    <!-- POSTS -->
     <section class="posts-list" id="postsList"></section>
 
   </main>
@@ -60,7 +69,9 @@
 
 </div>
 
-<!-- EDITOR -->
+<!-- =========================
+     EDITOR
+========================= -->
 <div class="editor-overlay" id="editor">
   <div class="editor-box">
 
@@ -79,7 +90,9 @@
   </div>
 </div>
 
-<!-- COMMENT DRAWER -->
+<!-- =========================
+     COMMENT DRAWER
+========================= -->
 <div class="drawer-overlay" id="commentOverlay">
   <div class="drawer" id="commentDrawer">
 
@@ -93,19 +106,52 @@
     </div>
 
     <div class="drawer-content">
-      <div class="comment-item">
-        <div class="comment-avatar">李</div>
-        <div class="comment-main">
-          <div class="comment-name">李四 · 认证练习生</div>
-          <div class="comment-text">这个 drawer 已经开始有 App 感了。</div>
+
+      <!-- COMMENT ITEM（已升级结构） -->
+      <div class="comment">
+
+        <!-- PC reply（你刚做的） -->
+        <div class="comment-left">
+          <button class="reply-btn">↩</button>
         </div>
+
+        <div class="comment-main">
+
+          <!-- user line（统一系统接管） -->
+          <div class="user-line">
+            <a class="avatar-wrap">
+              <img class="avatar" src="https://i.pravatar.cc/40?img=2" data-user-id="1">
+            </a>
+
+            <div class="user-info">
+              <span class="badge">VIP</span>
+              <span class="username">李四</span>
+            </div>
+          </div>
+
+          <div class="comment-content">
+            这个 drawer 已经开始有 App 感了。
+          </div>
+
+        </div>
+
+        <!-- like -->
+        <div class="comment-right">
+          <button class="like-btn">
+            👍 <span class="like-count">12</span>
+          </button>
+        </div>
+
       </div>
+
     </div>
 
   </div>
 </div>
 
-<!-- LIKE DRAWER -->
+<!-- =========================
+     LIKE DRAWER
+========================= -->
 <div class="drawer-overlay" id="likeOverlay">
   <div class="drawer" id="likeDrawer">
 
@@ -119,16 +165,24 @@
     </div>
 
     <div class="drawer-content">
+
       <div class="like-item">
+
         <div class="like-left">
-          <div class="like-avatar">马</div>
-          <div>
-            <div class="like-name">马睿婕</div>
-            <div class="like-title">创始成员</div>
+          <a class="avatar-wrap">
+            <img class="avatar" src="https://i.pravatar.cc/40?img=3" data-user-id="3">
+          </a>
+
+          <div class="user-info">
+            <span class="badge">创始</span>
+            <span class="username">马睿婕</span>
           </div>
         </div>
-        <div class="like-count">×18</div>
+
+        <div class="like-right">×18</div>
+
       </div>
+
     </div>
 
   </div>
