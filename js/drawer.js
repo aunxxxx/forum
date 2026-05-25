@@ -12,37 +12,106 @@ export function initDrawer() {
     );
 }
 
+// =========================
+// CONFIG
+// =========================
+
 function getPeekHeight() {
     return Math.min(280, Math.max(180, window.innerHeight * 0.35));
 }
+
+// =========================
+// SCROLL LOCK FACTORY（关键修复）
+// =========================
+
+function createScrollLock() {
+    let scrollY = 0;
+
+    function getScrollY() {
+        return window.scrollY || document.documentElement.scrollTop;
+    }
+
+    function lockScroll(lock) {
+        const body = document.body;
+
+        if (lock) {
+            scrollY = getScrollY();
+
+            body.style.position = "fixed";
+            body.style.top = `-${scrollY}px`;
+            body.style.left = "0";
+            body.style.right = "0";
+            body.style.width = "100%";
+            body.style.overflow = "hidden";
+        } else {
+            body.style.position = "";
+            body.style.top = "";
+            body.style.left = "";
+            body.style.right = "";
+            body.style.width = "";
+            body.style.overflow = "";
+
+            window.scrollTo(0, scrollY);
+        }
+    }
+
+    return lockScroll;
+}
+
+// =========================
+// MAIN
+// =========================
 
 function bindDrawer(overlay, drawer, triggerSelector) {
     if (!overlay || !drawer) return;
 
     const app = document.querySelector(".app");
 
+    const lockScroll = createScrollLock();
+
     let state = "CLOSED";
+
     let startY = 0;
     let startTranslate = 0;
     let currentY = window.innerHeight;
 
     let PEEK = getPeekHeight();
 
-    const CLOSED_Y = () => window.innerHeight;
     const OPEN_Y = 0;
 
-    function lockScroll(lock) {
-        document.body.classList.toggle("drawer-open", lock);
-        document.body.style.overflow = lock ? "hidden" : "";
-        document.body.style.position = lock ? "fixed" : "";
-        document.body.style.width = lock ? "100%" : "";
+    function CLOSED_Y() {
+        return window.innerHeight;
     }
+
+    // =========================
+    // VISUAL CONTROL（关键修复）
+    // =========================
+
+    function setVisual(isOpen) {
+        const isMobile = window.innerWidth <= 768;
+
+        document.body.classList.toggle("drawer-open", isOpen && isMobile);
+
+        if (!isMobile && app) {
+            app.style.transition = "none";
+            app.style.transform = "none";
+            app.style.filter = "none";
+        }
+    }
+
+    // =========================
+    // BLUR
+    // =========================
 
     function setBlur(v, animate = false) {
         if (!app) return;
-        app.style.transition = animate ? "filter .2s ease" : "none";
+        app.style.transition = animate ? "filter .25s ease" : "none";
         app.style.filter = `blur(${v}px)`;
     }
+
+    // =========================
+    // RENDER
+    // =========================
 
     function render(y) {
         currentY = y;
@@ -55,11 +124,17 @@ function bindDrawer(overlay, drawer, triggerSelector) {
         setBlur(progress * 6);
     }
 
+    // =========================
+    // STATE APPLY
+    // =========================
+
     function apply(next) {
         state = next;
 
         overlay.classList.toggle("active", state !== "CLOSED");
+
         lockScroll(state !== "CLOSED");
+        setVisual(state !== "CLOSED");
 
         drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
 
@@ -74,7 +149,7 @@ function bindDrawer(overlay, drawer, triggerSelector) {
         }
 
         if (state === "OPEN") {
-            render(OPEN_Y());
+            render(OPEN_Y);
             setBlur(6, true);
         }
     }
@@ -86,6 +161,7 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     // =========================
     // TRIGGER
     // =========================
+
     document.addEventListener("click", (e) => {
         if (!e.target.closest(triggerSelector)) return;
 
@@ -105,8 +181,9 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     if (closeBtn) closeBtn.addEventListener("click", close);
 
     // =========================
-    // PC
+    // PC MODE
     // =========================
+
     if (window.innerWidth >= 769) {
         apply("CLOSED");
         return;
@@ -115,7 +192,6 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     // =========================
     // MOBILE DRAG
     // =========================
-    drawer.style.touchAction = "none";
 
     drawer.addEventListener("touchstart", (e) => {
         startY = e.touches[0].clientY;
@@ -127,16 +203,20 @@ function bindDrawer(overlay, drawer, triggerSelector) {
         PEEK = getPeekHeight();
     });
 
-    drawer.addEventListener("touchmove", (e) => {
-        e.preventDefault();
+    drawer.addEventListener(
+        "touchmove",
+        (e) => {
+            e.preventDefault();
 
-        const y = e.touches[0].clientY;
-        let newY = startTranslate + (y - startY);
+            const y = e.touches[0].clientY;
+            let newY = startTranslate + (y - startY);
 
-        newY = Math.max(0, Math.min(CLOSED_Y(), newY));
+            newY = Math.max(0, Math.min(CLOSED_Y(), newY));
 
-        render(newY);
-    }, { passive: false });
+            render(newY);
+        },
+        { passive: false }
+    );
 
     drawer.addEventListener("touchend", () => {
         drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
@@ -156,6 +236,7 @@ function bindDrawer(overlay, drawer, triggerSelector) {
     // =========================
     // RESIZE
     // =========================
+
     window.addEventListener("resize", () => {
         PEEK = getPeekHeight();
 
