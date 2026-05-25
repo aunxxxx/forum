@@ -224,12 +224,9 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     // =========================
     overlay.addEventListener("click", (e) => {
 
-        if (isMobile()) return;
-
-        if (e.target === overlay) {
-            close();
-        }
-    });
+    // ❌ 所有端禁止点击背景关闭
+    e.stopPropagation();
+});
 
     // =========================
     // MOBILE DRAG
