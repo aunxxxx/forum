@@ -278,8 +278,8 @@ if (closeBtn) {
             startTranslate + deltaPercent;
 
        next = Math.max(
-    OPEN_Y,
-    Math.min(PEEK_Y + 18, next)
+    0,
+    Math.min(100, next)
 );
 
         render(next, false);
