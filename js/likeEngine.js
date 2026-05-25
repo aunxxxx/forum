@@ -1,50 +1,43 @@
-import { posts } from "./data.js";
+const likeStore = {};
 
-const likeMap = new Map(); // postId -> Set(userId)
+export function addLike(id, user) {
 
-export function initLikeEngine() {
-    posts.forEach(p => {
-        likeMap.set(p.id, new Set());
-    });
-}
+  if (!likeStore[id]) {
 
-/* ⭐ 无限点赞 + 去重 */
-export function toggleLike(postId) {
-
-    if (!likeMap.has(postId)) {
-        likeMap.set(postId, new Set());
-    }
-
-    const set = likeMap.get(postId);
-
-    // 模拟“当前用户”
-    const userId = "me";
-
-    if (set.has(userId)) {
-        set.delete(userId);
-    } else {
-        set.add(userId);
-    }
-
-    return {
-        liked: set.has(userId),
-        count: set.size
+    likeStore[id] = {
+      total: 0,
+      users: []
     };
+
+  }
+
+  likeStore[id].total++;
+
+  const exists = likeStore[id].users.find(
+    u => u.id === user.id
+  );
+
+  if (exists) {
+
+    exists.count++;
+
+  } else {
+
+    likeStore[id].users.push({
+      ...user,
+      count: 1
+    });
+
+  }
+
+  return likeStore[id];
 }
 
-/* ⭐ UI同步 */
-export function syncLikeUI(postId) {
+export function getLikeData(id) {
 
-    const btn = document.querySelector(`[data-like-id="${postId}"]`);
-    if (!btn) return;
+  return likeStore[id] || {
+    total: 0,
+    users: []
+  };
 
-    const set = likeMap.get(postId) || new Set();
-
-    const count = btn.querySelector(".like-count");
-    if (count) count.textContent = set.size;
-}
-
-/* ⭐ drawer数据（去重后的列表） */
-export function getLikeList(postId) {
-    return likeMap.get(postId) || new Set();
 }
