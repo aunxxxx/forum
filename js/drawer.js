@@ -1,15 +1,3 @@
-const config = {
-    OPEN_UP: -160,
-    CLOSE_DOWN: 160,
-    PEEK: 60,
-    VELOCITY_CLOSE: 0.65,
-    VELOCITY_OPEN: -0.6
-};
-
-/* =========================
-   ENTRY
-========================= */
-
 export function initDrawer() {
 
     createDrawer(
@@ -25,43 +13,14 @@ export function initDrawer() {
     );
 }
 
-/* =========================
-   CORE FACTORY
-========================= */
-
 function createDrawer(overlay, drawer, triggerSelector) {
 
     if (!overlay || !drawer) return;
 
     let startY = 0;
-    let diff = 0;
-    let lastY = 0;
-    let lastT = 0;
-    let velocity = 0;
+    let moveY = 0;
 
-    let state = "CLOSED";
-
-    function setState(s) {
-
-        state = s;
-
-        overlay.classList.toggle("active", s !== "CLOSED");
-        document.body.classList.toggle("drawer-open", s !== "CLOSED");
-
-        drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
-
-        if (s === "CLOSED") {
-            drawer.style.transform = "translateY(100%)";
-        }
-
-        if (s === "PEEK") {
-            drawer.style.transform = `translateY(${config.PEEK}px)`;
-        }
-
-        if (s === "OPEN") {
-            drawer.style.transform = "translateY(0)";
-        }
-    }
+    let isOpen = false;
 
     /* =========================
        OPEN
@@ -69,42 +28,49 @@ function createDrawer(overlay, drawer, triggerSelector) {
 
     document.addEventListener("click", (e) => {
         if (e.target.closest(triggerSelector)) {
-            setState("OPEN");
+            open();
         }
     });
+
+    function open() {
+        isOpen = true;
+
+        overlay.classList.add("active");
+        document.body.classList.add("drawer-open");
+
+        drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
+        drawer.style.transform = "translateY(0)";
+    }
 
     /* =========================
        CLOSE
     ========================= */
 
+    function close() {
+        isOpen = false;
+
+        overlay.classList.remove("active");
+        document.body.classList.remove("drawer-open");
+
+        drawer.style.transform = "translateY(100%)";
+    }
+
     overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) {
-            setState("CLOSED");
-        }
+        if (e.target === overlay) close();
     });
 
     const closeBtn = drawer.querySelector(".drawer-close");
-    if (closeBtn) {
-        closeBtn.addEventListener("click", () => setState("CLOSED"));
-    }
+    if (closeBtn) closeBtn.addEventListener("click", close);
 
     /* =========================
-       DRAG（mobile only）
+       MOBILE DRAG
     ========================= */
 
-    if (window.innerWidth >= 769) {
-        setState("CLOSED");
-        return;
-    }
+    if (window.innerWidth >= 769) return;
 
     drawer.addEventListener("touchstart", (e) => {
-
         startY = e.touches[0].clientY;
-        lastY = startY;
-        lastT = Date.now();
-
-        diff = 0;
-        velocity = 0;
+        moveY = 0;
 
         drawer.style.transition = "none";
     });
@@ -114,24 +80,11 @@ function createDrawer(overlay, drawer, triggerSelector) {
         e.preventDefault();
 
         const y = e.touches[0].clientY;
-        const now = Date.now();
+        moveY = y - startY;
 
-        const dt = now - lastT;
-
-        if (dt > 0) {
-            velocity = (y - lastY) / dt;
+        if (moveY > 0) {
+            drawer.style.transform = `translateY(${moveY}px)`;
         }
-
-        lastY = y;
-        lastT = now;
-
-        diff = y - startY;
-
-        if (diff < config.OPEN_UP) diff = config.OPEN_UP;
-
-        let move = diff > 0 ? diff * 0.4 : diff;
-
-        drawer.style.transform = `translateY(${move}px)`;
 
     }, { passive: false });
 
@@ -139,17 +92,12 @@ function createDrawer(overlay, drawer, triggerSelector) {
 
         drawer.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
 
-        const shouldClose =
-            diff > config.CLOSE_DOWN || velocity > config.VELOCITY_CLOSE;
+        if (moveY > 140) {
+            close();
+        } else {
+            drawer.style.transform = "translateY(0)";
+        }
 
-        const shouldOpen =
-            diff < -80 || velocity < config.VELOCITY_OPEN;
-
-        if (shouldClose) return setState("CLOSED");
-        if (shouldOpen) return setState("OPEN");
-
-        setState("PEEK");
+        moveY = 0;
     });
-
-    setState("CLOSED");
 }
