@@ -1,50 +1,64 @@
 import { posts } from "./data.js";
-import { createPostCard } from "./postCard.js";
-
-import { initLikeEngine, toggleLike, syncLikeUI, getLikeList } from "./likeEngine.js";
-
-const postsContainer = document.getElementById("postsList");
-const overlay = document.getElementById("likeOverlay");
-const drawer = document.getElementById("likeDrawer");
+import { renderPosts } from "./postCard.js";
+import { initEditor } from "./editor.js";
+import { initUpload } from "./upload.js";
+import { initFAB } from "./fab.js";
+import { initDrawer } from "./drawer.js";
+import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
 
 /* =========================
-   INIT
+   DOM
+========================= */
+
+const postsContainer = document.getElementById("postsList");
+const previewImage = document.getElementById("previewImage");
+
+/* =========================
+   INIT APP
 ========================= */
 
 function initApp() {
 
-    if (!postsContainer) return;
+    if (!postsContainer) {
+        console.warn("postsList not found");
+        return;
+    }
 
-    initLikeEngine();
-    renderPosts();
-    bindEvents();
-    bindDrawer();
-}
+    /* =========================
+       1. render posts
+    ========================= */
+    renderPosts(postsContainer);
 
-/* =========================
-   RENDER (稳定局部重建)
-========================= */
+    /* =========================
+       2. editor / upload
+    ========================= */
+    const getImage = initUpload(previewImage);
+    initEditor(postsContainer, getImage);
 
-function renderPosts() {
+    /* =========================
+       3. FAB
+    ========================= */
+    initFAB();
 
-    postsContainer.innerHTML = "";
-
-    posts.forEach(post => {
-
-        const card = createPostCard(post);
-
-        postsContainer.appendChild(card);
+    /* =========================
+       4. drawer + engine
+    ========================= */
+    requestAnimationFrame(() => {
+        initDrawer();
+        initLikeEngine();
+        bindInteractionEvents();
     });
 }
 
 /* =========================
-   EVENTS
+   INTERACTION SYSTEM
 ========================= */
 
-function bindEvents() {
+function bindInteractionEvents() {
 
-    if (window.__BOUND__) return;
-    window.__BOUND__ = true;
+    /* =========================
+       GLOBAL DELEGATION（关键）
+    ========================= */
 
     document.addEventListener("click", (e) => {
 
@@ -52,99 +66,101 @@ function bindEvents() {
         if (!likeBtn) return;
 
         const id = likeBtn.dataset.likeId;
+        if (!id) return;
 
-        const isCount = e.target.closest(".like-count");
+        const isCount = e.target.classList.contains("like-count");
 
-        /* =====================
-           打开drawer
-        ===================== */
+        /* =========================
+           数字 → 打开 drawer
+        ========================= */
         if (isCount) {
-            openLikeDrawer(id);
+            openLikeDrawer(likeBtn);
             return;
         }
 
-        /* =====================
-           like
-        ===================== */
+        /* =========================
+           SVG / 按钮 → 点赞
+        ========================= */
         const state = toggleLike(id);
 
         syncLikeUI(id);
-        animateLike(likeBtn, state.liked);
+
+        triggerLikeAnimation(likeBtn, state.liked);
     });
 }
 
 /* =========================
-   ANIMATION
+   LIKE ANIMATION
 ========================= */
 
-function animateLike(btn, liked) {
+function triggerLikeAnimation(btn, liked) {
 
-    const icon = btn.querySelector(".like-icon");
+    const svg = btn.querySelector("svg");
+    const count = btn.querySelector(".like-count");
 
-    btn.classList.toggle("active", liked);
     btn.classList.add("ripple");
 
-    if (icon) {
-        icon.classList.remove("pop");
-        void icon.offsetWidth;
-        icon.classList.add("pop");
+    if (liked) {
+        btn.classList.add("active");
+    } else {
+        btn.classList.remove("active");
     }
 
-    setTimeout(() => btn.classList.remove("ripple"), 300);
+    void btn.offsetWidth;
+
+    setTimeout(() => {
+        btn.classList.remove("ripple");
+    }, 500);
+
+    if (svg) {
+        svg.classList.add("pop");
+
+        setTimeout(() => {
+            svg.classList.remove("pop");
+        }, 200);
+    }
+
+    if (count && liked) {
+        // 只在 like 时视觉增强（避免重复 + UI漂移）
+        count.style.transform = "scale(1.1)";
+        setTimeout(() => {
+            count.style.transform = "scale(1)";
+        }, 150);
+    }
 }
 
 /* =========================
-   DRAWER（你要的：去重 + 头像 + title + count）
+   DRAWER
 ========================= */
 
-function openLikeDrawer(postId) {
+function openLikeDrawer(btn) {
 
-    const list = getLikeList(postId);
+    const overlay = document.getElementById("likeOverlay");
+    if (!overlay) return;
 
     overlay.classList.add("active");
-    document.body.classList.add("drawer-open");
 
-    const content = drawer.querySelector(".drawer-content");
-
-    content.innerHTML = "";
-
-    list.forEach((item) => {
-
-        const div = document.createElement("div");
-        div.className = "like-item";
-
-        div.innerHTML = `
-            <div class="like-left">
-                <img class="avatar" src="${item.avatar}">
-                <div class="user-info">
-                    <span class="badge">${item.title}</span>
-                    <span class="username">${item.name}</span>
-                </div>
-            </div>
-
-            <div class="like-right">×${item.count}</div>
-        `;
-
-        content.appendChild(div);
-    });
+    // 未来扩展：根据 btn.dataset.likeId 拉用户列表
 }
 
 /* =========================
-   CLOSE
+   SAFE START
 ========================= */
 
-function bindDrawer() {
+function start() {
 
-    overlay.addEventListener("click", closeDrawer);
-}
+    if (window.__APP_INIT__) return;
+    window.__APP_INIT__ = true;
 
-function closeDrawer() {
-    overlay.classList.remove("active");
-    document.body.classList.remove("drawer-open");
+    initApp();
 }
 
 /* =========================
-   START
+   DOM READY
 ========================= */
 
-initApp();
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+} else {
+    start();
+}
