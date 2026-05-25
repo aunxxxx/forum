@@ -7,7 +7,6 @@
     inset: 0;
 
     background: rgba(0, 0, 0, 0.42);
-    backdrop-filter: blur(2px);
 
     opacity: 0;
     visibility: hidden;
@@ -86,13 +85,15 @@
 
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 
     padding: 0 18px;
 
     border-bottom: 1px solid #f1f1f1;
 
     flex-shrink: 0;
+
+    position: relative;
 }
 
 .drawer-title {
@@ -100,27 +101,9 @@
     font-weight: 700;
 }
 
+/* ❌ 删除关闭按钮 */
 .drawer-close {
-    width: 34px;
-    height: 34px;
-
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #f5f5f5;
-
-    cursor: pointer;
-
-    user-select: none;
-
-    transition: background .2s ease;
-}
-
-.drawer-close:hover {
-    background: #ebebeb;
+    display: none !important;
 }
 
 /* =========================
@@ -139,7 +122,7 @@
 }
 
 /* =========================
-   COMMENT ITEM
+   ITEM
 ========================= */
 
 .comment-item,
@@ -218,7 +201,7 @@
 }
 
 /* =========================
-   MOBILE ONLY EFFECT
+   MOBILE
 ========================= */
 
 @media (max-width: 768px) {
@@ -234,30 +217,48 @@
 }
 
 /* =========================
-   PC
+   PC FIX
 ========================= */
 
 @media (min-width: 769px) {
 
+    /* ❌ PC 不缩放 */
     body.drawer-open .app {
         transform: none !important;
         filter: none !important;
     }
 
-    .drawer {
-        width: 420px;
-
-        left: 50%;
-        right: auto;
-
-        transform: translateX(-50%) translateY(100%);
-
-        border-radius: 28px 28px 0 0;
-
-        box-shadow:
-            0 10px 40px rgba(0,0,0,.18);
+    /* ❌ PC 不显示 handle */
+    .drawer-handle-wrap {
+        display: none;
     }
 
+    /* ⭐ PC 真正弹窗 */
+    .drawer {
+
+        width: 480px;
+        height: 680px;
+
+        max-height: 80vh;
+
+        left: 50%;
+        top: 50%;
+        bottom: auto;
+        right: auto;
+
+        border-radius: 28px;
+
+        transform:
+            translateX(-50%)
+            translateY(calc(-50% + 100vh));
+
+        box-shadow:
+            0 20px 60px rgba(0,0,0,.18);
+
+        touch-action: auto;
+    }
+
+    /* ⭐ JS 打开的 transform 会覆盖这里 */
     .drawer-overlay {
         backdrop-filter: blur(4px);
     }
