@@ -26,7 +26,7 @@
 }
 
 /* =========================
-   DRAWER
+   DRAWER BASE
 ========================= */
 
 .drawer {
@@ -46,16 +46,8 @@
     overflow: hidden;
 }
 
-/* 内容滚动 */
-.drawer-content {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 18px 120px;
-}
-
 /* =========================
-   HANDLE（手机）
+   HANDLE (mobile)
 ========================= */
 
 .drawer-handle-wrap {
@@ -72,6 +64,7 @@
     background: #d8d8d8;
 }
 
+/* PC 隐藏 handle */
 @media (min-width: 769px) {
     .drawer-handle-wrap {
         display: none;
@@ -79,20 +72,27 @@
 }
 
 /* =========================
-   PC 模式（只模糊，不 transform app）
+   HEADER（关键统一结构）
 ========================= */
 
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px 18px 10px;
+    font-size: 16px;
+    font-weight: 600;
+
+    border-bottom: 1px solid #f2f2f2;
+}
+
+/* PC 优化 */
 @media (min-width: 769px) {
-    body.drawer-open .app {
-        filter: blur(6px);
-    }
-
-    .drawer {
-        height: 82vh;
-    }
-
-    .drawer-overlay {
-        align-items: center;
+    .drawer-header {
+        padding: 18px 20px;
+        font-size: 17px;
+        border-bottom: 1px solid #eee;
     }
 }
 
@@ -101,10 +101,6 @@
 ========================= */
 
 .drawer-close {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-
     width: 34px;
     height: 34px;
 
@@ -119,11 +115,42 @@
 }
 
 /* =========================
-   ITEMS（安全）
+   CONTENT
+========================= */
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 0 18px 120px;
+}
+
+/* =========================
+   ITEMS
 ========================= */
 
 .comment-item,
 .like-item {
     padding: 18px 0;
     border-bottom: 1px solid #f2f2f2;
+}
+
+/* =========================
+   PC ONLY EFFECTS
+========================= */
+
+@media (min-width: 769px) {
+
+    body.drawer-open .app {
+        filter: blur(6px);
+    }
+
+    .drawer {
+        height: 82vh;
+    }
+
+    .drawer-overlay {
+        align-items: center;
+    }
 }
