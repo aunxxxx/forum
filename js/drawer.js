@@ -28,8 +28,8 @@ function createDrawerInstance(overlay, drawer, triggerSelector) {
     let scrollY = 0;
 
     const CLOSED_Y = 100;
-    const PEEK_Y = 20;  /* 默认高度 */
-    const OPEN_Y = 8;  /* 稍微展开一点 */
+    const PEEK_Y = 9;  /* 默认高度 */
+    const OPEN_Y = 3;  /* 稍微展开一点 */
 
     // =========================
     // SCROLL LOCK
