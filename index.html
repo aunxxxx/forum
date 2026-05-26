@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes"
   />
 
-  <title>Forum3.91</title>
+  <title>Forum3.93</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -204,7 +204,7 @@
       <!-- SCROLL AREA (drawer-content) -->
       <div class="drawer-content">
 
-        <!-- COMMENT 1 - 移除多余的 avatar wrap，直接使用 img -->
+        <!-- COMMENT 1 -->
         <div class="comment" data-comment-id="c1" data-user-id="1">
 
           <img class="comment-avatar" src="https://i.pravatar.cc/40?img=2" alt="">
@@ -229,9 +229,9 @@
                   </svg>
                 </button>
 
-                <!-- 拆分点赞按钮 -->
+                <!-- 评论点赞：使用 comment-like-btn -->
                 <div class="post-like-wrap">
-                  <button class="like-action-btn" type="button" data-like-id="comment_c1">
+                  <button class="comment-like-btn" type="button" data-like-id="comment_c1">
                     <svg class="like-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z" />
                     </svg>
@@ -250,7 +250,7 @@
             <!-- REPLY THREAD -->
             <div class="reply-list">
 
-              <!-- REPLY 1 - 直接使用 img，无多余 wrap -->
+              <!-- REPLY 1 - 使用 reply-like-btn -->
               <div class="reply-item" data-id="reply_1" data-type="reply">
 
                 <img class="reply-avatar" src="https://i.pravatar.cc/40?img=6" data-user-id="u2">
@@ -270,9 +270,9 @@
 
                 </div>
 
-                <!-- 拆分点赞按钮 -->
+                <!-- 回复点赞：使用 reply-like-btn -->
                 <div class="post-like-wrap">
-                  <button class="like-action-btn" type="button" data-like-id="reply_1">
+                  <button class="reply-like-btn" type="button" data-like-id="reply_1">
                     <svg class="like-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
                     </svg>
@@ -282,7 +282,7 @@
 
               </div>
 
-              <!-- REPLY 2 -->
+              <!-- REPLY 2 - 使用 reply-like-btn -->
               <div class="reply-item" data-id="reply_2" data-type="reply">
 
                 <img class="reply-avatar" src="https://i.pravatar.cc/40?img=5" data-user-id="u3">
@@ -302,9 +302,9 @@
 
                 </div>
 
-                <!-- 拆分点赞按钮 -->
+                <!-- 回复点赞：使用 reply-like-btn -->
                 <div class="post-like-wrap">
-                  <button class="like-action-btn" type="button" data-like-id="reply_2">
+                  <button class="reply-like-btn" type="button" data-like-id="reply_2">
                     <svg class="like-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
                     </svg>
