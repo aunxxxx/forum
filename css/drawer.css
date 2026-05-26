@@ -242,6 +242,7 @@ body.drawer-open .app {
     gap: 10px;
 }
 
+/* ✅ 必须改成 font-size: 16px（防止iOS缩放） */
 #commentInput {
     flex: 1;
     min-height: 44px;
@@ -252,7 +253,7 @@ body.drawer-open .app {
     outline: none;
     resize: none;
     background: rgba(255, 255, 255, .9);
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.5;
 }
 
@@ -280,6 +281,7 @@ body.drawer-open .app {
 
 /* =========================
    COMMENT SYSTEM（评论系统）
+   ✅ 统一 user-line 布局
 ========================= */
 
 /* 评论项基础布局 */
@@ -309,19 +311,20 @@ body.drawer-open .app {
     min-width: 0;
 }
 
-/* 顶部信息行（小红书级一行布局） */
+/* ✅ 统一 user-line 布局 */
+.user-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* 顶部信息行 */
 .comment-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-}
-
-.comment-user {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
 }
 
 .comment-meta {
@@ -338,7 +341,7 @@ body.drawer-open .app {
     text-decoration: none;
 }
 
-/* 徽章样式 */
+/* ✅ 徽章统一 order: -1 靠左 */
 .badge {
     height: 18px;
     padding: 0 7px;
@@ -350,6 +353,7 @@ body.drawer-open .app {
     font-weight: 600;
     background: rgba(0, 0, 0, .06);
     color: #666;
+    order: -1;
 }
 
 .badge.founder {
@@ -400,77 +404,113 @@ body.drawer-open .app {
     background: rgba(0, 0, 0, .05);
 }
 
-/* 图标基础样式 */
-.icon {
-    width: 18px;
-    height: 18px;
-    display: block;
-}
-
 /* =========================
-   LIKE SYSTEM（点赞系统）
-   ✅ 添加 position: relative; z-index: 2;
+   LIKE BUTTON（统一点赞系统 - SVG Heart）
+   ✅ fill: transparent; stroke: currentColor;
 ========================= */
 
-.like-btn {
+.like-btn,
+.reply-like-btn {
     border: none;
     background: transparent;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 4px;
     position: relative;
-    z-index: 2;
-}
-
-.like-icon {
-    width: 20px;
-    height: 20px;
-    fill: #999;
-    transition: fill .2s ease;
-    pointer-events: none;
-}
-
-.like-btn.active .like-icon {
-    fill: #ff4d4f;
-}
-
-/* 点赞动画 */
-.like-icon.pop {
-    animation: pop .25s ease;
-}
-
-@keyframes pop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.3); }
-    100% { transform: scale(1); }
-}
-
-/* 点赞计数 */
-.like-count {
-    font-size: 13px;
-    margin-left: 4px;
-}
-
-/* 波纹效果 */
-.like-btn.ripple::after {
-    content: "";
-    position: absolute;
-    inset: -6px;
-    border-radius: 50%;
-    border: 2px solid #ff4d4f;
-    pointer-events: none;
-    animation: ripple .4s ease-out;
-    opacity: 0;
-}
-
-@keyframes ripple {
-    0% { transform: scale(0.6); opacity: 0.8; }
-    100% { transform: scale(1.6); opacity: 0; }
+    color: #999;
+    transition: transform .18s ease;
 }
 
 /* =========================
-   REPLY（楼中楼）
+   SVG HEART
+========================= */
+
+.like-icon {
+    width: 18px;
+    height: 18px;
+    fill: transparent;
+    stroke: currentColor;
+    transition: fill .22s ease, stroke .22s ease, transform .22s ease;
+    pointer-events: none;
+}
+
+/* ACTIVE 状态 */
+.like-btn.active,
+.reply-like-btn.active {
+    color: #ff4d4f;
+}
+
+.like-btn.active .like-icon,
+.reply-like-btn.active .like-icon {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+/* =========================
+   COUNT
+========================= */
+
+.like-count,
+.reply-like-count {
+    font-size: 13px;
+    line-height: 1;
+}
+
+/* =========================
+   POP ANIMATION
+========================= */
+
+.like-icon.pop {
+    animation: likePop .25s ease;
+}
+
+@keyframes likePop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.28);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* =========================
+   RIPPLE
+========================= */
+
+.like-btn.ripple::after,
+.reply-like-btn.ripple::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 77, 79, .5);
+    animation: likeRipple .45s ease-out;
+    pointer-events: none;
+}
+
+@keyframes likeRipple {
+    0% {
+        transform: scale(.6);
+        opacity: .8;
+    }
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* =========================
+   REPLY（楼中楼）- 稳定版
+   ✅ reply-item: flex-start 对齐
+   ✅ reply-main: flex:1 占满
+   ✅ reply-user-line: 用户行统一
+   ✅ badge: order: -1 靠左
+   ✅ reply-content: 正常换行
 ========================= */
 
 .reply-list {
@@ -479,23 +519,36 @@ body.drawer-open .app {
     border-left: 2px solid #eee;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 }
 
+/* ✅ 稳定版 reply-item */
 .reply-item {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    white-space: nowrap;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .reply-avatar {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+}
+
+/* ✅ 稳定版 reply-main */
+.reply-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ✅ 稳定版 用户行 */
+.reply-user-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .reply-username {
@@ -524,28 +577,14 @@ body.drawer-open .app {
     color: #888;
 }
 
+/* ✅ 稳定版 内容 */
 .reply-content {
+    margin-top: 4px;
     font-size: 13px;
+    line-height: 1.5;
     color: #444;
-    margin-left: 4px;
     white-space: normal;
     word-break: break-word;
-}
-
-/* 回复点赞按钮 */
-.reply-like-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: auto;
-}
-
-.reply-like-btn .like-icon {
-    width: 14px;
-    height: 14px;
 }
 
 /* =========================
