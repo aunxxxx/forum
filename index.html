@@ -168,53 +168,54 @@
 
   </div>
 
-  <!-- =========================
-       COMMENT DRAWER
-  ========================== -->
+ <!-- =========================
+     COMMENT DRAWER
+========================= -->
+<div
+  class="drawer-overlay"
+  id="commentOverlay"
+>
+
   <div
-    class="drawer-overlay"
-    id="commentOverlay"
+    class="drawer"
+    id="commentDrawer"
   >
 
+    <!-- HANDLE -->
+    <div class="drawer-handle-wrap">
+      <div class="drawer-handle"></div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="drawer-header">
+
+      <div class="drawer-title">
+        评论
+      </div>
+
+      <div class="drawer-close">
+        ✕
+      </div>
+
+    </div>
+
+    <!-- COMMENTS -->
     <div
-      class="drawer"
-      id="commentDrawer"
+      class="drawer-content"
+      id="drawerComments"
     >
 
-      <!-- HANDLE -->
-      <div class="drawer-handle-wrap">
-
-        <div class="drawer-handle"></div>
-
-      </div>
-
-      <!-- HEADER -->
-      <div class="drawer-header">
-
-        <div class="drawer-title">
-          评论
-        </div>
-
-        <div class="drawer-close">
-          ✕
-        </div>
-
-      </div>
-
-      <!-- COMMENTS -->
+      <!-- COMMENT -->
       <div
-        class="drawer-content"
-        id="drawerComments"
+        class="comment"
+        data-comment-id="c1"
       >
 
-        <!-- COMMENT -->
-        <div
-          class="comment"
-          data-comment-id="c1"
-        >
+        <!-- 主评论 -->
+        <div class="comment-main-block">
 
-          <!-- 主评论 -->
-          <div class="comment-main-block">
+          <!-- LEFT -->
+          <div class="comment-left">
 
             <!-- USER -->
             <div class="user-line">
@@ -259,176 +260,118 @@
 
             </div>
 
-            <!-- ACTIONS -->
-            <div class="comment-actions">
+            <!-- 楼中楼 -->
+            <div class="reply-list">
 
-              <!-- REPLY -->
-              <button class="reply-btn">
+              <!-- reply -->
+              <div class="reply-item">
 
-                <svg
-                  viewBox="0 0 24 24"
-                  class="icon"
+                <a
+                  class="reply-user"
+                  href="/user.html?id=3"
                 >
+                  王五
+                </a>
 
-                  <path
-                    d="M9 14L4 9l5-5"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-
-                  <path
-                    d="M20 20c0-6-4-11-11-11H4"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-
-                </svg>
-
-              </button>
-
-              <!-- LIKE -->
-              <button
-                class="like-btn"
-                data-like-id="comment_c1"
-              >
-
-                <svg
-                  viewBox="0 0 24 24"
-                  class="icon like-icon"
-                >
-
-                  <path
-                    d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-
-                </svg>
-
-                <span class="like-count">
-                  12
+                <span class="reply-text">
+                  回复得确实有 App 那味了。
                 </span>
 
-              </button>
+              </div>
+
+              <!-- reply -->
+              <div class="reply-item">
+
+                <a
+                  class="reply-user"
+                  href="/user.html?id=4"
+                >
+                  张三
+                </a>
+
+                <span class="reply-to">
+                  回复
+                </span>
+
+                <a
+                  class="reply-user"
+                  href="/user.html?id=3"
+                >
+                  王五
+                </a>
+
+                <span class="reply-text">
+                  特别像即刻评论区。
+                </span>
+
+              </div>
 
             </div>
 
           </div>
 
-          <!-- 楼中楼 -->
-          <div class="reply-list">
+          <!-- RIGHT ACTIONS -->
+          <div class="comment-actions-side">
 
-            <!-- reply -->
-            <div class="reply-item">
+            <!-- REPLY -->
+            <button class="reply-btn action-btn">
 
-              <a
-                class="reply-user"
-                href="/user.html?id=3"
+              <svg
+                viewBox="0 0 24 24"
+                class="icon"
               >
-                王五
-              </a>
 
-              <span class="reply-text">
-                回复得确实有 App 那味了。
-              </span>
+                <path
+                  d="M9 14L4 9l5-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
 
-            </div>
+                <path
+                  d="M20 20c0-6-4-11-11-11H4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
 
-            <!-- reply -->
-            <div class="reply-item">
+              </svg>
 
-              <a
-                class="reply-user"
-                href="/user.html?id=4"
-              >
-                张三
-              </a>
+            </button>
 
-              <span class="reply-to">
-                回复
-              </span>
-
-              <a
-                class="reply-user"
-                href="/user.html?id=3"
-              >
-                王五
-              </a>
-
-              <span class="reply-text">
-                特别像即刻评论区。
-              </span>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- INPUT AREA -->
-      <div class="drawer-input-area">
-
-        <!-- reply preview -->
-        <div
-          class="reply-preview"
-          id="replyPreview"
-          style="display:none;"
-        >
-
-          <div class="reply-preview-text">
-            回复用户
-          </div>
-
-          <button id="cancelReply">
-            ✕
-          </button>
-
-        </div>
-
-        <!-- mention panel -->
-        <div
-          class="mention-panel"
-          id="mentionPanel"
-        ></div>
-
-        <!-- input -->
-        <div class="comment-input-fixed">
-
-          <textarea
-            id="commentInput"
-            placeholder="发一条友善评论..."
-            rows="1"
-          ></textarea>
-
-          <!-- SEND -->
-          <button id="sendCommentBtn">
-
-            <svg
-              viewBox="0 0 24 24"
-              width="18"
-              height="18"
-              fill="none"
+            <!-- LIKE -->
+            <button
+              class="like-btn action-btn"
+              data-like-id="comment_c1"
             >
 
-              <path
-                d="M3 20L21 12L3 4V10L15 12L3 14V20Z"
-                fill="currentColor"
-              />
+              <svg
+                viewBox="0 0 24 24"
+                class="icon like-icon"
+              >
 
-            </svg>
+                <path
+                  d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
 
-          </button>
+              </svg>
+
+              <span class="like-count">
+                12
+              </span>
+
+            </button>
+
+          </div>
 
         </div>
 
@@ -436,7 +379,67 @@
 
     </div>
 
+    <!-- INPUT AREA -->
+    <div class="drawer-input-area">
+
+      <!-- REPLY PREVIEW -->
+      <div
+        class="reply-preview"
+        id="replyPreview"
+        style="display:none;"
+      >
+
+        <div class="reply-preview-text">
+          回复用户
+        </div>
+
+        <button id="cancelReply">
+          ✕
+        </button>
+
+      </div>
+
+      <!-- @ mention -->
+      <div
+        class="mention-panel"
+        id="mentionPanel"
+      ></div>
+
+      <!-- INPUT -->
+      <div class="comment-input-fixed">
+
+        <textarea
+          id="commentInput"
+          placeholder="发一条友善评论..."
+          rows="1"
+        ></textarea>
+
+        <!-- SEND -->
+        <button id="sendCommentBtn">
+
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+          >
+
+            <path
+              d="M3 20L21 12L3 4V10L15 12L3 14V20Z"
+              fill="currentColor"
+            />
+
+          </svg>
+
+        </button>
+
+      </div>
+
+    </div>
+
   </div>
+
+</div>
 
   <!-- =========================
        LIKE DRAWER
