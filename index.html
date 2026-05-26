@@ -5,10 +5,10 @@
   <meta charset="UTF-8" />
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes"
   />
 
-  <title>Forum3.89</title>
+  <title>Forum3.90</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -217,15 +217,15 @@
 
           <div class="comment-body">
 
-            <!-- 用户信息（小红书风格一行） -->
+            <!-- 用户信息 - 统一 user-line 结构 -->
             <div class="comment-top">
-              <div class="comment-user">
-                <span class="comment-username">李四</span>
-
-                <span class="comment-meta">
-                  <span class="comment-badge">创始</span>
+              <div class="user-line">
+                <img class="avatar" src="https://i.pravatar.cc/40?img=2" alt="" style="width: 24px; height: 24px; border-radius: 50%;">
+                <div class="user-meta">
+                  <span class="badge founder">创始</span>
+                  <span class="username">李四</span>
                   <span class="comment-time">2分钟前</span>
-                </span>
+                </div>
               </div>
 
               <!-- 操作区 -->
@@ -238,13 +238,13 @@
                   </svg>
                 </button>
 
-                <div style="display: flex; align-items: center; gap: 4px;">
-                  <button class="like-btn" type="button" data-like-id="comment_c1" data-type="comment">
+                <div class="post-like-wrap">
+                  <button class="like-btn" type="button" data-like-id="comment_c1">
                     <svg class="like-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z" />
                     </svg>
                   </button>
-                  <span class="like-count">12</span>
+                  <button class="like-count-trigger" type="button" data-post-id="comment_c1">12</button>
                 </div>
 
               </div>
@@ -255,47 +255,75 @@
               这个 drawer 已经开始有 App 感了。
             </div>
 
-            <!-- REPLY THREAD -->
+            <!-- REPLY THREAD - 统一 reply button 结构 -->
             <div class="reply-list">
 
-              <!-- REPLY 1 - 补全 data-id 和 data-type -->
-              <div class="reply-item" data-id="reply_1" data-type="reply" data-reply-id="r1" data-user-id="3">
-                <span class="reply-username">王五</span>
+              <!-- REPLY 1 -->
+              <div class="reply-item" data-id="reply_1" data-type="reply">
 
-                <span class="reply-arrow">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 6l6 6-6 6" />
+                <!-- AVATAR -->
+                <img class="reply-avatar" src="https://i.pravatar.cc/40?img=6" data-user-id="u2">
+
+                <!-- MAIN -->
+                <div class="reply-main">
+
+                  <!-- USER -->
+                  <div class="reply-user-line">
+                    <span class="badge vip">元老</span>
+                    <span class="reply-username">王五</span>
+                    <span class="reply-arrow">→</span>
+                    <span class="reply-target">李四</span>
+                  </div>
+
+                  <!-- CONTENT -->
+                  <div class="reply-content">
+                    回复得确实有 App 那味了。
+                  </div>
+
+                </div>
+
+                <!-- LIKE - 统一 reply-like-btn like-btn 结构 -->
+                <button class="reply-like-btn like-btn" type="button" data-like-id="reply_1">
+                  <svg class="like-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
                   </svg>
-                </span>
-
-                <span class="reply-target"></span>
-
-                <span class="reply-content">回复得确实有 App 那味了。</span>
-
-                <button class="reply-like-btn" type="button" data-like-id="reply_r1" data-type="reply">
-                  <span class="reply-like-icon">❤</span>
                   <span class="reply-like-count">3</span>
                 </button>
+
               </div>
 
-              <!-- REPLY 2 - 补全 data-id 和 data-type -->
-              <div class="reply-item" data-id="reply_2" data-type="reply" data-reply-id="r2" data-user-id="4">
-                <span class="reply-username">张三</span>
+              <!-- REPLY 2 -->
+              <div class="reply-item" data-id="reply_2" data-type="reply">
 
-                <span class="reply-arrow">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 6l6 6-6 6" />
+                <!-- AVATAR -->
+                <img class="reply-avatar" src="https://i.pravatar.cc/40?img=5" data-user-id="u3">
+
+                <!-- MAIN -->
+                <div class="reply-main">
+
+                  <!-- USER -->
+                  <div class="reply-user-line">
+                    <span class="badge founder">创始</span>
+                    <span class="reply-username">张三</span>
+                    <span class="reply-arrow">→</span>
+                    <span class="reply-target">王五</span>
+                  </div>
+
+                  <!-- CONTENT -->
+                  <div class="reply-content">
+                    特别像即刻评论区。
+                  </div>
+
+                </div>
+
+                <!-- LIKE - 统一 reply-like-btn like-btn 结构 -->
+                <button class="reply-like-btn like-btn" type="button" data-like-id="reply_2">
+                  <svg class="like-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
                   </svg>
-                </span>
-
-                <span class="reply-target">王五</span>
-
-                <span class="reply-content">特别像即刻评论区。</span>
-
-                <button class="reply-like-btn" type="button" data-like-id="reply_r2" data-type="reply">
-                  <span class="reply-like-icon">❤</span>
                   <span class="reply-like-count">8</span>
                 </button>
+
               </div>
 
             </div>
