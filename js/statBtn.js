@@ -2,7 +2,11 @@ export function createStatBtn(type, count, onClick) {
 
   const div = document.createElement("div");
 
-  div.className = `stat-btn ${type}-btn`;
+  div.className = `
+    stat-btn
+    ${type}-btn
+    ${type === "like" ? "like-action-btn" : ""}
+  `;
 
   const icons = {
 
