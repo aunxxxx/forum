@@ -31,31 +31,127 @@ const followingUsers = [
 ];
 
 /* =========================
-   点赞动画功能（统一 delegation + stopPropagation）
+   GLOBAL LIKE SYSTEM
 ========================= */
 
-function handleLike(likeBtn) {
-    likeBtn.classList.toggle('active');
-    
-    const icon = likeBtn.querySelector('.like-icon');
+const likeStore = new Map();
+
+/* =========================
+   HANDLE LIKE
+========================= */
+
+function handleGlobalLike(btn) {
+    const likeId = btn.dataset.likeId;
+    if (!likeId) return;
+
+    // 初始化 store
+    if (!likeStore.has(likeId)) {
+        likeStore.set(likeId, {
+            total: 0
+        });
+    }
+
+    const data = likeStore.get(likeId);
+
+    // 无限点赞
+    data.total++;
+
+    // ACTIVE
+    btn.classList.add('active');
+
+    // COUNT
+    const countEl = btn.querySelector('.reply-like-count') ||
+        btn.parentElement?.querySelector('.like-count');
+
+    if (countEl) {
+        countEl.textContent = data.total;
+    }
+
+    // SVG / ICON
+    const icon = btn.querySelector('.like-icon');
     if (icon) {
         icon.classList.remove('pop');
         void icon.offsetWidth;
         icon.classList.add('pop');
     }
+
+    // 第二次开始 ripple
+    if (data.total >= 2) {
+        btn.classList.remove('ripple');
+        void btn.offsetWidth;
+        btn.classList.add('ripple');
+    }
 }
 
-// 统一事件委托
-document.addEventListener("click", (e) => {
-    const likeBtn = e.target.closest(".like-btn, .reply-like-btn");
+/* =========================
+   GLOBAL CLICK SYSTEM
+========================= */
+
+document.addEventListener('click', (e) => {
+    /* =========================
+       LIKE
+    ========================= */
+    const likeBtn = e.target.closest('.like-btn');
     if (likeBtn) {
+        // 防止触发 drawer
         e.stopPropagation();
-        handleLike(likeBtn);
+        handleGlobalLike(likeBtn);
+        return;
+    }
+
+    /* =========================
+       COMMENT DRAWER
+    ========================= */
+    const commentBtn = e.target.closest('.comment-btn');
+    if (commentBtn) {
+        const overlay = document.getElementById('commentOverlay');
+        overlay?.openDrawer?.();
+        return;
+    }
+
+    /* =========================
+       LIKE DRAWER
+    ========================= */
+    const likeStatBtn = e.target.closest('.stat-btn.like-btn');
+    if (likeStatBtn) {
+        const overlay = document.getElementById('likeOverlay');
+        overlay?.openDrawer?.();
+        return;
+    }
+
+    /* =========================
+       REPLY
+    ========================= */
+    const replyBtn = e.target.closest('.reply-btn');
+    if (replyBtn) {
+        const comment = replyBtn.closest('.comment');
+        if (!comment) return;
+
+        const username = comment.querySelector('.comment-username')?.textContent;
+        const input = document.getElementById('commentInput');
+        const preview = document.getElementById('replyPreview');
+        const previewText = preview?.querySelector('.reply-preview-text');
+
+        if (preview && previewText) {
+            preview.style.display = 'flex';
+            previewText.textContent = `回复 @${username}`;
+        }
+
+        input?.focus();
+
+        const container = document.querySelector('.drawer-content');
+        if (container) {
+            container.scrollTo({
+                top: comment.offsetTop - 80,
+                behavior: 'smooth'
+            });
+        }
+        return;
     }
 });
 
 /* =========================
-   评论定位功能（统一 drawerContent.scrollTo）
+   评论定位功能
 ========================= */
 
 function scrollToComment(commentId) {
@@ -65,7 +161,7 @@ function scrollToComment(commentId) {
     if (!el || !drawerContent) return;
 
     drawerContent.scrollTo({
-        top: el.offsetTop - 100,
+        top: el.offsetTop - 80,
         behavior: "smooth"
     });
 
@@ -81,7 +177,6 @@ function scrollToComment(commentId) {
 ========================= */
 
 export function createDrawerInstance(overlay, drawer, triggerSelector) {
-
     if (!overlay || !drawer) {
         console.warn("Drawer init failed");
         return;
@@ -95,13 +190,10 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     // STATE
     // =========================
     let state = STATE.CLOSED;
-
     let startY = 0;
     let startTranslate = 100;
     let currentTranslate = 100;
-
     let dragging = false;
-
     let scrollY = 0;
 
     // =========================
@@ -143,9 +235,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
             app.style.transform = "none";
             return;
         }
-        app.style.transition = animate
-            ? "filter .25s ease, transform .25s ease"
-            : "none";
+        app.style.transition = animate ? "filter .25s ease, transform .25s ease" : "none";
         const blur = progress * 6;
         const scale = 1 - progress * 0.06;
         app.style.filter = blur > 0 ? `blur(${blur}px)` : "none";
@@ -157,14 +247,9 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     // =========================
     function render(y, animate = false) {
         currentTranslate = y;
-        drawer.style.transition = animate
-            ? "transform .35s cubic-bezier(.22,1,.36,1)"
-            : "none";
+        drawer.style.transition = animate ? "transform .35s cubic-bezier(.22,1,.36,1)" : "none";
         if (!isMobile()) {
-            drawer.style.transform =
-                (y < 100)
-                    ? `translate(-50%, -50%)`
-                    : `translate(-50%, calc(-50% + 100vh))`;
+            drawer.style.transform = (y < 100) ? `translate(-50%, -50%)` : `translate(-50%, calc(-50% + 100vh))`;
         } else {
             drawer.style.transform = `translateY(${y}%)`;
         }
@@ -196,21 +281,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     overlay.closeDrawer = close;
     
     // =========================
-    // TRIGGER（统一 stopPropagation）
-    // =========================
-    document.addEventListener("click", (e) => {
-        const trigger = e.target.closest(triggerSelector);
-        if (!trigger) return;
-        e.stopPropagation();
-        if (!isMobile()) {
-            state === STATE.OPEN ? close() : open();
-            return;
-        }
-        state === STATE.CLOSED ? peek() : close();
-    });
-
-    // =========================
-    // OVERLAY CLOSE（禁止点击关闭）
+    // OVERLAY CLOSE
     // =========================
     overlay.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -275,7 +346,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchcancel", endDrag);
 
     // =========================
-    // 键盘适配（只做 scrollIntoView + padding，不改 layout）
+    // 键盘适配（scrollIntoView + padding）
     // =========================
     if (commentInput) {
         commentInput.addEventListener("focus", () => {
@@ -333,11 +404,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
             const item = e.target.closest(".mention-item");
             if (!item) return;
             const name = item.dataset.name;
-            commentInput.value =
-                commentInput.value.replace(
-                    /@([\u4e00-\u9fa5\w]*)$/,
-                    `@${name} `
-                );
+            commentInput.value = commentInput.value.replace(/@([\u4e00-\u9fa5\w]*)$/, `@${name} `);
             mentionPanel.classList.remove("show");
             mentionPanel.innerHTML = "";
             commentInput.focus();
