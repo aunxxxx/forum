@@ -362,25 +362,8 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // 输入框适配（只调整 paddingBottom）
+    // ❌ 已删除 commentInput scrollIntoView 相关代码
     // =========================
-    if (commentInput) {
-        commentInput.addEventListener("focus", () => {
-            setTimeout(() => {
-                const drawerContent = document.querySelector(".drawer-content");
-                if (drawerContent) {
-                    drawerContent.style.paddingBottom = "300px";
-                }
-            }, 100);
-        });
-        
-        commentInput.addEventListener("blur", () => {
-            const drawerContent = document.querySelector(".drawer-content");
-            if (drawerContent) {
-                drawerContent.style.paddingBottom = "";
-            }
-        });
-    }
 
     /* =========================
        @MENTION 功能
