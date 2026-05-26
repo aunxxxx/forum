@@ -4,11 +4,6 @@ import { initEditor } from "./editor.js";
 import { initUpload } from "./upload.js";
 import { initFAB } from "./fab.js";
 import { initDrawer } from "./drawer.js";
-import {
-    initLikeEngine,
-    toggleLike,
-    syncLikeUI
-} from "./likeEngine.js";
 
 /* =========================
    DOM
@@ -56,16 +51,12 @@ function initApp() {
     initFAB();
 
     /* =========================
-       4. drawer + engine
+       4. drawer
     ========================= */
 
     requestAnimationFrame(() => {
 
         initDrawer();
-
-        initLikeEngine();
-
-        bindInteractionEvents();
 
         initInputSystem();
     });
@@ -162,103 +153,6 @@ function initStickyObserver() {
     });
 
     return observer;
-}
-
-/* =========================
-   INTERACTION SYSTEM
-========================= */
-
-function bindInteractionEvents() {
-
-    document.addEventListener(
-        "click",
-        (e) => {
-
-            /* =========================
-               LIKE BUTTON
-            ========================= */
-
-            const likeBtn =
-                e.target.closest(".like-action-btn, .comment-like-btn, .reply-like-btn");
-
-            if (likeBtn) {
-
-                e.stopPropagation();
-
-                const id =
-                    likeBtn.dataset.likeId;
-
-                if (!id) return;
-
-                /* =========================
-                   点击数字 → 点赞列表
-                ========================= */
-
-                const clickedCount =
-                    e.target.classList.contains(
-                        "like-count"
-                    );
-
-                if (clickedCount) {
-
-                    const overlay =
-                        document.getElementById(
-                            "likeOverlay"
-                        );
-
-                    if (overlay) {
-                        overlay.classList.add(
-                            "is-open"
-                        );
-                    }
-
-                    return;
-                }
-
-                /* =========================
-                   点赞
-                ========================= */
-
-                const state =
-                    toggleLike(id);
-
-                syncLikeUI(id);
-
-                return;
-            }
-
-            /* =========================
-               REPLY
-            ========================= */
-
-            const replyBtn =
-                e.target.closest(".reply-btn");
-
-            if (replyBtn) {
-
-                e.stopPropagation();
-
-                const preview =
-                    document.getElementById(
-                        "replyPreview"
-                    );
-
-                if (preview) {
-                    preview.style.display =
-                        "flex";
-                }
-
-                const input =
-                    document.getElementById(
-                        "commentInput"
-                    );
-
-                if (input) {
-                    input.focus();
-                }
-            }
-        }
-    );
 }
 
 /* =========================
