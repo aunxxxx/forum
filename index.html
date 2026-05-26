@@ -3,12 +3,9 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes" />
 
-  <title>Forum3.93</title>
+  <title>Forum3.94</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -25,408 +22,265 @@
          TOPBAR
     ========================== -->
     <header class="topbar">
-
-      <div class="logo">
-        铁
-      </div>
-
+      <div class="logo">铁</div>
       <nav class="nav">
-
         <span>Home</span>
-
         <span>大事件</span>
-
-        <span class="active">
-          铁汁窝
-        </span>
-
+        <span class="active">铁汁窝</span>
       </nav>
-
-      <!-- avatar -->
       <div class="avatar-wrap">
-
-        <img
-          class="avatar"
-          src="https://i.pravatar.cc/40"
-          data-user-id="me"
-        >
-
+        <img class="avatar" src="https://i.pravatar.cc/40" data-user-id="me">
       </div>
-
     </header>
 
     <!-- =========================
          MAIN
     ========================== -->
     <main class="container">
-
-      <!-- HOT -->
       <section class="hot-section">
-
         <div class="hot-header">
-
-          <div class="hot-title">
-            🔥 热门词条
-          </div>
-
+          <div class="hot-title">🔥 热门词条</div>
         </div>
-
         <div class="hot-list">
-
-          <div class="hot-item">
-
-            <span>
-              第一位认证用户
-            </span>
-
-            <span>
-              🔥 3
-            </span>
-
-          </div>
-
-          <div class="hot-item">
-
-            <span>
-              契弟广场
-            </span>
-
-            <span>
-              🔥 2
-            </span>
-
-          </div>
-
+          <div class="hot-item"><span>第一位认证用户</span><span>🔥 3</span></div>
+          <div class="hot-item"><span>契弟广场</span><span>🔥 2</span></div>
         </div>
-
       </section>
 
-      <!-- POSTS -->
-      <section
-        class="posts-list"
-        id="postsList"
-      ></section>
+      <!-- POSTS LIST -->
+      <section class="posts-list" id="postsList">
+        <!-- 帖子 1 -->
+        <div class="post-card" data-post-id="post_1">
+          <div class="post-header">
+            <img class="post-avatar" src="https://i.pravatar.cc/40?img=1" alt="">
+            <div class="post-user-info">
+              <span class="badge founder">创始</span>
+              <span class="post-username">铁汁</span>
+              <span class="post-time">2小时前</span>
+            </div>
+          </div>
+          <div class="post-content">欢迎来到铁汁窝！这是一个全新的社区平台。</div>
+          <div class="post-stats">
+            <!-- ✅ 帖子：like-wrapper 结构，点赞和数字分开 -->
+            <div class="like-wrapper">
+              <button class="like-action-btn" data-like-id="post_1" data-like-type="post" type="button">
+                <svg class="like-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
+                </svg>
+              </button>
+              <button class="like-count-trigger" data-like-id="post_1" type="button">
+                <span class="like-count">38</span>
+              </button>
+            </div>
+            <button class="comment-stat-btn" data-post-id="post_1" type="button">💬 12</button>
+          </div>
+        </div>
 
+        <!-- 帖子 2 -->
+        <div class="post-card" data-post-id="post_2">
+          <div class="post-header">
+            <img class="post-avatar" src="https://i.pravatar.cc/40?img=4" alt="">
+            <div class="post-user-info">
+              <span class="badge vip">元老</span>
+              <span class="post-username">老王</span>
+              <span class="post-time">5小时前</span>
+            </div>
+          </div>
+          <div class="post-content">今天天气真好，有人一起聊天吗？</div>
+          <div class="post-stats">
+            <div class="like-wrapper">
+              <button class="like-action-btn" data-like-id="post_2" data-like-type="post" type="button">
+                <svg class="like-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
+                </svg>
+              </button>
+              <button class="like-count-trigger" data-like-id="post_2" type="button">
+                <span class="like-count">15</span>
+              </button>
+            </div>
+            <button class="comment-stat-btn" data-post-id="post_2" type="button">💬 5</button>
+          </div>
+        </div>
+      </section>
     </main>
 
-    <!-- FAB -->
-    <button
-      class="fab"
-      type="button"
-      id="fab"
-    >
-      +
-    </button>
+    <button class="fab" type="button" id="fab">+</button>
 
   </div>
 
   <!-- =========================
        EDITOR
   ========================== -->
-  <div
-    class="editor-overlay"
-    id="editor"
-  >
-
+  <div class="editor-overlay" id="editor">
     <div class="editor-box">
-
       <div class="editor-top">
-
-        <button
-          id="closeEditor"
-          class="close-btn"
-          type="button"
-        >
-          ✕
-        </button>
-
-        <button 
-          id="submitPost"
-          type="button"
-          >
-          发布
-        </button>
-
+        <button id="closeEditor" class="close-btn" type="button">✕</button>
+        <button id="submitPost" type="button">发布</button>
       </div>
-
-     <textarea
-  id="postInput"
-  placeholder="发点什么..."
-  rows="4"
-></textarea>
-
-      <input
-        type="file"
-        id="imageInput"
-        hidden
-      />
-
-     <button
-  class="upload-btn"
-  id="uploadBtn"
-  type="button"
->
-  上传图片
-</button>
-
-      <img
-        id="previewImage"
-        class="preview-image"
-      />
-
+      <textarea id="postInput" placeholder="发点什么..." rows="4"></textarea>
+      <input type="file" id="imageInput" hidden />
+      <button class="upload-btn" id="uploadBtn" type="button">上传图片</button>
+      <img id="previewImage" class="preview-image" />
     </div>
-
   </div>
 
   <!-- =========================
-       COMMENT DRAWER (最终结构对齐版)
+       COMMENT DRAWER
   ========================= -->
-  <div
-    class="drawer-overlay"
-    id="commentOverlay"
-  >
+  <div class="drawer-overlay" id="commentOverlay">
+    <div class="drawer" id="commentDrawer">
 
-    <div
-      class="drawer"
-      id="commentDrawer"
-    >
-
-      <!-- HANDLE -->
       <div class="drawer-handle-wrap">
         <div class="drawer-handle"></div>
       </div>
 
-      <!-- HEADER -->
-      <div class="drawer-header">
-        评论
-      </div>
+      <div class="drawer-header">评论</div>
 
-      <!-- SCROLL AREA (drawer-content) -->
       <div class="drawer-content">
-
-        <!-- COMMENT 1 -->
+        <!-- 评论 1 -->
         <div class="comment" data-comment-id="c1" data-user-id="1">
-
           <img class="comment-avatar" src="https://i.pravatar.cc/40?img=2" alt="">
-
           <div class="comment-body">
-
-            <!-- 用户信息 -->
             <div class="comment-top">
               <div class="comment-user-info">
                 <span class="badge founder">创始</span>
                 <span class="comment-username">李四</span>
                 <span class="comment-time">2分钟前</span>
               </div>
-
-              <!-- 操作区 -->
               <div class="comment-actions">
-
                 <button class="icon-btn reply-btn" type="button">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 14L4 9l5-5" />
                     <path d="M20 20c0-6-4-11-11-11H4" />
                   </svg>
                 </button>
-
-                <!-- 评论点赞：使用 comment-like-btn -->
-                <div class="post-like-wrap">
-                  <button class="comment-like-btn" type="button" data-like-id="comment_c1">
-                    <svg class="like-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z" />
+                <!-- ✅ 评论：like-wrapper 结构 -->
+                <div class="like-wrapper">
+                  <button class="comment-like-btn" data-like-id="comment_c1" data-like-type="comment" type="button">
+                    <svg class="like-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
                     </svg>
                   </button>
-                  <button class="like-count-trigger" type="button" data-post-id="comment_c1">12</button>
+                  <button class="like-count-trigger" data-like-id="comment_c1" type="button">
+                    <span class="like-count">12</span>
+                  </button>
                 </div>
-
               </div>
             </div>
+            <div class="comment-content">这个 drawer 已经开始有 App 感了。</div>
 
-            <!-- 内容 -->
-            <div class="comment-content">
-              这个 drawer 已经开始有 App 感了。
-            </div>
-
-            <!-- REPLY THREAD -->
+            <!-- 回复列表 -->
             <div class="reply-list">
-
-              <!-- REPLY 1 - 使用 reply-like-btn -->
+              <!-- 回复 1 -->
               <div class="reply-item" data-id="reply_1" data-type="reply">
-
                 <img class="reply-avatar" src="https://i.pravatar.cc/40?img=6" data-user-id="u2">
-
                 <div class="reply-main">
-
                   <div class="reply-user-line">
                     <span class="badge vip">元老</span>
                     <span class="reply-username">王五</span>
                     <span class="reply-arrow">→</span>
                     <span class="reply-target">李四</span>
                   </div>
-
-                  <div class="reply-content">
-                    回复得确实有 App 那味了。
-                  </div>
-
+                  <div class="reply-content">回复得确实有 App 那味了。</div>
                 </div>
-
-                <!-- 回复点赞：使用 reply-like-btn -->
-                <div class="post-like-wrap">
-                  <button class="reply-like-btn" type="button" data-like-id="reply_1">
+                <!-- ✅ 回复：like-wrapper 结构 -->
+                <div class="like-wrapper">
+                  <button class="reply-like-btn" data-like-id="reply_1" data-like-type="reply" type="button">
                     <svg class="like-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
                     </svg>
                   </button>
-                  <button class="like-count-trigger" type="button" data-post-id="reply_1">3</button>
+                  <button class="like-count-trigger" data-like-id="reply_1" type="button">
+                    <span class="reply-like-count">3</span>
+                  </button>
                 </div>
-
               </div>
 
-              <!-- REPLY 2 - 使用 reply-like-btn -->
+              <!-- 回复 2 -->
               <div class="reply-item" data-id="reply_2" data-type="reply">
-
                 <img class="reply-avatar" src="https://i.pravatar.cc/40?img=5" data-user-id="u3">
-
                 <div class="reply-main">
-
                   <div class="reply-user-line">
                     <span class="badge founder">创始</span>
                     <span class="reply-username">张三</span>
                     <span class="reply-arrow">→</span>
                     <span class="reply-target">王五</span>
                   </div>
-
-                  <div class="reply-content">
-                    特别像即刻评论区。
-                  </div>
-
+                  <div class="reply-content">特别像即刻评论区。</div>
                 </div>
-
-                <!-- 回复点赞：使用 reply-like-btn -->
-                <div class="post-like-wrap">
-                  <button class="reply-like-btn" type="button" data-like-id="reply_2">
+                <div class="like-wrapper">
+                  <button class="reply-like-btn" data-like-id="reply_2" data-like-type="reply" type="button">
                     <svg class="like-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
                     </svg>
                   </button>
-                  <button class="like-count-trigger" type="button" data-post-id="reply_2">8</button>
+                  <button class="like-count-trigger" data-like-id="reply_2" type="button">
+                    <span class="reply-like-count">8</span>
+                  </button>
                 </div>
-
               </div>
-
             </div>
-
           </div>
         </div>
-
       </div>
 
-      <!-- INPUT FIXED BAR -->
+      <!-- 输入区 -->
       <div class="drawer-input-area">
-
         <div class="reply-preview hidden" id="replyPreview" style="display: none;">
           <span class="reply-preview-text">回复 @用户</span>
           <button id="cancelReply" type="button">×</button>
         </div>
-
         <div class="mention-panel" id="mentionPanel"></div>
-
         <div class="comment-input-fixed">
           <textarea id="commentInput" placeholder="发一条友善评论..." rows="1"></textarea>
-
           <button id="sendCommentBtn" type="button">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
               <path d="M3 20L21 12L3 4V10L15 12L3 14V20Z" fill="currentColor" />
             </svg>
           </button>
         </div>
-
       </div>
 
     </div>
-
   </div>
 
   <!-- =========================
-       LIKE DRAWER
+       LIKE DRAWER（点赞列表）
   ========================== -->
-  <div
-    class="drawer-overlay"
-    id="likeOverlay"
-  >
-
-    <div
-      class="drawer"
-      id="likeDrawer"
-    >
-
+  <div class="drawer-overlay" id="likeOverlay">
+    <div class="drawer" id="likeDrawer">
       <div class="drawer-handle-wrap">
-
         <div class="drawer-handle"></div>
-
       </div>
-
       <div class="drawer-header">
-
-        <div class="drawer-title">
-          点赞
-        </div>
-
-        <button 
-          class="drawer-close"
-          type="button"
-          >
-          ✕
-        </button>
-
+        <div class="drawer-title">点赞列表</div>
+        <button class="drawer-close" type="button">✕</button>
       </div>
-
-      <div class="drawer-content">
-
+      <div class="drawer-content" id="likeDrawerContent">
+        <!-- 动态渲染点赞用户列表 -->
         <div class="like-item">
-
           <div class="like-left">
-
-            <a class="avatar-wrap">
-
-              <img
-                class="avatar"
-                src="https://i.pravatar.cc/40?img=3"
-                data-user-id="3"
-              >
-
-            </a>
-
+            <img class="avatar" src="https://i.pravatar.cc/40?img=3" data-user-id="3">
             <div class="user-info">
-
-              <span class="badge">
-                创始
-              </span>
-
-              <span class="username">
-                马睿婕
-              </span>
-
+              <span class="badge">创始</span>
+              <span class="username">马睿婕</span>
             </div>
-
           </div>
-
-          <div class="like-right">
-            ×18
-          </div>
-
         </div>
-
+        <div class="like-item">
+          <div class="like-left">
+            <img class="avatar" src="https://i.pravatar.cc/40?img=7" data-user-id="7">
+            <div class="user-info">
+              <span class="badge">元老</span>
+              <span class="username">陈小春</span>
+            </div>
+          </div>
+        </div>
       </div>
-
     </div>
-
   </div>
 
-  <script
-    type="module"
-    src="js/forum.js"
-  ></script>
+  <script type="module" src="js/forum.js"></script>
 
 </body>
 </html>
