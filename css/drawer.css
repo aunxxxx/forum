@@ -49,7 +49,9 @@ body.drawer-open .app {
 }
 
 /* =========================
-   DRAWER BASE
+   DRAWER BASE（社交 App 级结构）
+   ✅ overflow: hidden + flex-direction: column
+   ✅ 安全区适配 env(safe-area-inset-bottom)
 ========================= */
 
 .drawer {
@@ -68,6 +70,7 @@ body.drawer-open .app {
     display: flex;
     flex-direction: column;
     z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom); /* ✅ 键盘适配 + 安全区 */
 }
 
 /* 打开状态 */
@@ -96,6 +99,7 @@ body.drawer-open .app {
         transform: translate(-50%, calc(-50% + 100vh));
         box-shadow: 0 30px 80px rgba(0, 0, 0, .18);
         touch-action: auto;
+        padding-bottom: 0;
     }
 
     .drawer.is-open {
@@ -174,20 +178,117 @@ body.drawer-open .app {
 }
 
 /* =========================
-   CONTENT
+   CONTENT（✅ 唯一可滚动区域）
+   ✅ flex: 1 + overflow-y: auto + min-height: 0
+   ✅ 评论区核心滚动区
 ========================= */
 
 .drawer-content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
     min-height: 0;
+    -webkit-overflow-scrolling: touch;
     padding: 0;
+    padding-bottom: 10px;      /* ✅ 滚动区底部留白 */
 }
 
 /* =========================
-   COMMENT SYSTEM (统一评论样式)
+   INPUT AREA（✅ 真正固定底部）
+   ✅ flex-shrink: 0 — 永远不被压缩
+   ✅ 键盘弹出时跟随上移（手机原生行为）
+========================= */
+
+.drawer-input-area {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, .96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid #eee;
+    padding: 10px;
+    z-index: 10;
+}
+
+/* 回复预览条 */
+.reply-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    background: #f5f5f5;
+}
+
+.reply-preview.active {
+    display: flex;
+}
+
+.reply-preview-text {
+    font-size: 13px;
+    color: #666;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+#cancelReply {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: #777;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* 输入框容器 */
+.comment-input-fixed,
+.drawer-input-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+#commentInput {
+    flex: 1;
+    min-height: 44px;
+    max-height: 120px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: none;
+    outline: none;
+    resize: none;
+    background: #f5f5f5;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#commentInput:focus {
+    background: #efefef;
+}
+
+#sendCommentBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: none;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .18s ease;
+}
+
+#sendCommentBtn:active {
+    transform: scale(.92);
+}
+
+/* =========================
+   COMMENT SYSTEM（统一评论样式）
 ========================= */
 
 /* 评论项基础布局 */
@@ -380,12 +481,14 @@ body.drawer-open .app {
 }
 
 /* =========================
-   REPLY（楼中楼）
+   REPLY（楼中楼）- 社交App级紧凑结构
+   ✅ 左边距40px + 左侧分割线
+   ✅ 一行紧凑结构，不换行
 ========================= */
 
 .reply-list {
     margin-top: 10px;
-    padding-left: 46px;
+    padding-left: 40px;
     border-left: 2px solid #f2f2f2;
     display: flex;
     flex-direction: column;
@@ -414,32 +517,50 @@ body.drawer-open .app {
     min-width: 0;
 }
 
+/* ✅ 一行回复结构 - 强制一行不换行 */
 .reply-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    font-size: 13px;
-    margin-bottom: 4px;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .reply-username {
+    font-size: 12px;
     font-weight: 600;
     color: #111;
+    line-height: 1;
+}
+
+/* SVG 箭头样式 */
+.reply-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #bbb;
+}
+
+.reply-arrow svg {
+    width: 12px;
+    height: 12px;
+    display: block;
 }
 
 .reply-target {
+    font-size: 12px;
+    font-weight: 600;
     color: #888;
-}
-
-.reply-arrow {
-    color: #ccc;
+    line-height: 1;
 }
 
 .reply-content {
+    margin-top: 2px;
     font-size: 13px;
+    line-height: 1.4;
     color: #444;
-    margin-top: 3px;
-    line-height: 1.5;
     word-break: break-word;
 }
 
@@ -463,99 +584,6 @@ body.drawer-open .app {
 
 .reply-like-btn:hover {
     background: rgba(0, 0, 0, .05);
-}
-
-/* =========================
-   INPUT AREA（稳定底部）
-========================= */
-
-.drawer-input-area {
-    position: sticky;
-    bottom: 0;
-    flex-shrink: 0;
-    padding: 10px;
-    background: rgba(255, 255, 255, .95);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid #eee;
-}
-
-/* 回复预览条 */
-.reply-preview {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    background: #f5f5f5;
-}
-
-.reply-preview.active {
-    display: flex;
-}
-
-.reply-preview-text {
-    font-size: 13px;
-    color: #666;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    flex: 1;
-}
-
-#cancelReply {
-    width: 24px;
-    height: 24px;
-    border: none;
-    border-radius: 50%;
-    background: none;
-    color: #777;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-/* 输入框容器 */
-.comment-input-fixed,
-.drawer-input-wrap {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-}
-
-#commentInput {
-    flex: 1;
-    min-height: 44px;
-    max-height: 120px;
-    padding: 12px 14px;
-    border-radius: 16px;
-    border: none;
-    outline: none;
-    resize: none;
-    background: #f5f5f5;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-#commentInput:focus {
-    background: #efefef;
-}
-
-#sendCommentBtn {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    border: none;
-    background: #111;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform .18s ease;
-}
-
-#sendCommentBtn:active {
-    transform: scale(.92);
 }
 
 /* =========================
@@ -853,10 +881,26 @@ body.drawer-open .app {
 #commentDrawer {
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 #drawerComments {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
+}
+
+/* =========================
+   键盘适配 JS 辅助样式（可选）
+   当键盘弹出时，可动态添加此类到 body
+========================= */
+
+body.keyboard-open {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+body.keyboard-open .drawer {
+    transform: translateY(0) !important;
 }
