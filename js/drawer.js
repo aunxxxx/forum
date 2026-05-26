@@ -91,9 +91,7 @@ document.addEventListener('click', (e) => {
     /* =========================
        LIKE ACTION
     ========================= */
-    const likeBtn = e.target.closest(
-        '.like-action-btn, .reply-like-btn, .comment-like-btn'
-    );
+    const likeBtn = e.target.closest('.like-action-btn, .reply-like-btn, .comment-like-btn');
     if (likeBtn) {
         e.stopPropagation();
         handleGlobalLike(likeBtn);
@@ -152,26 +150,33 @@ document.addEventListener('click', (e) => {
 });
 
 /* =========================
-   CLICK CONTENT TO FOCUS INPUT（新增）
+   评论吸附（最终版 - 只滚 content）
 ========================= */
 
 document.addEventListener('click', (e) => {
-    const content = e.target.closest('.comment-content, .reply-content');
-    if (!content) return;
+    const target = e.target.closest('.comment-content, .reply-content');
+    if (!target) return;
 
-    const inputArea = document.querySelector('.drawer-input-area');
+    const content = document.querySelector('.drawer-content');
     const input = document.getElementById('commentInput');
 
-    if (!inputArea || !input) return;
+    if (!content || !input) return;
+
+    // 打开 drawer
+    document.getElementById('commentOverlay')?.openDrawer?.();
 
     // 聚焦
-    input.focus();
+    setTimeout(() => {
+        input.focus({
+            preventScroll: true
+        });
 
-    // 定位目标
-    const rect = content.getBoundingClientRect();
-
-    // 输入框吸附
-    inputArea.style.transform = `translateY(${rect.top - 260}px)`;
+        // scroll 到目标
+        content.scrollTo({
+            top: target.offsetTop - content.clientHeight / 2,
+            behavior: 'smooth'
+        });
+    }, 250);
 });
 
 /* =========================
@@ -219,9 +224,6 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     let currentTranslate = 100;
     let dragging = false;
     let scrollY = 0;
-    
-    // 键盘适配变量
-    let baseHeight = window.innerHeight;
 
     // =========================
     // POSITIONS (%)
@@ -373,29 +375,17 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchcancel", endDrag);
 
     // =========================
-    // 键盘适配（✅ 修改版）
+    // 真正的键盘方案（最终版）
     // =========================
-    window.addEventListener("resize", () => {
-        const diff = baseHeight - window.innerHeight;
-        
-        const inputArea = document.querySelector('.drawer-input-area');
-        if (inputArea) {
-            if (diff > 150) {
-                inputArea.style.bottom = `${diff}px`;
-            } else {
-                inputArea.style.bottom = '';
-            }
-        }
-    });
-
-    function updateBaseHeight() {
-        setTimeout(() => {
-            baseHeight = window.innerHeight;
-        }, 100);
+    const visual = window.visualViewport;
+    if (visual) {
+        visual.addEventListener('resize', () => {
+            const inputArea = document.querySelector('.drawer-input-area');
+            if (!inputArea) return;
+            const keyboardHeight = window.innerHeight - visual.height;
+            inputArea.style.bottom = keyboardHeight > 0 ? `${keyboardHeight}px` : '0px';
+        });
     }
-    
-    window.addEventListener("resize", updateBaseHeight);
-    updateBaseHeight();
 
     // =========================
     // 键盘适配（scrollIntoView + padding）
