@@ -76,7 +76,7 @@ document.addEventListener('click', (e) => {
     }
 
     /* =========================
-       COMMENT CONTENT FOCUS（点击内容聚焦输入框）
+       COMMENT CONTENT FOCUS（点击内容聚焦输入框）- 已修复滚动
     ========================= */
     const commentContent = e.target.closest('.comment-content, .reply-content');
     if (commentContent) {
@@ -91,8 +91,13 @@ document.addEventListener('click', (e) => {
                 preventScroll: true
             });
 
-            content?.scrollTo({
-                top: commentContent.offsetTop - content.clientHeight / 2,
+            // ✅ 修复：使用 getBoundingClientRect 正确计算滚动位置
+            const rect = commentContent.getBoundingClientRect();
+            const contentRect = content.getBoundingClientRect();
+            const top = content.scrollTop + rect.top - contentRect.top - 120;
+
+            content.scrollTo({
+                top: top,
                 behavior: 'smooth'
             });
         }, 180);
@@ -134,8 +139,13 @@ document.addEventListener('click', (e) => {
 
             const target = trigger.closest('.post, .comment');
             if (target && content) {
+                // ✅ 修复：使用 getBoundingClientRect 正确计算滚动位置
+                const rect = target.getBoundingClientRect();
+                const contentRect = content.getBoundingClientRect();
+                const top = content.scrollTop + rect.top - contentRect.top - 120;
+
                 content.scrollTo({
-                    top: target.offsetTop - content.clientHeight / 2,
+                    top: top,
                     behavior: 'smooth'
                 });
             }
@@ -154,8 +164,13 @@ function scrollToComment(commentId) {
 
     if (!el || !drawerContent) return;
 
+    // ✅ 修复：使用 getBoundingClientRect 正确计算滚动位置
+    const rect = el.getBoundingClientRect();
+    const contentRect = drawerContent.getBoundingClientRect();
+    const top = drawerContent.scrollTop + rect.top - contentRect.top - 80;
+
     drawerContent.scrollTo({
-        top: el.offsetTop - 80,
+        top: top,
         behavior: "smooth"
     });
 
@@ -357,7 +372,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // 输入框适配（❌ 已删除所有 scrollIntoView）
+    // 输入框适配
     // =========================
     if (commentInput) {
         commentInput.addEventListener("focus", () => {
