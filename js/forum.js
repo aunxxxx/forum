@@ -60,33 +60,87 @@ function bindInteractionEvents() {
        GLOBAL DELEGATION（关键）
     ========================= */
 
-    document.addEventListener("click", (e) => {
+   document.addEventListener("click", (e) => {
 
-        const likeBtn = e.target.closest(".like-btn");
-        if (!likeBtn) return;
+    /* =========================
+       LIKE BUTTON
+    ========================= */
+
+    const likeBtn = e.target.closest(".like-btn");
+
+    if (likeBtn) {
+
+        e.stopPropagation();
 
         const id = likeBtn.dataset.likeId;
         if (!id) return;
 
-        const isCount = e.target.classList.contains("like-count");
+        const clickedCount =
+            e.target.classList.contains("like-count");
 
         /* =========================
-           数字 → 打开 drawer
+           点击数字 → drawer
         ========================= */
-        if (isCount) {
+        if (clickedCount) {
+
             openLikeDrawer(likeBtn);
             return;
         }
 
         /* =========================
-           SVG / 按钮 → 点赞
+           点 svg / 空白 → 点赞
         ========================= */
         const state = toggleLike(id);
 
         syncLikeUI(id);
 
-        triggerLikeAnimation(likeBtn, state.liked);
-    });
+        triggerLikeAnimation(
+            likeBtn,
+            state.liked
+        );
+
+        return;
+    }
+
+    /* =========================
+       REPLY
+    ========================= */
+
+    const replyBtn =
+        e.target.closest(".reply-btn");
+
+    if (replyBtn) {
+
+        e.stopPropagation();
+
+        const preview =
+            document.getElementById("replyPreview");
+
+        if (preview) {
+            preview.style.display = "flex";
+        }
+
+        const input =
+            document.getElementById("commentInput");
+
+        if (input) {
+
+            input.focus();
+
+            if (window.innerWidth <= 768) {
+
+                setTimeout(() => {
+
+                    input.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                }, 200);
+            }
+        }
+    }
+});
 }
 
 /* =========================
@@ -127,20 +181,6 @@ function triggerLikeAnimation(btn, liked) {
             count.style.transform = "scale(1)";
         }, 150);
     }
-}
-
-/* =========================
-   DRAWER
-========================= */
-
-function openLikeDrawer(btn) {
-
-    const overlay = document.getElementById("likeOverlay");
-    if (!overlay) return;
-
-    overlay.classList.add("active");
-
-    // 未来扩展：根据 btn.dataset.likeId 拉用户列表
 }
 
 /* =========================
