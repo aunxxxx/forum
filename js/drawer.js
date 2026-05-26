@@ -1,8 +1,13 @@
-console.log("DRAWER FINAL VERSION");
-
 /* =========================
-   forum.js - 最终完整版（已修复所有问题）
+   drawer.js - 最终完整版（已修复所有问题）
 ========================= */
+
+const currentUser = {
+    id: "me",
+    name: "Austin",
+    badge: "创始",
+    avatar: "https://i.pravatar.cc/40"
+};
 
 const STATE = {
     CLOSED: "CLOSED",
