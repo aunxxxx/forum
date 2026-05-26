@@ -1,3 +1,7 @@
+/* =========================
+   forum.js - 最终完整版（已修复所有问题）
+========================= */
+
 const STATE = {
     CLOSED: "CLOSED",
     PEEK: "PEEK",
@@ -31,7 +35,7 @@ const followingUsers = [
 ];
 
 /* =========================
-   GLOBAL CLICK SYSTEM（唯一事件入口 - 已合并所有点击）
+   GLOBAL CLICK SYSTEM（唯一事件入口）
 ========================= */
 
 document.addEventListener('click', (e) => {
@@ -46,7 +50,9 @@ document.addEventListener('click', (e) => {
         const type = likeBtn.dataset.likeType;
         
         const result = toggleLike(type, id, currentUser);
-        const countEl = likeBtn.querySelector('.like-count');
+        
+        // ✅ 修复：数字已拆出去，单独更新 trigger 上的数字
+        const countEl = document.querySelector(`.like-count-trigger[data-like-id="${id}"] .like-count`);
         
         updateLikeUI(likeBtn, countEl, result.count);
         return;
@@ -96,8 +102,25 @@ document.addEventListener('click', (e) => {
 
         const input = document.getElementById('commentInput');
         const content = document.querySelector('.drawer-content');
+        const preview = document.getElementById('replyPreview');
 
         setTimeout(() => {
+            // ✅ 修复：PC 回复取消 - 切换预览显示
+            if (trigger.classList.contains('reply-btn')) {
+                if (preview) {
+                    preview.style.display = preview.style.display === 'flex' ? 'none' : 'flex';
+                }
+                
+                const target = trigger.closest('.comment');
+                if (target && content) {
+                    const username = target.querySelector('.comment-username')?.textContent;
+                    const previewText = preview?.querySelector('.reply-preview-text');
+                    if (previewText && username) {
+                        previewText.textContent = `回复 @${username}`;
+                    }
+                }
+            }
+
             input?.focus({
                 preventScroll: true
             });
@@ -168,7 +191,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     const OPEN_Y = 0;
 
     // =========================
-    // SCROLL LOCK（修复：只在移动端锁定）
+    // SCROLL LOCK（只在移动端锁定）
     // =========================
     function lockScroll(lock) {
         const body = document.body;
@@ -224,7 +247,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
         overlay.classList.toggle("is-open", open);
         document.body.classList.toggle("drawer-open", open);
         
-        // 修复：只在移动端锁定滚动
+        // 只在移动端锁定滚动
         if (isMobile()) {
             lockScroll(open);
         }
@@ -327,7 +350,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // 输入框适配（❌ 已删除 scrollIntoView）
+    // 输入框适配（❌ 已删除所有 scrollIntoView）
     // =========================
     if (commentInput) {
         commentInput.addEventListener("focus", () => {
