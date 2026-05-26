@@ -89,13 +89,24 @@ function handleGlobalLike(btn) {
 
 document.addEventListener('click', (e) => {
     /* =========================
-       LIKE
+       LIKE ACTION
     ========================= */
-    const likeBtn = e.target.closest('.like-btn');
+    const likeBtn = e.target.closest(
+        '.like-action-btn, .reply-like-btn, .comment-like-btn'
+    );
     if (likeBtn) {
-        // 防止触发 drawer
         e.stopPropagation();
         handleGlobalLike(likeBtn);
+        return;
+    }
+
+    /* =========================
+       LIKE DRAWER
+    ========================= */
+    const likeTrigger = e.target.closest('.like-count-trigger');
+    if (likeTrigger) {
+        e.stopPropagation();
+        document.getElementById('likeOverlay')?.openDrawer?.();
         return;
     }
 
@@ -105,16 +116,6 @@ document.addEventListener('click', (e) => {
     const commentBtn = e.target.closest('.comment-btn');
     if (commentBtn) {
         const overlay = document.getElementById('commentOverlay');
-        overlay?.openDrawer?.();
-        return;
-    }
-
-    /* =========================
-       LIKE DRAWER
-    ========================= */
-    const likeStatBtn = e.target.closest('.stat-btn.like-btn');
-    if (likeStatBtn) {
-        const overlay = document.getElementById('likeOverlay');
         overlay?.openDrawer?.();
         return;
     }
@@ -148,6 +149,29 @@ document.addEventListener('click', (e) => {
         }
         return;
     }
+});
+
+/* =========================
+   CLICK CONTENT TO FOCUS INPUT（新增）
+========================= */
+
+document.addEventListener('click', (e) => {
+    const content = e.target.closest('.comment-content, .reply-content');
+    if (!content) return;
+
+    const inputArea = document.querySelector('.drawer-input-area');
+    const input = document.getElementById('commentInput');
+
+    if (!inputArea || !input) return;
+
+    // 聚焦
+    input.focus();
+
+    // 定位目标
+    const rect = content.getBoundingClientRect();
+
+    // 输入框吸附
+    inputArea.style.transform = `translateY(${rect.top - 260}px)`;
 });
 
 /* =========================
@@ -195,6 +219,9 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     let currentTranslate = 100;
     let dragging = false;
     let scrollY = 0;
+    
+    // 键盘适配变量
+    let baseHeight = window.innerHeight;
 
     // =========================
     // POSITIONS (%)
@@ -344,6 +371,31 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
 
     drawer.addEventListener("touchend", endDrag);
     drawer.addEventListener("touchcancel", endDrag);
+
+    // =========================
+    // 键盘适配（✅ 修改版）
+    // =========================
+    window.addEventListener("resize", () => {
+        const diff = baseHeight - window.innerHeight;
+        
+        const inputArea = document.querySelector('.drawer-input-area');
+        if (inputArea) {
+            if (diff > 150) {
+                inputArea.style.bottom = `${diff}px`;
+            } else {
+                inputArea.style.bottom = '';
+            }
+        }
+    });
+
+    function updateBaseHeight() {
+        setTimeout(() => {
+            baseHeight = window.innerHeight;
+        }, 100);
+    }
+    
+    window.addEventListener("resize", updateBaseHeight);
+    updateBaseHeight();
 
     // =========================
     // 键盘适配（scrollIntoView + padding）
