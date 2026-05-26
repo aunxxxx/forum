@@ -21,7 +21,8 @@ body.drawer-open .app {
 }
 
 /* =========================
-   OVERLAY
+   OVERLAY（遮罩层）
+   z-index: 999
 ========================= */
 
 .drawer-overlay {
@@ -31,7 +32,7 @@ body.drawer-open .app {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity .25s ease;
+    transition: opacity .25s ease, visibility .25s ease;
     z-index: 999;
 }
 
@@ -49,18 +50,20 @@ body.drawer-open .app {
 }
 
 /* =========================
-   DRAWER 结构（绝对稳定）
-   ✅ position: fixed; inset: 0;  + flex 布局
+   DRAWER（弹窗主体）
+   z-index: 1000
+   ❌ 删除了 .drawer.is-open 的 transform 控制
+   ✅ transform 完全由 JS 控制
 ========================= */
 
 .drawer {
     position: fixed;
-    inset: 0;
-    top: auto;
-    height: 85vh;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
     background: #fff;
     border-radius: 24px 24px 0 0;
-    transform: translateY(100%);
     transition: transform .3s ease;
     will-change: transform;
     overflow: hidden;
@@ -70,15 +73,11 @@ body.drawer-open .app {
     padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* 打开状态 */
-.drawer.is-open {
-    transform: translateY(0);
-}
-
 /* 移动端触摸优化 */
 @media (max-width: 768px) {
     .drawer {
         touch-action: pan-y;
+        height: 85vh;
     }
 }
 
@@ -99,10 +98,6 @@ body.drawer-open .app {
         padding-bottom: 0;
     }
 
-    .drawer.is-open {
-        transform: translate(-50%, -50%);
-    }
-
     /* PC 隐藏拖拽条 */
     .drawer-handle-wrap {
         display: none;
@@ -110,7 +105,7 @@ body.drawer-open .app {
 }
 
 /* =========================
-   HANDLE
+   HANDLE（拖拽把手）
 ========================= */
 
 .drawer-handle-wrap {
@@ -129,7 +124,7 @@ body.drawer-open .app {
 }
 
 /* =========================
-   HEADER
+   HEADER（弹窗头部）
 ========================= */
 
 .drawer-header {
@@ -147,7 +142,7 @@ body.drawer-open .app {
     font-weight: 700;
 }
 
-/* PC 关闭按钮样式 */
+/* PC 关闭按钮 */
 @media (min-width: 769px) {
     .drawer-close {
         width: 34px;
@@ -175,8 +170,7 @@ body.drawer-open .app {
 }
 
 /* =========================
-   CONTENT（✅ 唯一可滚动区域）
-   ✅ flex: 1; overflow-y: auto; min-height: 0;
+   CONTENT（滚动内容区）
 ========================= */
 
 .drawer-content {
@@ -189,8 +183,8 @@ body.drawer-open .app {
 }
 
 /* =========================
-   INPUT AREA（✅ 真正固定，不跟滚动）
-   ✅ flex-shrink: 0 + 毛玻璃 + 无边框
+   INPUT AREA（输入框区域）
+   z-index: 10
 ========================= */
 
 .drawer-input-area {
@@ -285,8 +279,7 @@ body.drawer-open .app {
 }
 
 /* =========================
-   COMMENT SYSTEM（小红书级评论）
-   ✅ 一行用户信息，不换行
+   COMMENT SYSTEM（评论系统）
 ========================= */
 
 /* 评论项基础布局 */
@@ -316,7 +309,7 @@ body.drawer-open .app {
     min-width: 0;
 }
 
-/* ✅ 小红书级：一行用户信息，解决换行问题 */
+/* 顶部信息行（小红书级一行布局） */
 .comment-top {
     display: flex;
     justify-content: space-between;
@@ -415,8 +408,8 @@ body.drawer-open .app {
 }
 
 /* =========================
-   LIKE SYSTEM（统一点赞系统 + 关键修复）
-   ✅ pointer-events: none 让点击落在 button 上
+   LIKE SYSTEM（点赞系统）
+   ✅ 添加 position: relative; z-index: 2;
 ========================= */
 
 .like-btn {
@@ -427,6 +420,7 @@ body.drawer-open .app {
     align-items: center;
     justify-content: center;
     position: relative;
+    z-index: 2;
 }
 
 .like-icon {
@@ -434,7 +428,7 @@ body.drawer-open .app {
     height: 20px;
     fill: #999;
     transition: fill .2s ease;
-    pointer-events: none;        /* ✅ 关键修复：让点击永远落在 button 上 */
+    pointer-events: none;
 }
 
 .like-btn.active .like-icon {
@@ -476,8 +470,7 @@ body.drawer-open .app {
 }
 
 /* =========================
-   REPLY（微博 / 小红书标准楼中楼）
-   ✅ 左边距 + 左侧分割线 + 一行显示
+   REPLY（楼中楼）
 ========================= */
 
 .reply-list {
@@ -556,34 +549,23 @@ body.drawer-open .app {
 }
 
 /* =========================
-   移动端适配
+   容器 ID
 ========================= */
 
-@media (max-width: 768px) {
-    .drawer {
-        height: 88vh;
-    }
+#commentDrawer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
 
-    .reply-list {
-        padding-left: 10px;
-    }
-
-    .reply-btn {
-        display: none;
-    }
-
-    .comment-avatar {
-        width: 36px;
-        height: 36px;
-    }
-
-    .comment-content {
-        font-size: 13px;
-    }
+#drawerComments {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 /* =========================
-   帖子卡片样式（来自 forum.css）
+   ========== 帖子卡片样式（来自 forum.css）==========
 ========================= */
 
 /* 顶部栏 */
@@ -793,8 +775,12 @@ body.drawer-open .app {
     }
 }
 
-/* 移动端适配 */
+/* =========================
+   移动端适配（整体）
+========================= */
+
 @media (max-width: 768px) {
+    /* 顶部栏 */
     .topbar {
         height: 74px;
         padding: 0 14px;
@@ -822,6 +808,7 @@ body.drawer-open .app {
         padding: 14px;
     }
 
+    /* 帖子卡片 */
     .post-card {
         padding: 16px;
         border-radius: 22px;
@@ -840,34 +827,31 @@ body.drawer-open .app {
     .post-content {
         font-size: 16px;
     }
+
+    /* 评论相关 */
+    .reply-list {
+        padding-left: 10px;
+    }
+
+    .reply-btn {
+        display: none;
+    }
+
+    .comment-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .comment-content {
+        font-size: 13px;
+    }
 }
 
 /* =========================
-   评论系统 ID 容器
+   键盘适配 - 只控制高度，不控制 transform
+   ✅ 删除了 body.keyboard-open .drawer 的 transform 控制
 ========================= */
-
-#commentDrawer {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-#drawerComments {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-}
-
-/* =========================
-   键盘适配
-========================= */
-
-body.keyboard-open {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
 
 body.keyboard-open .drawer {
-    transform: translateY(0) !important;
+    height: 100vh;
 }
