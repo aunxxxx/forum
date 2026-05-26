@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>Forum3.81</title>
+  <title>Forum3.82</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -110,12 +110,13 @@
     </main>
 
     <!-- FAB -->
-    <div
+    <button
       class="fab"
+      type="button"
       id="fab"
     >
       +
-    </div>
+    </button>
 
   </div>
 
@@ -134,17 +135,25 @@
         <button
           id="closeEditor"
           class="close-btn"
+          type="button"
         >
           ✕
         </button>
 
-        <button id="submitPost">
+        <button 
+          id="submitPost"
+          type="button"
+          >
           发布
         </button>
 
       </div>
 
-      <textarea id="postInput"></textarea>
+     <textarea
+  id="postInput"
+  placeholder="发点什么..."
+  rows="4"
+></textarea>
 
       <input
         type="file"
@@ -152,12 +161,13 @@
         hidden
       />
 
-      <div
-        class="upload-btn"
-        id="uploadBtn"
-      >
-        上传图片
-      </div>
+     <button
+  class="upload-btn"
+  id="uploadBtn"
+  type="button"
+>
+  上传图片
+</button>
 
       <img
         id="previewImage"
@@ -193,9 +203,12 @@
         评论
       </div>
 
-      <div class="drawer-close">
+      <button 
+        class="drawer-close"
+        type="button"
+        >
         ✕
-      </div>
+      </button>
 
     </div>
 
@@ -205,176 +218,282 @@
       id="drawerComments"
     >
 
-      <!-- COMMENT -->
+     <!-- COMMENT -->
+<div
+  class="comment"
+  data-comment-id="c1"
+  data-user-id="1"
+>
+
+  <!-- AVATAR -->
+  <a
+    class="comment-avatar-wrap"
+    href="/user.html?id=1"
+  >
+    
+     <img
+  class="comment-avatar"
+  src="https://i.pravatar.cc/40?img=2"
+  alt=""
+>
+
+  </a>
+
+  <!-- BODY -->
+  <div class="comment-body">
+
+    <!-- TOP -->
+    <div class="comment-top">
+
+      <div class="comment-user-info">
+
+        <div class="comment-name-row">
+
+          <span class="badge founder">
+            创始
+          </span>
+
+          <a
+            class="comment-username"
+            href="/user.html?id=1"
+          >
+            李四
+          </a>
+
+        </div>
+
+        <div class="comment-time">
+          2分钟前
+        </div>
+
+      </div>
+
+      <!-- ACTION -->
       <div
-        class="comment"
-        data-comment-id="c1"
-      >
+  class="comment-actions"
+  aria-label="评论操作"
+>
 
-        <!-- 主评论 -->
-        <div class="comment-main-block">
+        <!-- REPLY -->
+       <button
+  class="reply-btn action-btn"
+  type="button"
+>
 
-          <!-- LEFT -->
-          <div class="comment-left">
+          <svg
+            viewBox="0 0 24 24"
+            class="icon"
+          >
 
-            <!-- USER -->
-            <div class="user-line">
+            <path
+              d="M9 14L4 9l5-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
 
-              <a
-                class="avatar-link"
-                href="/user.html?id=1"
-              >
+            <path
+              d="M20 20c0-6-4-11-11-11H4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
 
-                <img
-                  class="avatar"
-                  src="https://i.pravatar.cc/40?img=2"
-                >
+          </svg>
 
-              </a>
+        </button>
 
-              <div class="user-meta">
+        <!-- LIKE -->
+        <button
+          class="like-btn action-btn"
+          type="button"
+          data-like-id="comment_c1"
+        >
 
-                <div class="name-row">
+          <svg
+            viewBox="0 0 24 24"
+            class="icon like-icon"
+          >
 
-                  <span class="badge founder">
-                    创始
-                  </span>
+            <path
+              d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
 
-                  <a
-                    class="username"
-                    href="/user.html?id=1"
-                  >
-                    李四
-                  </a>
+          </svg>
 
-                </div>
+          <span class="like-count">
+            12
+          </span>
 
-              </div>
+        </button>
 
-            </div>
+      </div>
 
-            <!-- CONTENT -->
-            <div class="comment-content">
+    </div>
 
-              这个 drawer 已经开始有 App 感了。
+    <!-- CONTENT -->
+    <div class="comment-content">
 
-            </div>
+      这个 drawer 已经开始有 App 感了。
 
-            <!-- 楼中楼 -->
-            <div class="reply-list">
+    </div>
 
-              <!-- reply -->
-              <div class="reply-item">
+    <!-- REPLY LIST -->
+    <div class="reply-list">
 
-                <a
-                  class="reply-user"
-                  href="/user.html?id=3"
-                >
-                  王五
-                </a>
+      <!-- REPLY -->
+     <div
+  class="reply-item"
+  data-reply-id="r1"
+  data-user-id="3"
+>
 
-                <span class="reply-text">
-                  回复得确实有 App 那味了。
-                </span>
+        <a
+          class="reply-avatar-wrap"
+          href="/user.html?id=3"
+        >
 
-              </div>
+          <img
+  class="reply-avatar"
+  src="https://i.pravatar.cc/40?img=6"
+  alt=""
+>
 
-              <!-- reply -->
-              <div class="reply-item">
+        </a>
 
-                <a
-                  class="reply-user"
-                  href="/user.html?id=4"
-                >
-                  张三
-                </a>
+        <div class="reply-body">
 
-                <span class="reply-to">
-                  回复
-                </span>
+          <div class="reply-user-row">
 
-                <a
-                  class="reply-user"
-                  href="/user.html?id=3"
-                >
-                  王五
-                </a>
+            <span class="reply-badge">
+              元老
+            </span>
 
-                <span class="reply-text">
-                  特别像即刻评论区。
-                </span>
-
-              </div>
-
-            </div>
+            <a
+              class="reply-username"
+              href="/user.html?id=3"
+            >
+              王五
+            </a>
 
           </div>
 
-          <!-- RIGHT ACTIONS -->
-          <div class="comment-actions-side">
-
-            <!-- REPLY -->
-            <button class="reply-btn action-btn">
-
-              <svg
-                viewBox="0 0 24 24"
-                class="icon"
-              >
-
-                <path
-                  d="M9 14L4 9l5-5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-
-                <path
-                  d="M20 20c0-6-4-11-11-11H4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-
-              </svg>
-
-            </button>
-
-            <!-- LIKE -->
-            <button
-              class="like-btn action-btn"
-              data-like-id="comment_c1"
-            >
-
-              <svg
-                viewBox="0 0 24 24"
-                class="icon like-icon"
-              >
-
-                <path
-                  d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-
-              </svg>
-
-              <span class="like-count">
-                12
-              </span>
-
-            </button>
-
+          <div class="reply-content">
+            回复得确实有 App 那味了。
           </div>
 
         </div>
 
+<div class="reply-actions">
+       
+        <button
+  class="reply-like-btn action-btn"
+  type="button"
+>
+
+  <span class="reply-like-icon">
+    ❤
+  </span>
+
+  <span class="reply-like-count">
+    3
+  </span>
+
+</button>
+      </div>
+
+     
+      <!-- REPLY -->
+<div
+  class="reply-item"
+  data-reply-id="r2"
+  data-user-id="4"
+>
+
+        <a
+          class="reply-avatar-wrap"
+          href="/user.html?id=4"
+        >
+
+          <img
+  class="reply-avatar"
+  src="https://i.pravatar.cc/40?img=5"
+  alt=""
+>
+
+        </a>
+
+        <div class="reply-body">
+
+          <div class="reply-user-row">
+
+            <span class="reply-arrow">
+              ↳
+            </span>
+
+            <span class="reply-badge">
+              创始
+            </span>
+
+            <a
+              class="reply-username"
+              href="/user.html?id=4"
+            >
+              张三
+            </a>
+
+            <span class="reply-to-text">
+              回复
+            </span>
+
+            <span class="reply-target-badge">
+              元老
+            </span>
+
+            <a
+              class="reply-target-user"
+              href="/user.html?id=3"
+            >
+              王五
+            </a>
+
+          </div>
+
+          <div class="reply-content">
+            特别像即刻评论区。
+          </div>
+
+        </div>
+
+<div class="reply-actions">
+  
+       <button
+  class="reply-like-btn action-btn"
+  type="button"
+>
+
+          ❤
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+           
       </div>
 
     </div>
@@ -393,7 +512,10 @@
           回复用户
         </div>
 
-        <button id="cancelReply">
+        <button 
+          id="cancelReply"
+           type="button"
+          >
           ✕
         </button>
 
@@ -415,7 +537,10 @@
         ></textarea>
 
         <!-- SEND -->
-        <button id="sendCommentBtn">
+        <button 
+          id= "sendCommentBtn"
+          type="button"
+          >
 
           <svg
             viewBox="0 0 24 24"
@@ -466,9 +591,12 @@
           点赞
         </div>
 
-        <div class="drawer-close">
+        <button 
+          class="drawer-close"
+          type="button"
+          >
           ✕
-        </div>
+        </button>
 
       </div>
 
