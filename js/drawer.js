@@ -76,10 +76,10 @@ document.addEventListener('click', (e) => {
     }
 
     /* =========================
-       COMMENT CONTENT FOCUS（点击内容聚焦输入框）- 已修复滚动
+       COMMENT CONTENT FOCUS（点击内容聚焦输入框）
     ========================= */
-    const commentContent = e.target.closest('.comment-content, .reply-content');
-    if (commentContent) {
+    const target = e.target.closest('.comment-content, .reply-content');
+    if (target) {
         const overlay = document.getElementById('commentOverlay');
         overlay?.openDrawer?.();
 
@@ -91,16 +91,15 @@ document.addEventListener('click', (e) => {
                 preventScroll: true
             });
 
-            // ✅ 修复：使用 getBoundingClientRect 正确计算滚动位置
-            const rect = commentContent.getBoundingClientRect();
+            const rect = target.getBoundingClientRect();
             const contentRect = content.getBoundingClientRect();
             const top = content.scrollTop + rect.top - contentRect.top - 120;
 
             content.scrollTo({
-                top: top,
+                top,
                 behavior: 'smooth'
             });
-        }, 180);
+        }, 250);
         return;
     }
 
@@ -123,9 +122,9 @@ document.addEventListener('click', (e) => {
                     preview.style.display = preview.style.display === 'flex' ? 'none' : 'flex';
                 }
                 
-                const target = trigger.closest('.comment');
-                if (target && content) {
-                    const username = target.querySelector('.comment-username')?.textContent;
+                const targetComment = trigger.closest('.comment');
+                if (targetComment && content) {
+                    const username = targetComment.querySelector('.comment-username')?.textContent;
                     const previewText = preview?.querySelector('.reply-preview-text');
                     if (previewText && username) {
                         previewText.textContent = `回复 @${username}`;
@@ -137,15 +136,10 @@ document.addEventListener('click', (e) => {
                 preventScroll: true
             });
 
-            const target = trigger.closest('.post, .comment');
-            if (target && content) {
-                // ✅ 修复：使用 getBoundingClientRect 正确计算滚动位置
-                const rect = target.getBoundingClientRect();
-                const contentRect = content.getBoundingClientRect();
-                const top = content.scrollTop + rect.top - contentRect.top - 120;
-
+            const targetElement = trigger.closest('.post, .comment');
+            if (targetElement && content) {
                 content.scrollTo({
-                    top: top,
+                    top: targetElement.offsetTop - content.clientHeight / 2,
                     behavior: 'smooth'
                 });
             }
@@ -164,13 +158,8 @@ function scrollToComment(commentId) {
 
     if (!el || !drawerContent) return;
 
-    // ✅ 修复：使用 getBoundingClientRect 正确计算滚动位置
-    const rect = el.getBoundingClientRect();
-    const contentRect = drawerContent.getBoundingClientRect();
-    const top = drawerContent.scrollTop + rect.top - contentRect.top - 80;
-
     drawerContent.scrollTo({
-        top: top,
+        top: el.offsetTop - 80,
         behavior: "smooth"
     });
 
@@ -304,7 +293,8 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     if (closeBtn) {
         closeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            close();
+            // ✅ 修复：使用 overlay.closeDrawer 而不是 close
+            overlay.closeDrawer();
         });
     }
 
@@ -359,7 +349,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchcancel", endDrag);
 
     // =========================
-    // 键盘方案（只使用 visualViewport）
+    // 键盘方案（只使用 visualViewport，已删除所有 scrollIntoView）
     // =========================
     const visual = window.visualViewport;
     if (visual) {
@@ -372,7 +362,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // 输入框适配
+    // 输入框适配（只调整 paddingBottom）
     // =========================
     if (commentInput) {
         commentInput.addEventListener("focus", () => {
