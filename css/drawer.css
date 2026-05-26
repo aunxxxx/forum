@@ -52,7 +52,6 @@ body.drawer-open .app {
 /* =========================
    DRAWER（弹窗主体）
    z-index: 1000
-   ❌ 删除了 .drawer.is-open 的 transform 控制
    ✅ transform 完全由 JS 控制
 ========================= */
 
@@ -171,6 +170,7 @@ body.drawer-open .app {
 
 /* =========================
    CONTENT（滚动内容区）
+   ✅ 添加 padding-bottom 为输入框留空间
 ========================= */
 
 .drawer-content {
@@ -180,20 +180,36 @@ body.drawer-open .app {
     min-height: 0;
     -webkit-overflow-scrolling: touch;
     padding: 12px;
+    padding-bottom: 120px;     /* ✅ 为 absolute 输入框预留空间 */
 }
 
 /* =========================
    INPUT AREA（输入框区域）
-   z-index: 10
+   ✅ 改为 position: absolute 固定在底部
 ========================= */
 
 .drawer-input-area {
-    flex-shrink: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(255, 255, 255, .72);
     backdrop-filter: blur(18px);
     border-top: none;
     padding: 10px;
-    z-index: 10;
+    z-index: 30;               /* ✅ 提高层级，确保在内容之上 */
+}
+
+/* PC 桌面弹窗中恢复相对定位 */
+@media (min-width: 769px) {
+    .drawer-input-area {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .drawer-content {
+        padding-bottom: 12px;   /* PC 不需要大 padding */
+    }
 }
 
 /* 回复预览条 */
@@ -506,11 +522,6 @@ body.drawer-open .app {
 
 /* =========================
    REPLY（楼中楼）- 稳定版
-   ✅ reply-item: flex-start 对齐
-   ✅ reply-main: flex:1 占满
-   ✅ reply-user-line: 用户行统一
-   ✅ badge: order: -1 靠左
-   ✅ reply-content: 正常换行
 ========================= */
 
 .reply-list {
@@ -888,7 +899,6 @@ body.drawer-open .app {
 
 /* =========================
    键盘适配 - 只控制高度，不控制 transform
-   ✅ 删除了 body.keyboard-open .drawer 的 transform 控制
 ========================= */
 
 body.keyboard-open .drawer {
