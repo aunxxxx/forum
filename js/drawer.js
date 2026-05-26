@@ -9,7 +9,7 @@ function isMobile() {
 }
 
 /* =========================
-   FOLLOWING USERS
+   FOLLOWING USERS (@提及数据)
 ========================= */
 
 const followingUsers = [
@@ -31,75 +31,29 @@ const followingUsers = [
 ];
 
 /* =========================
-   GLOBAL LIKE SYSTEM
-========================= */
-
-const likeStore = new Map();
-
-/* =========================
-   HANDLE LIKE
-========================= */
-
-function handleGlobalLike(btn) {
-    const likeId = btn.dataset.likeId;
-    if (!likeId) return;
-
-    // 初始化 store
-    if (!likeStore.has(likeId)) {
-        likeStore.set(likeId, {
-            total: 0
-        });
-    }
-
-    const data = likeStore.get(likeId);
-
-    // 无限点赞
-    data.total++;
-
-    // ACTIVE
-    btn.classList.add('active');
-
-    // COUNT
-    const countEl = btn.querySelector('.reply-like-count') ||
-        btn.parentElement?.querySelector('.like-count');
-
-    if (countEl) {
-        countEl.textContent = data.total;
-    }
-
-    // SVG / ICON
-    const icon = btn.querySelector('.like-icon');
-    if (icon) {
-        icon.classList.remove('pop');
-        void icon.offsetWidth;
-        icon.classList.add('pop');
-    }
-
-    // 第二次开始 ripple
-    if (data.total >= 2) {
-        btn.classList.remove('ripple');
-        void btn.offsetWidth;
-        btn.classList.add('ripple');
-    }
-}
-
-/* =========================
-   GLOBAL CLICK SYSTEM
+   GLOBAL CLICK SYSTEM（唯一事件入口 - 已合并所有点击）
 ========================= */
 
 document.addEventListener('click', (e) => {
     /* =========================
-       LIKE ACTION
+       LIKE（只做分发，UI 由 likeUI.js 处理）
     ========================= */
-    const likeBtn = e.target.closest('.like-action-btn, .reply-like-btn, .comment-like-btn');
+    const likeBtn = e.target.closest('.like-action-btn, .comment-like-btn, .reply-like-btn');
     if (likeBtn) {
         e.stopPropagation();
-        handleGlobalLike(likeBtn);
+        
+        const id = likeBtn.dataset.likeId;
+        const type = likeBtn.dataset.likeType;
+        
+        const result = toggleLike(type, id, currentUser);
+        const countEl = likeBtn.querySelector('.like-count');
+        
+        updateLikeUI(likeBtn, countEl, result.count);
         return;
     }
 
     /* =========================
-       LIKE DRAWER
+       LIKE DRAWER（点赞列表弹窗）
     ========================= */
     const likeTrigger = e.target.closest('.like-count-trigger');
     if (likeTrigger) {
@@ -109,78 +63,59 @@ document.addEventListener('click', (e) => {
     }
 
     /* =========================
-       COMMENT DRAWER
+       COMMENT CONTENT FOCUS（点击内容聚焦输入框）
     ========================= */
-    const commentBtn = e.target.closest('.comment-btn');
-    if (commentBtn) {
+    const commentContent = e.target.closest('.comment-content, .reply-content');
+    if (commentContent) {
         const overlay = document.getElementById('commentOverlay');
         overlay?.openDrawer?.();
+
+        const input = document.getElementById('commentInput');
+        const content = document.querySelector('.drawer-content');
+
+        setTimeout(() => {
+            input?.focus({
+                preventScroll: true
+            });
+
+            content?.scrollTo({
+                top: commentContent.offsetTop - content.clientHeight / 2,
+                behavior: 'smooth'
+            });
+        }, 180);
         return;
     }
 
     /* =========================
-       REPLY
+       COMMENT DRAWER & REPLY（评论/回复弹窗）
     ========================= */
-    const replyBtn = e.target.closest('.reply-btn');
-    if (replyBtn) {
-        const comment = replyBtn.closest('.comment');
-        if (!comment) return;
+    const trigger = e.target.closest('.comment-btn, .reply-btn');
+    if (trigger) {
+        const overlay = document.getElementById('commentOverlay');
+        overlay?.openDrawer?.();
 
-        const username = comment.querySelector('.comment-username')?.textContent;
         const input = document.getElementById('commentInput');
-        const preview = document.getElementById('replyPreview');
-        const previewText = preview?.querySelector('.reply-preview-text');
+        const content = document.querySelector('.drawer-content');
 
-        if (preview && previewText) {
-            preview.style.display = 'flex';
-            previewText.textContent = `回复 @${username}`;
-        }
-
-        input?.focus();
-
-        const container = document.querySelector('.drawer-content');
-        if (container) {
-            container.scrollTo({
-                top: comment.offsetTop - 80,
-                behavior: 'smooth'
+        setTimeout(() => {
+            input?.focus({
+                preventScroll: true
             });
-        }
+
+            const target = trigger.closest('.post, .comment');
+            if (target && content) {
+                content.scrollTo({
+                    top: target.offsetTop - content.clientHeight / 2,
+                    behavior: 'smooth'
+                });
+            }
+        }, 250);
         return;
     }
 });
 
 /* =========================
-   评论吸附（最终版 - 只滚 content）
-========================= */
-
-document.addEventListener('click', (e) => {
-    const target = e.target.closest('.comment-content, .reply-content');
-    if (!target) return;
-
-    const content = document.querySelector('.drawer-content');
-    const input = document.getElementById('commentInput');
-
-    if (!content || !input) return;
-
-    // 打开 drawer
-    document.getElementById('commentOverlay')?.openDrawer?.();
-
-    // 聚焦
-    setTimeout(() => {
-        input.focus({
-            preventScroll: true
-        });
-
-        // scroll 到目标
-        content.scrollTo({
-            top: target.offsetTop - content.clientHeight / 2,
-            behavior: 'smooth'
-        });
-    }, 250);
-});
-
-/* =========================
-   评论定位功能
+   评论定位功能（外部调用）
 ========================= */
 
 function scrollToComment(commentId) {
@@ -233,7 +168,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     const OPEN_Y = 0;
 
     // =========================
-    // SCROLL LOCK
+    // SCROLL LOCK（修复：只在移动端锁定）
     // =========================
     function lockScroll(lock) {
         const body = document.body;
@@ -288,7 +223,11 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
         const open = y < CLOSED_Y;
         overlay.classList.toggle("is-open", open);
         document.body.classList.toggle("drawer-open", open);
-        lockScroll(open);
+        
+        // 修复：只在移动端锁定滚动
+        if (isMobile()) {
+            lockScroll(open);
+        }
     }
 
     // =========================
@@ -325,7 +264,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // TOUCH START
+    // TOUCH START（手势拖拽）
     // =========================
     drawer.addEventListener("touchstart", (e) => {
         if (!isMobile()) return;
@@ -337,7 +276,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }, { passive: true });
 
     // =========================
-    // TOUCH MOVE
+    // TOUCH MOVE（手势拖拽）
     // =========================
     drawer.addEventListener("touchmove", (e) => {
         if (!dragging) return;
@@ -350,7 +289,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }, { passive: false });
 
     // =========================
-    // END DRAG
+    // END DRAG（手势结束）
     // =========================
     function endDrag() {
         if (!dragging) return;
@@ -375,7 +314,7 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchcancel", endDrag);
 
     // =========================
-    // 真正的键盘方案（最终版）
+    // 键盘方案（只使用 visualViewport）
     // =========================
     const visual = window.visualViewport;
     if (visual) {
@@ -388,15 +327,11 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     // =========================
-    // 键盘适配（scrollIntoView + padding）
+    // 输入框适配（❌ 已删除 scrollIntoView）
     // =========================
     if (commentInput) {
         commentInput.addEventListener("focus", () => {
             setTimeout(() => {
-                commentInput.scrollIntoView({ 
-                    behavior: "smooth", 
-                    block: "center" 
-                });
                 const drawerContent = document.querySelector(".drawer-content");
                 if (drawerContent) {
                     drawerContent.style.paddingBottom = "300px";
@@ -481,4 +416,58 @@ export function initDrawer() {
         document.getElementById("likeDrawer"),
         ".stat-btn.like-btn"
     );
+}
+
+/* =========================
+   likeStore.js - 数据层
+========================= */
+
+const likeStore = new Map();
+
+function toggleLike(type, id, currentUser) {
+    const key = `${type}_${id}`;
+    
+    if (!likeStore.has(key)) {
+        likeStore.set(key, {
+            count: 0,
+            users: new Map()
+        });
+    }
+    
+    const data = likeStore.get(key);
+    data.count++;
+    
+    return {
+        count: data.count,
+        isLiked: true
+    };
+}
+
+/* =========================
+   likeUI.js - UI 动画层
+========================= */
+
+function updateLikeUI(btn, countEl, newCount) {
+    if (countEl) {
+        countEl.textContent = newCount;
+    }
+    
+    btn.classList.add('active');
+    
+    const icon = btn.querySelector('.like-icon');
+    if (icon) {
+        icon.classList.remove('pop');
+        void icon.offsetWidth;
+        icon.classList.add('pop');
+    }
+    
+    if (newCount >= 2) {
+        btn.classList.remove('ripple');
+        void btn.offsetWidth;
+        btn.classList.add('ripple');
+        
+        setTimeout(() => {
+            btn.classList.remove('ripple');
+        }, 400);
+    }
 }
