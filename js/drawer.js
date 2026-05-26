@@ -58,8 +58,8 @@ document.addEventListener('click', (e) => {
         
         const result = toggleLike(type, id, currentUser);
         
-        // ✅ 修复：数字已拆出去，单独更新 trigger 上的数字
-        const countEl = document.querySelector(`.like-count-trigger[data-like-id="${id}"] .like-count`);
+        // ✅ 修复：数字可能在不同位置
+        const countEl = likeBtn.querySelector('.like-count, .like-count-trigger');
         
         updateLikeUI(likeBtn, countEl, result.count);
         return;
