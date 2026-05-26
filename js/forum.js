@@ -4,14 +4,21 @@ import { initEditor } from "./editor.js";
 import { initUpload } from "./upload.js";
 import { initFAB } from "./fab.js";
 import { initDrawer } from "./drawer.js";
-import { initLikeEngine, toggleLike, syncLikeUI } from "./likeEngine.js";
+import {
+    initLikeEngine,
+    toggleLike,
+    syncLikeUI
+} from "./likeEngine.js";
 
 /* =========================
    DOM
 ========================= */
 
-const postsContainer = document.getElementById("postsList");
-const previewImage = document.getElementById("previewImage");
+const postsContainer =
+    document.getElementById("postsList");
+
+const previewImage =
+    document.getElementById("previewImage");
 
 /* =========================
    INIT APP
@@ -27,27 +34,96 @@ function initApp() {
     /* =========================
        1. render posts
     ========================= */
+
     renderPosts(postsContainer);
 
     /* =========================
        2. editor / upload
     ========================= */
-    const getImage = initUpload(previewImage);
-    initEditor(postsContainer, getImage);
+
+    const getImage =
+        initUpload(previewImage);
+
+    initEditor(
+        postsContainer,
+        getImage
+    );
 
     /* =========================
        3. FAB
     ========================= */
+
     initFAB();
 
     /* =========================
        4. drawer + engine
     ========================= */
+
     requestAnimationFrame(() => {
+
         initDrawer();
+
         initLikeEngine();
+
         bindInteractionEvents();
+
+        initInputSystem();
     });
+}
+
+/* =========================
+   INPUT SYSTEM
+========================= */
+
+function initInputSystem() {
+
+    /* =========================
+       CANCEL REPLY
+    ========================= */
+
+    const cancelReply =
+        document.getElementById("cancelReply");
+
+    if (cancelReply) {
+
+        cancelReply.addEventListener(
+            "click",
+            () => {
+
+                const preview =
+                    document.getElementById(
+                        "replyPreview"
+                    );
+
+                if (preview) {
+                    preview.style.display = "none";
+                }
+            }
+        );
+    }
+
+    /* =========================
+       AUTO HEIGHT
+    ========================= */
+
+    const input =
+        document.getElementById(
+            "commentInput"
+        );
+
+    if (input) {
+
+        input.addEventListener(
+            "input",
+            () => {
+
+                input.style.height = "auto";
+
+                input.style.height =
+                    input.scrollHeight + "px";
+            }
+        );
+    }
 }
 
 /* =========================
@@ -56,103 +132,145 @@ function initApp() {
 
 function bindInteractionEvents() {
 
-    /* =========================
-       GLOBAL DELEGATION（关键）
-    ========================= */
+    document.addEventListener(
+        "click",
+        (e) => {
 
-   document.addEventListener("click", (e) => {
+            /* =========================
+               LIKE BUTTON
+            ========================= */
 
-    /* =========================
-       LIKE BUTTON
-    ========================= */
+            const likeBtn =
+                e.target.closest(".like-btn");
 
-    const likeBtn = e.target.closest(".like-btn");
+            if (likeBtn) {
 
-    if (likeBtn) {
+                e.stopPropagation();
 
-        e.stopPropagation();
+                const id =
+                    likeBtn.dataset.likeId;
 
-        const id = likeBtn.dataset.likeId;
-        if (!id) return;
+                if (!id) return;
 
-        const clickedCount =
-            e.target.classList.contains("like-count");
+                /* =========================
+                   点击数字 → 点赞列表
+                ========================= */
 
-        /* =========================
-           点击数字 → drawer
-        ========================= */
-        if (clickedCount) {
+                const clickedCount =
+                    e.target.classList.contains(
+                        "like-count"
+                    );
 
-            openLikeDrawer(likeBtn);
-            return;
-        }
+                if (clickedCount) {
 
-        /* =========================
-           点 svg / 空白 → 点赞
-        ========================= */
-        const state = toggleLike(id);
+                    const overlay =
+                        document.getElementById(
+                            "likeOverlay"
+                        );
 
-        syncLikeUI(id);
+                    if (overlay) {
+                        overlay.classList.add(
+                            "is-open"
+                        );
+                    }
 
-        triggerLikeAnimation(
-            likeBtn,
-            state.liked
-        );
+                    return;
+                }
 
-        return;
-    }
+                /* =========================
+                   点赞
+                ========================= */
 
-    /* =========================
-       REPLY
-    ========================= */
+                const state =
+                    toggleLike(id);
 
-    const replyBtn =
-        e.target.closest(".reply-btn");
+                syncLikeUI(id);
 
-    if (replyBtn) {
+                triggerLikeAnimation(
+                    likeBtn,
+                    state.liked
+                );
 
-        e.stopPropagation();
+                return;
+            }
 
-        const preview =
-            document.getElementById("replyPreview");
+            /* =========================
+               REPLY
+            ========================= */
 
-        if (preview) {
-            preview.style.display = "flex";
-        }
+            const replyBtn =
+                e.target.closest(".reply-btn");
 
-        const input =
-            document.getElementById("commentInput");
+            if (replyBtn) {
 
-        if (input) {
+                e.stopPropagation();
 
-            input.focus();
+                const preview =
+                    document.getElementById(
+                        "replyPreview"
+                    );
 
-            if (window.innerWidth <= 768) {
+                if (preview) {
+                    preview.style.display =
+                        "flex";
+                }
 
-                setTimeout(() => {
+                const input =
+                    document.getElementById(
+                        "commentInput"
+                    );
 
-                    input.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
+                if (input) {
 
-                }, 200);
+                    input.focus();
+
+                    /* =========================
+                       MOBILE SCROLL
+                    ========================= */
+
+                    if (
+                        window.innerWidth <= 768
+                    ) {
+
+                        setTimeout(() => {
+
+                            input.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center"
+                            });
+
+                        }, 200);
+                    }
+                }
             }
         }
-    }
-});
+    );
 }
 
 /* =========================
    LIKE ANIMATION
 ========================= */
 
-function triggerLikeAnimation(btn, liked) {
+function triggerLikeAnimation(
+    btn,
+    liked
+) {
 
-    const svg = btn.querySelector("svg");
-    const count = btn.querySelector(".like-count");
+    const svg =
+        btn.querySelector("svg");
+
+    const count =
+        btn.querySelector(".like-count");
+
+    /* ripple */
+
+    btn.classList.remove("ripple");
+
+    void btn.offsetWidth;
 
     btn.classList.add("ripple");
+
+    /* active */
 
     if (liked) {
         btn.classList.add("active");
@@ -160,26 +278,47 @@ function triggerLikeAnimation(btn, liked) {
         btn.classList.remove("active");
     }
 
-    void btn.offsetWidth;
+    /* remove ripple */
 
     setTimeout(() => {
+
         btn.classList.remove("ripple");
+
     }, 500);
 
+    /* svg pop */
+
     if (svg) {
+
+        svg.classList.remove("pop");
+
+        void svg.offsetWidth;
+
         svg.classList.add("pop");
 
         setTimeout(() => {
+
             svg.classList.remove("pop");
-        }, 200);
+
+        }, 220);
     }
 
-    if (count && liked) {
-        // 只在 like 时视觉增强（避免重复 + UI漂移）
-        count.style.transform = "scale(1.1)";
+    /* count pop */
+
+    if (count) {
+
+        count.style.transition =
+            "transform .18s ease";
+
+        count.style.transform =
+            "scale(1.12)";
+
         setTimeout(() => {
-            count.style.transform = "scale(1)";
-        }, 150);
+
+            count.style.transform =
+                "scale(1)";
+
+        }, 180);
     }
 }
 
@@ -190,6 +329,7 @@ function triggerLikeAnimation(btn, liked) {
 function start() {
 
     if (window.__APP_INIT__) return;
+
     window.__APP_INIT__ = true;
 
     initApp();
@@ -199,8 +339,16 @@ function start() {
    DOM READY
 ========================= */
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        start
+    );
+
 } else {
+
     start();
 }
