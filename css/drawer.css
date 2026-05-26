@@ -51,6 +51,7 @@ body.drawer-open .app {
 
 /* =========================
    DRAWER（弹窗主体）
+   ✅ overflow: hidden;
    ✅ transform 完全由 JS 控制
 ========================= */
 
@@ -64,7 +65,7 @@ body.drawer-open .app {
     border-radius: 24px 24px 0 0;
     transition: transform .3s ease;
     will-change: transform;
-    overflow: hidden;
+    overflow: hidden;           /* ✅ 关键：限制滚动区域 */
     display: flex;
     flex-direction: column;
     z-index: 1000;
@@ -171,6 +172,7 @@ body.drawer-open .app {
 
 /* =========================
    CONTENT（滚动内容区）
+   ✅ flex: 1; overflow-y: auto;
 ========================= */
 
 .drawer-content {
@@ -193,18 +195,17 @@ body.drawer-open .app {
 
 /* =========================
    INPUT AREA（输入框区域）
-   ✅ position: sticky; bottom: 0;
+   ✅ position: sticky; bottom: 0; z-index: 20;
+   ✅ border-top: none; 毛玻璃效果
 ========================= */
 
 .drawer-input-area {
     position: sticky;
     bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 30;
-    background: rgba(255, 255, 255, .92);
-    backdrop-filter: blur(18px);
-    border-top: 1px solid rgba(0, 0, 0, .05);
+    z-index: 20;
+    background: rgba(255, 255, 255, .72);
+    backdrop-filter: blur(20px);
+    border-top: none;
     padding: 10px;
     flex-shrink: 0;
 }
@@ -214,6 +215,7 @@ body.drawer-open .app {
     .drawer-input-area {
         position: relative;
         border-radius: 0 0 28px 28px;
+        border-top: none;
     }
 }
 
