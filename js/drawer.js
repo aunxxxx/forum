@@ -8,6 +8,32 @@ function isMobile() {
     return window.innerWidth <= 768;
 }
 
+/* =========================
+   FOLLOWING USERS
+========================= */
+
+const followingUsers = [
+
+    {
+        id: 1,
+        name: "李四",
+        avatar: "https://i.pravatar.cc/40?img=2"
+    },
+
+    {
+        id: 2,
+        name: "王五",
+        avatar: "https://i.pravatar.cc/40?img=3"
+    },
+
+    {
+        id: 3,
+        name: "张三",
+        avatar: "https://i.pravatar.cc/40?img=4"
+    }
+
+];
+
 export function createDrawerInstance(overlay, drawer, triggerSelector) {
 
     if (!overlay || !drawer) {
@@ -16,7 +42,9 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     }
 
     const app = document.querySelector(".app");
-
+    const commentInput = document.getElementById("commentInput");
+    const mentionPanel = document.getElementById("mentionPanel");
+    
     // =========================
     // STATE
     // =========================
@@ -262,6 +290,90 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
         else render(CLOSED_Y, false);
     });
 
+/* =========================
+   @ MENTION
+========================= */
+
+if (commentInput && mentionPanel) {
+
+    commentInput.addEventListener("input", () => {
+
+        const value = commentInput.value;
+
+        const match = value.match(/@([\u4e00-\u9fa5\w]*)$/);
+
+        if (!match) {
+
+            mentionPanel.classList.remove("show");
+            mentionPanel.innerHTML = "";
+            return;
+        }
+
+        const keyword = match[1].toLowerCase();
+
+        const result = followingUsers.filter(user =>
+            user.name.toLowerCase().includes(keyword)
+        );
+
+        if (!result.length) {
+
+            mentionPanel.classList.remove("show");
+            mentionPanel.innerHTML = "";
+            return;
+        }
+
+        mentionPanel.innerHTML = result.map(user => `
+
+            <div
+                class="mention-item"
+                data-name="${user.name}"
+            >
+
+                <img
+                    class="mention-avatar"
+                    src="${user.avatar}"
+                >
+
+                <span>${user.name}</span>
+
+            </div>
+
+        `).join("");
+
+        mentionPanel.classList.add("show");
+    });
+
+    mentionPanel.addEventListener("click", (e) => {
+
+        const item = e.target.closest(".mention-item");
+        if (!item) return;
+
+        const name = item.dataset.name;
+
+        commentInput.value =
+            commentInput.value.replace(
+                /@([\u4e00-\u9fa5\w]*)$/,
+                `@${name} `
+            );
+
+        mentionPanel.classList.remove("show");
+        mentionPanel.innerHTML = "";
+
+        commentInput.focus();
+    });
+
+    document.addEventListener("click", (e) => {
+
+        if (
+            !mentionPanel.contains(e.target) &&
+            e.target !== commentInput
+        ) {
+
+            mentionPanel.classList.remove("show");
+        }
+    });
+}
+    
     // =========================
     // INIT
     // =========================
