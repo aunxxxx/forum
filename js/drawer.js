@@ -175,6 +175,9 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     const close = () => apply(STATE.CLOSED);
     const peek = () => apply(STATE.PEEK);
 
+    overlay.openDrawer = open;
+    overlay.closeDrawer = close;
+    
     // =========================
     // TRIGGER
     // =========================
