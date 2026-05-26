@@ -13,48 +13,72 @@ function isMobile() {
 ========================= */
 
 const followingUsers = [
-
     {
         id: 1,
         name: "李四",
         avatar: "https://i.pravatar.cc/40?img=2"
     },
-
     {
         id: 2,
         name: "王五",
         avatar: "https://i.pravatar.cc/40?img=3"
     },
-
     {
         id: 3,
         name: "张三",
         avatar: "https://i.pravatar.cc/40?img=4"
     }
-
 ];
 
 /* =========================
-   点赞动画功能
+   点赞动画功能（统一 delegation + stopPropagation）
 ========================= */
 
-function initLikeAnimation() {
-    document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.removeEventListener('click', handleLikeClick);
-        btn.addEventListener('click', handleLikeClick);
-    });
-}
-
-function handleLikeClick() {
-    this.classList.toggle('active');
+function handleLike(likeBtn) {
+    likeBtn.classList.toggle('active');
     
-    const icon = this.querySelector('.like-icon');
+    const icon = likeBtn.querySelector('.like-icon');
     if (icon) {
         icon.classList.remove('pop');
         void icon.offsetWidth;
         icon.classList.add('pop');
     }
 }
+
+// 统一事件委托
+document.addEventListener("click", (e) => {
+    const likeBtn = e.target.closest(".like-btn, .reply-like-btn");
+    if (likeBtn) {
+        e.stopPropagation();
+        handleLike(likeBtn);
+    }
+});
+
+/* =========================
+   评论定位功能（统一 drawerContent.scrollTo）
+========================= */
+
+function scrollToComment(commentId) {
+    const el = document.getElementById(commentId);
+    const drawerContent = document.querySelector(".drawer-content");
+
+    if (!el || !drawerContent) return;
+
+    drawerContent.scrollTo({
+        top: el.offsetTop - 100,
+        behavior: "smooth"
+    });
+
+    el.classList.add("highlight-comment");
+
+    setTimeout(() => {
+        el.classList.remove("highlight-comment");
+    }, 1500);
+}
+
+/* =========================
+   创建抽屉实例
+========================= */
 
 export function createDrawerInstance(overlay, drawer, triggerSelector) {
 
@@ -79,9 +103,6 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     let dragging = false;
 
     let scrollY = 0;
-    
-    // 键盘适配变量
-    let baseHeight = window.innerHeight;
 
     // =========================
     // POSITIONS (%)
@@ -94,27 +115,20 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     // SCROLL LOCK
     // =========================
     function lockScroll(lock) {
-
         const body = document.body;
-
         if (lock) {
-
             scrollY = window.scrollY || 0;
-
             body.style.position = "fixed";
             body.style.top = `-${scrollY}px`;
             body.style.left = "0";
             body.style.right = "0";
             body.style.width = "100%";
-
         } else {
-
             body.style.position = "";
             body.style.top = "";
             body.style.left = "";
             body.style.right = "";
             body.style.width = "";
-
             window.scrollTo(0, scrollY);
         }
     }
@@ -123,22 +137,17 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     // BLUR + SCALE
     // =========================
     function setBlur(progress, animate = false) {
-
         if (!app) return;
-
         if (!isMobile()) {
             app.style.filter = "none";
             app.style.transform = "none";
             return;
         }
-
         app.style.transition = animate
             ? "filter .25s ease, transform .25s ease"
             : "none";
-
         const blur = progress * 6;
         const scale = 1 - progress * 0.06;
-
         app.style.filter = blur > 0 ? `blur(${blur}px)` : "none";
         app.style.transform = `scale(${scale})`;
     }
@@ -147,38 +156,24 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     // RENDER
     // =========================
     function render(y, animate = false) {
-
         currentTranslate = y;
-
         drawer.style.transition = animate
             ? "transform .35s cubic-bezier(.22,1,.36,1)"
             : "none";
-
-        // PC
         if (!isMobile()) {
-
             drawer.style.transform =
                 (y < 100)
                     ? `translate(-50%, -50%)`
                     : `translate(-50%, calc(-50% + 100vh))`;
-
         } else {
-
             drawer.style.transform = `translateY(${y}%)`;
         }
-
-        // progress
         let progress = 1 - (y / CLOSED_Y);
         progress = Math.max(0, Math.min(1, progress));
-
         setBlur(progress, animate);
-
         const open = y < CLOSED_Y;
-
         overlay.classList.toggle("is-open", open);
-
         document.body.classList.toggle("drawer-open", open);
-
         lockScroll(open);
     }
 
@@ -186,11 +181,8 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     // APPLY STATE
     // =========================
     function apply(next) {
-
         if (state === next) return;
-
         state = next;
-
         if (state === STATE.OPEN) render(OPEN_Y, true);
         else if (state === STATE.PEEK) render(PEEK_Y, true);
         else render(CLOSED_Y, true);
@@ -204,20 +196,16 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     overlay.closeDrawer = close;
     
     // =========================
-    // TRIGGER
+    // TRIGGER（统一 stopPropagation）
     // =========================
     document.addEventListener("click", (e) => {
-
         const trigger = e.target.closest(triggerSelector);
         if (!trigger) return;
-
         e.stopPropagation();
-
         if (!isMobile()) {
             state === STATE.OPEN ? close() : open();
             return;
         }
-
         state === STATE.CLOSED ? peek() : close();
     });
 
@@ -240,64 +228,44 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     // TOUCH START
     // =========================
     drawer.addEventListener("touchstart", (e) => {
-
         if (!isMobile()) return;
-
         dragging = true;
-
         startY = e.touches[0].clientY;
         startTranslate = currentTranslate;
-
         drawer.style.transition = "none";
         if (app) app.style.transition = "none";
-
     }, { passive: true });
 
     // =========================
     // TOUCH MOVE
     // =========================
     drawer.addEventListener("touchmove", (e) => {
-
         if (!dragging) return;
-
         e.preventDefault();
-
         const deltaY = e.touches[0].clientY - startY;
         const deltaPercent = (deltaY / window.innerHeight) * 100;
-
         let next = startTranslate + deltaPercent;
         next = Math.max(0, Math.min(100, next));
-
         render(next, false);
-
     }, { passive: false });
 
     // =========================
     // END DRAG
     // =========================
     function endDrag() {
-
         if (!dragging) return;
-
         dragging = false;
-
         currentTranslate = Math.max(0, Math.min(100, currentTranslate));
-
         const y = currentTranslate;
-
         const closeThreshold = PEEK_Y + 25;
-
         if (y > closeThreshold) {
             close();
             return;
         }
-
         const dOpen = Math.abs(y - OPEN_Y);
         const dPeek = Math.abs(y - PEEK_Y);
         const dClose = Math.abs(y - CLOSED_Y);
-
         const min = Math.min(dOpen, dPeek, dClose);
-
         if (min === dOpen) open();
         else if (min === dPeek) peek();
         else close();
@@ -307,111 +275,80 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchcancel", endDrag);
 
     // =========================
-    // 键盘适配（终版）
+    // 键盘适配（只做 scrollIntoView + padding，不改 layout）
     // =========================
-    window.addEventListener("resize", () => {
-        const diff = baseHeight - window.innerHeight;
-
-        if (diff > 150) {
-            drawer.style.transform = `translateY(-${diff}px)`;
-        } else {
-            drawer.style.transform = '';
-        }
-    });
-
-    // 更新基础高度（页面加载和旋转屏幕时）
-    function updateBaseHeight() {
-        setTimeout(() => {
-            baseHeight = window.innerHeight;
-        }, 100);
+    if (commentInput) {
+        commentInput.addEventListener("focus", () => {
+            setTimeout(() => {
+                commentInput.scrollIntoView({ 
+                    behavior: "smooth", 
+                    block: "center" 
+                });
+                const drawerContent = document.querySelector(".drawer-content");
+                if (drawerContent) {
+                    drawerContent.style.paddingBottom = "300px";
+                }
+            }, 100);
+        });
+        
+        commentInput.addEventListener("blur", () => {
+            const drawerContent = document.querySelector(".drawer-content");
+            if (drawerContent) {
+                drawerContent.style.paddingBottom = "";
+            }
+        });
     }
-    
-    window.addEventListener("resize", updateBaseHeight);
-    updateBaseHeight();
 
-/* =========================
-   @ MENTION
-========================= */
-
-if (commentInput && mentionPanel) {
-
-    commentInput.addEventListener("input", () => {
-
-        const value = commentInput.value;
-
-        const match = value.match(/@([\u4e00-\u9fa5\w]*)$/);
-
-        if (!match) {
-
-            mentionPanel.classList.remove("show");
-            mentionPanel.innerHTML = "";
-            return;
-        }
-
-        const keyword = match[1].toLowerCase();
-
-        const result = followingUsers.filter(user =>
-            user.name.toLowerCase().includes(keyword)
-        );
-
-        if (!result.length) {
-
-            mentionPanel.classList.remove("show");
-            mentionPanel.innerHTML = "";
-            return;
-        }
-
-        mentionPanel.innerHTML = result.map(user => `
-
-            <div
-                class="mention-item"
-                data-name="${user.name}"
-            >
-
-                <img
-                    class="mention-avatar"
-                    src="${user.avatar}"
-                >
-
-                <span>${user.name}</span>
-
-            </div>
-
-        `).join("");
-
-        mentionPanel.classList.add("show");
-    });
-
-    mentionPanel.addEventListener("click", (e) => {
-
-        const item = e.target.closest(".mention-item");
-        if (!item) return;
-
-        const name = item.dataset.name;
-
-        commentInput.value =
-            commentInput.value.replace(
-                /@([\u4e00-\u9fa5\w]*)$/,
-                `@${name} `
+    /* =========================
+       @MENTION 功能
+    ========================= */
+    if (commentInput && mentionPanel) {
+        commentInput.addEventListener("input", () => {
+            const value = commentInput.value;
+            const match = value.match(/@([\u4e00-\u9fa5\w]*)$/);
+            if (!match) {
+                mentionPanel.classList.remove("show");
+                mentionPanel.innerHTML = "";
+                return;
+            }
+            const keyword = match[1].toLowerCase();
+            const result = followingUsers.filter(user =>
+                user.name.toLowerCase().includes(keyword)
             );
+            if (!result.length) {
+                mentionPanel.classList.remove("show");
+                mentionPanel.innerHTML = "";
+                return;
+            }
+            mentionPanel.innerHTML = result.map(user => `
+                <div class="mention-item" data-name="${user.name}">
+                    <img class="mention-avatar" src="${user.avatar}">
+                    <span>${user.name}</span>
+                </div>
+            `).join("");
+            mentionPanel.classList.add("show");
+        });
 
-        mentionPanel.classList.remove("show");
-        mentionPanel.innerHTML = "";
-
-        commentInput.focus();
-    });
-
-    document.addEventListener("click", (e) => {
-
-        if (
-            !mentionPanel.contains(e.target) &&
-            e.target !== commentInput
-        ) {
-
+        mentionPanel.addEventListener("click", (e) => {
+            const item = e.target.closest(".mention-item");
+            if (!item) return;
+            const name = item.dataset.name;
+            commentInput.value =
+                commentInput.value.replace(
+                    /@([\u4e00-\u9fa5\w]*)$/,
+                    `@${name} `
+                );
             mentionPanel.classList.remove("show");
-        }
-    });
-}
+            mentionPanel.innerHTML = "";
+            commentInput.focus();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!mentionPanel.contains(e.target) && e.target !== commentInput) {
+                mentionPanel.classList.remove("show");
+            }
+        });
+    }
     
     // =========================
     // INIT
@@ -419,11 +356,11 @@ if (commentInput && mentionPanel) {
     render(CLOSED_Y, false);
 }
 
-// =========================
-// INIT DRAWERS
-// =========================
-export function initDrawer() {
+/* =========================
+   初始化所有抽屉
+========================= */
 
+export function initDrawer() {
     createDrawerInstance(
         document.getElementById("commentOverlay"),
         document.getElementById("commentDrawer"),
@@ -435,7 +372,4 @@ export function initDrawer() {
         document.getElementById("likeDrawer"),
         ".stat-btn.like-btn"
     );
-    
-    // 初始化点赞动画
-    initLikeAnimation();
 }
