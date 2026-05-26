@@ -127,6 +127,44 @@ function initInputSystem() {
 }
 
 /* =========================
+   吸附逻辑
+========================= */
+
+function initStickyObserver() {
+    const contentSelectors = [
+        ".comment-content",
+        ".reply-content"
+    ];
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(entry => {
+                const target = entry.target;
+                const parent = target.closest(".comment-item, .reply-item");
+                
+                if (!parent) return;
+
+                if (entry.boundingClientRect.top <= 0) {
+                    parent.classList.add("is-sticky");
+                } else {
+                    parent.classList.remove("is-sticky");
+                }
+            });
+        },
+        {
+            threshold: 0,
+            rootMargin: "-1px 0px 0px 0px"
+        }
+    );
+
+    document.querySelectorAll(contentSelectors.join(",")).forEach(el => {
+        observer.observe(el);
+    });
+
+    return observer;
+}
+
+/* =========================
    INTERACTION SYSTEM
 ========================= */
 
@@ -141,7 +179,7 @@ function bindInteractionEvents() {
             ========================= */
 
             const likeBtn =
-                e.target.closest(".like-btn");
+                e.target.closest(".like-action-btn, .comment-like-btn, .reply-like-btn");
 
             if (likeBtn) {
 
@@ -186,11 +224,6 @@ function bindInteractionEvents() {
 
                 syncLikeUI(id);
 
-                triggerLikeAnimation(
-                    likeBtn,
-                    state.liked
-                );
-
                 return;
             }
 
@@ -221,105 +254,11 @@ function bindInteractionEvents() {
                     );
 
                 if (input) {
-
                     input.focus();
-
-                    /* =========================
-                       MOBILE SCROLL
-                    ========================= */
-
-                    if (
-                        window.innerWidth <= 768
-                    ) {
-
-                        setTimeout(() => {
-
-                            input.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center"
-                            });
-
-                        }, 200);
-                    }
                 }
             }
         }
     );
-}
-
-/* =========================
-   LIKE ANIMATION
-========================= */
-
-function triggerLikeAnimation(
-    btn,
-    liked
-) {
-
-    const svg =
-        btn.querySelector("svg");
-
-    const count =
-        btn.querySelector(".like-count");
-
-    /* ripple */
-
-    btn.classList.remove("ripple");
-
-    void btn.offsetWidth;
-
-    btn.classList.add("ripple");
-
-    /* active */
-
-    if (liked) {
-        btn.classList.add("active");
-    } else {
-        btn.classList.remove("active");
-    }
-
-    /* remove ripple */
-
-    setTimeout(() => {
-
-        btn.classList.remove("ripple");
-
-    }, 500);
-
-    /* svg pop */
-
-    if (svg) {
-
-        svg.classList.remove("pop");
-
-        void svg.offsetWidth;
-
-        svg.classList.add("pop");
-
-        setTimeout(() => {
-
-            svg.classList.remove("pop");
-
-        }, 220);
-    }
-
-    /* count pop */
-
-    if (count) {
-
-        count.style.transition =
-            "transform .18s ease";
-
-        count.style.transform =
-            "scale(1.12)";
-
-        setTimeout(() => {
-
-            count.style.transform =
-                "scale(1)";
-
-        }, 180);
-    }
 }
 
 /* =========================
@@ -333,6 +272,11 @@ function start() {
     window.__APP_INIT__ = true;
 
     initApp();
+    
+    // 延迟初始化吸附监听，确保 DOM 已渲染
+    setTimeout(() => {
+        initStickyObserver();
+    }, 100);
 }
 
 /* =========================
