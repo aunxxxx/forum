@@ -1,129 +1,50 @@
-/* =========================
-   STORE
-========================= */
-
-const likeStore = {};
-
-/* =========================
-   INIT
-========================= */
-
+import { posts } from "./data.js";
+ 
+const likeMap = new Map(); // postId -> Set(userId)
+ 
 export function initLikeEngine() {
-
-  console.log("Like Engine Ready");
-
-}
-
-/* =========================
-   TOGGLE LIKE
-========================= */
-
-export function toggleLike(id) {
-
-  if (!likeStore[id]) {
-
-    likeStore[id] = {
-      liked: false,
-      total: 12,
-      users: []
-    };
-
-  }
-
-  likeStore[id].liked = !likeStore[id].liked;
-
-  if (likeStore[id].liked) {
-
-    likeStore[id].total++;
-
-  } else {
-
-    likeStore[id].total--;
-
-  }
-
-  return likeStore[id];
-}
-
-/* =========================
-   SYNC UI
-========================= */
-
-export function syncLikeUI(id) {
-
-  const data = likeStore[id];
-  if (!data) return;
-
-  const buttons = document.querySelectorAll(
-    `[data-like-id="${id}"]`
-  );
-
-  buttons.forEach(btn => {
-
-    const count = btn.querySelector(".like-count");
-
-    if (count) {
-      count.textContent = data.total;
-    }
-
-    if (data.liked) {
-      btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
-    }
-
-  });
-
-}
-
-/* =========================
-   ADD LIKE
-========================= */
-
-export function addLike(id, user) {
-
-  if (!likeStore[id]) {
-
-    likeStore[id] = {
-      liked: false,
-      total: 0,
-      users: []
-    };
-
-  }
-
-  likeStore[id].total++;
-
-  const exists = likeStore[id].users.find(
-    u => u.id === user.id
-  );
-
-  if (exists) {
-
-    exists.count++;
-
-  } else {
-
-    likeStore[id].users.push({
-      ...user,
-      count: 1
+    posts.forEach(p => {
+        likeMap.set(p.id, new Set());
     });
-
-  }
-
-  return likeStore[id];
 }
-
-/* =========================
-   GET DATA
-========================= */
-
-export function getLikeData(id) {
-
-  return likeStore[id] || {
-    liked: false,
-    total: 0,
-    users: []
-  };
-
+ 
+/* ⭐ 无限点赞 + 去重 */
+export function toggleLike(postId) {
+ 
+    if (!likeMap.has(postId)) {
+        likeMap.set(postId, new Set());
+    }
+ 
+    const set = likeMap.get(postId);
+ 
+    // 模拟“当前用户”
+    const userId = "me";
+ 
+    if (set.has(userId)) {
+        set.delete(userId);
+    } else {
+        set.add(userId);
+    }
+ 
+    return {
+        liked: set.has(userId),
+        count: set.size
+    };
+}
+ 
+/* ⭐ UI同步 */
+export function syncLikeUI(postId) {
+ 
+    const btn = document.querySelector(`[data-like-id="${postId}"]`);
+    if (!btn) return;
+ 
+    const set = likeMap.get(postId) || new Set();
+ 
+    const count = btn.querySelector(".like-count");
+    if (count) count.textContent = set.size;
+}
+ 
+/* ⭐ drawer数据（去重后的列表） */
+export function getLikeList(postId) {
+    return likeMap.get(postId) || new Set();
 }
