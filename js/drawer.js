@@ -1,5 +1,5 @@
 /* =========================
-   drawer.js - 最终完整版（已删除所有键盘 hack）
+   drawer.js - 最终正确版本
 ========================= */
 
 const currentUser = {
@@ -47,31 +47,36 @@ const followingUsers = [
 
 document.addEventListener('click', (e) => {
     /* =========================
-       LIKE（只做分发，UI 由 likeUI.js 处理）
+       LIKE COUNT DRAWER（点赞列表弹窗）
     ========================= */
-    const likeBtn = e.target.closest('.like-action-btn, .comment-like-btn, .reply-like-btn');
-    if (likeBtn) {
+    const likeCountTrigger = e.target.closest('.like-count-trigger');
+    if (likeCountTrigger) {
         e.stopPropagation();
-        
-        const id = likeBtn.dataset.likeId;
-        const type = likeBtn.dataset.likeType;
-        
-        const result = toggleLike(type, id, currentUser);
-        
-        // ✅ 修复：数字可能在不同位置
-        const countEl = likeBtn.querySelector('.like-count, .like-count-trigger');
-        
-        updateLikeUI(likeBtn, countEl, result.count);
+        document.getElementById('likeOverlay')?.openDrawer?.();
         return;
     }
 
     /* =========================
-       LIKE DRAWER（点赞列表弹窗）
+       LIKE BUTTON（点赞按钮）
     ========================= */
-    const likeTrigger = e.target.closest('.like-count-trigger');
-    if (likeTrigger) {
+    const likeBtn = e.target.closest('.like-action-btn, .comment-like-btn, .reply-like-btn');
+    if (likeBtn) {
         e.stopPropagation();
-        document.getElementById('likeOverlay')?.openDrawer?.();
+
+        const countEl = likeBtn.parentElement.querySelector('.like-count-trigger');
+        if (countEl) {
+            const current = parseInt(countEl.textContent || '0');
+            countEl.textContent = current + 1;
+        }
+
+        likeBtn.classList.add('active');
+
+        const icon = likeBtn.querySelector('.like-icon');
+        if (icon) {
+            icon.classList.remove('pop');
+            void icon.offsetWidth;
+            icon.classList.add('pop');
+        }
         return;
     }
 
@@ -112,7 +117,6 @@ document.addEventListener('click', (e) => {
         const preview = document.getElementById('replyPreview');
 
         setTimeout(() => {
-            // ✅ 修复：PC 回复取消 - 切换预览显示
             if (trigger.classList.contains('reply-btn')) {
                 if (preview) {
                     preview.style.display = preview.style.display === 'flex' ? 'none' : 'flex';
@@ -254,7 +258,6 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
         overlay.classList.toggle("is-open", open);
         document.body.classList.toggle("drawer-open", open);
         
-        // 只在移动端锁定滚动
         if (isMobile()) {
             lockScroll(open);
         }
@@ -343,12 +346,6 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchend", endDrag);
     drawer.addEventListener("touchcancel", endDrag);
 
-    // =========================
-    // ❌ 已删除 visualViewport 整段
-    // ❌ 已删除 commentInput scrollIntoView 整段
-    // ❌ 已删除 paddingBottom hack
-    // =========================
-
     /* =========================
        @MENTION 功能
     ========================= */
@@ -418,58 +415,4 @@ export function initDrawer() {
         document.getElementById("likeDrawer"),
         ".stat-btn.like-btn"
     );
-}
-
-/* =========================
-   likeStore.js - 数据层
-========================= */
-
-const likeStore = new Map();
-
-function toggleLike(type, id, currentUser) {
-    const key = `${type}_${id}`;
-    
-    if (!likeStore.has(key)) {
-        likeStore.set(key, {
-            count: 0,
-            users: new Map()
-        });
-    }
-    
-    const data = likeStore.get(key);
-    data.count++;
-    
-    return {
-        count: data.count,
-        isLiked: true
-    };
-}
-
-/* =========================
-   likeUI.js - UI 动画层
-========================= */
-
-function updateLikeUI(btn, countEl, newCount) {
-    if (countEl) {
-        countEl.textContent = newCount;
-    }
-    
-    btn.classList.add('active');
-    
-    const icon = btn.querySelector('.like-icon');
-    if (icon) {
-        icon.classList.remove('pop');
-        void icon.offsetWidth;
-        icon.classList.add('pop');
-    }
-    
-    if (newCount >= 2) {
-        btn.classList.remove('ripple');
-        void btn.offsetWidth;
-        btn.classList.add('ripple');
-        
-        setTimeout(() => {
-            btn.classList.remove('ripple');
-        }, 400);
-    }
 }
