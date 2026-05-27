@@ -4,11 +4,27 @@ const STATE = {
     OPEN: "OPEN"
 };
 
+const currentUser = {
+    id: "me",
+    name: "Austin",
+    badge: "创始",
+    avatar: "https://i.pravatar.cc/40"
+};
+
+const sampleUsers = [
+    { id: "u1", name: "马睿婕", badge: "创始", avatar: "https://i.pravatar.cc/40?img=3" },
+    { id: "u2", name: "陈小春", badge: "元老", avatar: "https://i.pravatar.cc/40?img=7" },
+    { id: "u3", name: "铁汁", badge: "创始", avatar: "https://i.pravatar.cc/40?img=1" }
+];
+
 const followingUsers = [
     { id: 1, name: "李四", avatar: "https://i.pravatar.cc/40?img=2" },
     { id: 2, name: "王五", avatar: "https://i.pravatar.cc/40?img=3" },
     { id: 3, name: "张三", avatar: "https://i.pravatar.cc/40?img=4" }
 ];
+
+const likeRecords = new Map();
+let lockedScrollY = 0;
 
 function isMobile() {
     return window.innerWidth <= 768;
@@ -24,6 +40,109 @@ function getCommentText(item) {
 
 function getDrawerContent() {
     return document.querySelector("#commentDrawer .drawer-content");
+}
+
+function getLikeId(likeBtn) {
+    return likeBtn.dataset.likeId || `like_${Date.now()}`;
+}
+
+function getLikeCountEl(likeBtn) {
+    return likeBtn.querySelector(".like-count, .like-count-trigger");
+}
+
+function getLikeCount(likeBtn) {
+    return Number.parseInt(getLikeCountEl(likeBtn)?.textContent || "0", 10) || 0;
+}
+
+function seedLikeRecord(likeBtn) {
+    const id = getLikeId(likeBtn);
+    if (likeRecords.has(id)) return likeRecords.get(id);
+
+    const total = getLikeCount(likeBtn);
+    const users = new Map();
+
+    if (total > 0) {
+        const first = Math.ceil(total * 0.45);
+        const second = Math.ceil(total * 0.32);
+        const third = Math.max(0, total - first - second);
+
+        [
+            [sampleUsers[0], first],
+            [sampleUsers[1], second],
+            [sampleUsers[2], third]
+        ].forEach(([user, count]) => {
+            if (count > 0) users.set(user.id, { ...user, count });
+        });
+    }
+
+    const record = { id, users };
+    likeRecords.set(id, record);
+    return record;
+}
+
+function syncLikeCount(likeBtn, record) {
+    const countEl = getLikeCountEl(likeBtn);
+    if (!countEl) return;
+
+    const total = [...record.users.values()].reduce((sum, user) => sum + user.count, 0);
+    countEl.textContent = String(total);
+    countEl.classList.remove("pop");
+    void countEl.offsetWidth;
+    countEl.classList.add("pop");
+}
+
+function renderLikeDrawer(likeBtn) {
+    const content = document.getElementById("likeDrawerContent");
+    if (!content) return;
+
+    const record = seedLikeRecord(likeBtn);
+    const users = [...record.users.values()].sort((a, b) => b.count - a.count);
+
+    content.innerHTML = users.map((user) => `
+        <div class="like-item">
+            <div class="like-left">
+                <img class="avatar profile-trigger" src="${user.avatar}" data-user-id="${user.id}" alt="">
+                <div class="user-info">
+                    <span class="badge">${user.badge}</span>
+                    <span class="username">${user.name}</span>
+                </div>
+            </div>
+            <div class="like-times">${user.count}</div>
+        </div>
+    `).join("");
+}
+
+function showLikeDrawerFromButton(likeBtn) {
+    renderLikeDrawer(likeBtn);
+    document.getElementById("likeOverlay")?.openDrawer?.();
+}
+
+function handleLike(likeBtn) {
+    const record = seedLikeRecord(likeBtn);
+    const existing = record.users.get(currentUser.id);
+    const hadLiked = likeBtn.classList.contains("active");
+
+    if (existing) {
+        existing.count += 1;
+    } else {
+        record.users.set(currentUser.id, { ...currentUser, count: 1 });
+    }
+
+    likeBtn.classList.add("active");
+    syncLikeCount(likeBtn, record);
+
+    const icon = likeBtn.querySelector(".like-icon");
+    if (icon) {
+        icon.classList.remove("pop");
+        void icon.offsetWidth;
+        icon.classList.add("pop");
+    }
+
+    if (hadLiked) {
+        likeBtn.classList.remove("spread");
+        void likeBtn.offsetWidth;
+        likeBtn.classList.add("spread");
+    }
 }
 
 function setReplyTarget(item) {
@@ -46,9 +165,11 @@ function focusInputNear(item) {
     const content = getDrawerContent();
 
     setReplyTarget(item);
+    document.getElementById("commentPreviewPopover")?.remove();
 
     requestAnimationFrame(() => {
         input?.focus({ preventScroll: true });
+        updateKeyboardOffset();
 
         if (!content || !item) return;
 
@@ -57,10 +178,11 @@ function focusInputNear(item) {
         const inputArea = document.querySelector(".drawer-input-area");
         const inputHeight = inputArea?.getBoundingClientRect().height || 88;
         const targetTop = itemRect.top - contentRect.top + content.scrollTop;
-        const roomAboveInput = content.clientHeight - inputHeight - 24;
+        const targetBottom = targetTop + itemRect.height;
+        const desiredBottom = content.clientHeight - inputHeight - 12;
 
         content.scrollTo({
-            top: Math.max(0, targetTop - roomAboveInput + Math.min(itemRect.height, 120)),
+            top: Math.max(0, targetBottom - desiredBottom),
             behavior: "smooth"
         });
     });
@@ -95,7 +217,7 @@ function getPreviewPopover() {
     document.body.appendChild(popover);
 
     popover.querySelector(".comment-preview-close")?.addEventListener("click", () => {
-        popover.classList.remove("show");
+        popover.remove();
     });
 
     popover.querySelector(".comment-preview-reply")?.addEventListener("click", () => {
@@ -105,13 +227,15 @@ function getPreviewPopover() {
             setReplyTarget(item);
             document.getElementById("commentInput")?.focus({ preventScroll: true });
         }
-        popover.classList.remove("show");
+        popover.remove();
     });
 
     return popover;
 }
 
 function showDesktopPreview(item, event) {
+    if (isMobile()) return;
+
     const popover = getPreviewPopover();
     const id = item.dataset.commentPreviewId || `preview_${Date.now()}`;
     item.dataset.commentPreviewId = id;
@@ -129,30 +253,47 @@ function showDesktopPreview(item, event) {
     popover.classList.add("show");
 }
 
-function handleLike(likeBtn) {
-    const countEl = likeBtn.querySelector(".like-count, .like-count-trigger");
-    const current = Number.parseInt(countEl?.textContent || "0", 10);
-    const active = likeBtn.classList.toggle("active");
+function normalizePostLikeCounts() {
+    document.querySelectorAll(".like-action-btn .like-count").forEach((count) => {
+        count.classList.add("like-count-trigger");
+        count.setAttribute("role", "button");
+        count.setAttribute("tabindex", "0");
+    });
+}
 
-    if (countEl) countEl.textContent = String(Math.max(0, current + (active ? 1 : -1)));
+function handleProfileClick(target) {
+    const avatar = target.closest(".avatar, .post-avatar, .comment-avatar, .reply-avatar, .profile-trigger");
+    if (!avatar) return false;
 
-    const icon = likeBtn.querySelector(".like-icon");
-    if (icon) {
-        icon.classList.remove("pop");
-        void icon.offsetWidth;
-        icon.classList.add("pop");
-    }
+    const name =
+        avatar.closest(".post-header")?.querySelector(".post-username, .author-name")?.textContent?.trim()
+        || avatar.closest(".comment")?.querySelector(".comment-username")?.textContent?.trim()
+        || avatar.closest(".reply-item")?.querySelector(".reply-username")?.textContent?.trim()
+        || avatar.closest(".like-item")?.querySelector(".username")?.textContent?.trim()
+        || "用户";
+
+    window.alert(`个人主页开发中：${name}`);
+    return true;
 }
 
 function bindGlobalEvents() {
     if (window.__DRAWER_GLOBAL_EVENTS__) return;
     window.__DRAWER_GLOBAL_EVENTS__ = true;
 
+    normalizePostLikeCounts();
+
     document.addEventListener("click", (e) => {
-        const likeCountTrigger = e.target.closest(".like-count-trigger");
-        if (likeCountTrigger && !e.target.closest(".like-action-btn")) {
+        if (handleProfileClick(e.target)) {
+            e.preventDefault();
             e.stopPropagation();
-            document.getElementById("likeOverlay")?.openDrawer?.();
+            return;
+        }
+
+        const postLikeCount = e.target.closest(".like-action-btn .like-count-trigger");
+        if (postLikeCount) {
+            e.preventDefault();
+            e.stopPropagation();
+            showLikeDrawerFromButton(postLikeCount.closest(".like-action-btn"));
             return;
         }
 
@@ -199,7 +340,7 @@ function bindGlobalEvents() {
         }
 
         if (!e.target.closest(".comment-preview-popover")) {
-            document.getElementById("commentPreviewPopover")?.classList.remove("show");
+            document.getElementById("commentPreviewPopover")?.remove();
         }
     });
 
@@ -209,7 +350,7 @@ function bindGlobalEvents() {
     updateKeyboardOffset();
 }
 
-export function createDrawerInstance(overlay, drawer) {
+function createDrawerInstance(overlay, drawer) {
     if (!overlay || !drawer || overlay.__drawerReady) return;
     overlay.__drawerReady = true;
 
@@ -228,13 +369,38 @@ export function createDrawerInstance(overlay, drawer) {
     const OPEN_Y = 0;
 
     function lockScroll(lock) {
-        document.body.style.overflow = lock ? "hidden" : "";
+        const body = document.body;
+        const anyOpen = [...document.querySelectorAll(".drawer-overlay")].some((item) => {
+            return item !== overlay && item.classList.contains("is-open");
+        });
+
+        if (lock) {
+            if (body.classList.contains("scroll-locked")) return;
+            lockedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+            body.style.position = "fixed";
+            body.style.top = `-${lockedScrollY}px`;
+            body.style.left = "0";
+            body.style.right = "0";
+            body.style.width = "100%";
+            body.classList.add("scroll-locked");
+            return;
+        }
+
+        if (anyOpen || !body.classList.contains("scroll-locked")) return;
+
+        body.classList.remove("scroll-locked");
+        body.style.position = "";
+        body.style.top = "";
+        body.style.left = "";
+        body.style.right = "";
+        body.style.width = "";
+        window.scrollTo(0, lockedScrollY);
     }
 
     function setBackdrop(progress, animate = false) {
         if (!app) return;
 
-        app.style.transition = animate ? "filter .25s ease, transform .25s ease" : "none";
+        app.style.transition = animate ? "filter .25s ease, transform .25s ease, border-radius .25s ease" : "none";
 
         if (!isMobile()) {
             app.style.filter = "none";
@@ -242,19 +408,18 @@ export function createDrawerInstance(overlay, drawer) {
             return;
         }
 
-        const brightness = 1 - progress * 0.28;
-        const scale = 1 - progress * 0.045;
+        const brightness = 1 - progress * 0.3;
         app.style.filter = `brightness(${brightness})`;
-        app.style.transform = `scale(${scale})`;
+        app.style.transform = "none";
     }
 
     function render(y, animate = false) {
         currentTranslate = y;
         drawer.style.transition = animate ? "transform .35s cubic-bezier(.22,1,.36,1)" : "none";
 
-        if (isMobile()) {
-            drawer.style.transform = `translateY(${y}%)`;
-        } else {
+            if (isMobile()) {
+                drawer.style.transform = `translateY(calc(${y}% - var(--keyboard-offset, 0px)))`;
+            } else {
             drawer.style.transform = y < 100
                 ? "translate(-50%, -50%)"
                 : "translate(-50%, calc(-50% + 100vh))";
@@ -265,8 +430,13 @@ export function createDrawerInstance(overlay, drawer) {
 
         setBackdrop(progress, animate);
         overlay.classList.toggle("is-open", open);
-        document.body.classList.toggle("drawer-open", open);
+        document.body.classList.toggle("drawer-open", open || document.querySelector(".drawer-overlay.is-open"));
         lockScroll(open && isMobile());
+
+        if (!open) {
+            document.getElementById("commentPreviewPopover")?.remove();
+            updateKeyboardOffset();
+        }
     }
 
     function apply(next) {
@@ -330,6 +500,8 @@ export function createDrawerInstance(overlay, drawer) {
     if (commentInput && mentionPanel && !mentionPanel.__mentionReady) {
         mentionPanel.__mentionReady = true;
 
+        commentInput.addEventListener("focus", updateKeyboardOffset);
+
         commentInput.addEventListener("input", () => {
             const match = commentInput.value.match(/@([\u4e00-\u9fa5\w]*)$/);
             if (!match) {
@@ -349,7 +521,7 @@ export function createDrawerInstance(overlay, drawer) {
 
             mentionPanel.innerHTML = result.map((user) => `
                 <div class="mention-item" data-name="${user.name}">
-                    <img class="mention-avatar" src="${user.avatar}" alt="">
+                    <img class="mention-avatar profile-trigger" src="${user.avatar}" alt="">
                     <span>${user.name}</span>
                 </div>
             `).join("");
@@ -370,7 +542,7 @@ export function createDrawerInstance(overlay, drawer) {
     render(CLOSED_Y, false);
 }
 
-export function initDrawer() {
+function initDrawer() {
     bindGlobalEvents();
 
     createDrawerInstance(
@@ -383,3 +555,5 @@ export function initDrawer() {
         document.getElementById("likeDrawer")
     );
 }
+
+window.initDrawer = initDrawer;
