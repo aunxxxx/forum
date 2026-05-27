@@ -227,6 +227,55 @@
     height:22px;
 }
 
+/* =========================
+   COMMENT SYSTEM（升级版）
+========================= */
+
+.comment{
+    display:flex;
+    gap:10px;
+    padding:12px;
+    align-items:flex-start;
+}
+
+/* ⭐ 头像压层（你刚要的效果） */
+.comment .avatar{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    object-fit:cover;
+
+    border:2px solid #fff;
+    position:relative;
+    z-index:2;
+}
+
+.comment-main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+
+    margin-left:-6px;
+}
+
+.comment-content{
+    font-size:14px;
+    line-height:1.4;
+    color:#222;
+}
+
+/* =========================
+   RIGHT ACTIONS
+========================= */
+
+.comment-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-left:auto;
+}
+
 /* 统一按钮 */
 .action-btn{
     background:none;
@@ -364,372 +413,4 @@
         opacity:1;
         transform:translateY(0) scale(1);
     }
-}
-
-
-
-
-
-
-.icon{
-  width:20px;
-  height:20px;
-  flex-shrink:0;
-}
-
-.name-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.badge{
-
-  height:20px;
-
-  padding:0 8px;
-
-  border-radius:999px;
-
-  border:1px solid rgba(0,0,0,.08);
-
-  background:rgba(255,255,255,.75);
-
-  backdrop-filter:blur(12px);
-
-  display:flex;
-  align-items:center;
-
-  font-size:11px;
-  font-weight:600;
-
-  color:#666;
-
-  flex-shrink:0;
-}
-
-.badge.founder{
-  border-color:rgba(255,186,0,.25);
-  color:#c48a00;
-  background:rgba(255,215,0,.08);
-}
-
-.badge.vip{
-  border-color:rgba(255,120,80,.2);
-  color:#ff7a59;
-}
-
-.avatar-link{
-  text-decoration:none;
-  color:inherit;
-}
-
-.like-btn.active{
-  color:#ff5a5f;
-}
-
-.like-icon.pop{
-  animation:likePop .22s ease;
-}
-
-@keyframes likePop{
-
-  0%{
-    transform:scale(1);
-  }
-
-  50%{
-    transform:scale(1.16);
-  }
-
-  100%{
-    transform:scale(1);
-  }
-
-}
-
-
-/* =========================
-   COMMENT NEW LAYOUT
-========================= */
-
-.comment-main-block{
-
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-
-  gap:14px;
-}
-
-.comment-left{
-  flex:1;
-  min-width:0;
-}
-
-/* =========================
-   RIGHT ACTIONS
-========================= */
-
-.comment-actions-side{
-
-  display:flex;
-  align-items:center;
-
-  gap:14px;
-
-  height:100%;
-
-  padding-top:4px;
-
-  flex-shrink:0;
-}
-
-.comment-actions-side .action-btn{
-
-  background:none;
-  border:none;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  gap:4px;
-
-  cursor:pointer;
-
-  color:#888;
-
-  transition:.18s ease;
-}
-
-.comment-actions-side .action-btn:hover{
-  transform:scale(1.06);
-}
-
-.comment-actions-side .icon{
-  width:20px;
-  height:20px;
-}
-
-/* =========================
-   COMMENT CONTENT
-========================= */
-
-.comment-content{
-
-  margin-top:10px;
-
-  margin-left:64px;
-
-  font-size:15px;
-  line-height:1.7;
-
-  color:#222;
-}
-
-/* =========================
-   REPLY LIST
-========================= */
-
-.reply-list{
-
-  margin-top:14px;
-
-  margin-left:64px;
-
-  padding:12px 14px;
-
-  border-radius:18px;
-
-  background:#f6f6f7;
-
-  display:flex;
-  flex-direction:column;
-
-  gap:10px;
-}
-
-/* =========================
-   INPUT AREA
-========================= */
-
-.drawer-input-area{
-
-  position:sticky;
-  bottom:0;
-
-  padding:12px 14px 16px;
-
-  background:linear-gradient(
-    to top,
-    rgba(255,255,255,.96),
-    rgba(255,255,255,.72)
-  );
-
-  backdrop-filter:blur(20px);
-
-  z-index:20;
-}
-
-/* =========================
-   INPUT BOX
-========================= */
-
-.comment-input-fixed{
-
-  display:flex;
-  align-items:flex-end;
-
-  gap:10px;
-}
-
-/* textarea */
-#commentInput{
-
-  flex:1;
-
-  min-height:44px;
-  max-height:120px;
-
-  padding:12px 14px;
-
-  border:none;
-  outline:none;
-  resize:none;
-
-  border-radius:18px;
-
-  background:rgba(245,245,246,.92);
-
-  backdrop-filter:blur(14px);
-
-  font-size:14px;
-  line-height:1.5;
-
-  box-shadow:
-    0 2px 10px rgba(0,0,0,.04);
-
-  transition:.2s ease;
-}
-
-#commentInput:focus{
-  background:#efeff0;
-}
-
-/* send */
-#sendCommentBtn{
-
-  width:44px;
-  height:44px;
-
-  border:none;
-
-  border-radius:50%;
-
-  background:#111;
-
-  color:#fff;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  cursor:pointer;
-
-  flex-shrink:0;
-
-  transition:.18s ease;
-}
-
-#sendCommentBtn:active{
-  transform:scale(.94);
-}
-
-/* =========================
-   REPLY PREVIEW
-========================= */
-
-.reply-preview{
-
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-
-  gap:10px;
-
-  margin-bottom:10px;
-
-  padding:10px 14px;
-
-  border-radius:16px;
-
-  background:#f3f3f4;
-
-  font-size:13px;
-
-  color:#666;
-}
-
-.reply-preview button{
-
-  border:none;
-  background:none;
-
-  cursor:pointer;
-
-  color:#999;
-}
-
-/* =========================
-   LIKE ACTIVE
-========================= */
-
-.like-btn.active{
-  color:#ff5a5f;
-}
-
-/* =========================
-   LIKE POP
-========================= */
-
-.like-icon.pop{
-  animation:likePop .22s ease;
-}
-
-@keyframes likePop{
-
-  0%{
-    transform:scale(1);
-  }
-
-  50%{
-    transform:scale(1.16);
-  }
-
-  100%{
-    transform:scale(1);
-  }
-
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width:768px){
-
-  .comment-content,
-  .reply-list{
-    margin-left:0;
-  }
-
-  .comment-main-block{
-    gap:10px;
-  }
-
-  .comment-actions-side{
-    gap:10px;
-  }
-
 }
