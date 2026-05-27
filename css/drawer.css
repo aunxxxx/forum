@@ -63,6 +63,9 @@ body.drawer-open .app {
     border-radius: 24px 24px 0 0;
     transition: transform .3s ease;
     will-change: transform;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     z-index: 1000;
     padding-bottom: env(safe-area-inset-bottom);
 }
@@ -90,11 +93,6 @@ body.drawer-open .app {
         box-shadow: 0 30px 80px rgba(0, 0, 0, .18);
         touch-action: auto;
         padding-bottom: 0;
-    }
-
-    /* PC 隐藏拖拽条 */
-    .drawer-handle-wrap {
-        display: none;
     }
 }
 
@@ -131,6 +129,7 @@ body.drawer-open .app {
     padding: 0 18px;
     border-bottom: 1px solid #f1f1f1;
     background: #fff;
+    flex-shrink: 0;
 }
 
 .drawer-title {
@@ -151,6 +150,8 @@ body.drawer-open .app {
         cursor: pointer;
         flex-shrink: 0;
         transition: background .2s ease;
+        position: relative;
+        z-index: 50;
     }
 
     .drawer-close:hover {
@@ -166,67 +167,51 @@ body.drawer-open .app {
 }
 
 /* =========================
-   FINAL FIX（强制覆盖版）
+   CONTENT（滚动内容区）
+   ✅ flex + overflow-y: auto
 ========================= */
 
-/* drawer 本体 */
-#commentDrawer {
-    overflow: hidden !important;
-    position: fixed !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px;
+    padding-bottom: 100px;
 }
 
-/* 滚动区 */
-#commentDrawer .drawer-content {
-    position: absolute !important;
-    top: 56px !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 82px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding: 12px !important;
+/* PC 桌面弹窗内容区 */
+@media (min-width: 769px) {
+    .drawer-content {
+        padding: 12px;
+        padding-bottom: 12px;
+    }
 }
 
-/* 输入区 */
-#commentDrawer .drawer-input-area {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    z-index: 30 !important;
-    background: rgba(255, 255, 255, .92) !important;
-    backdrop-filter: blur(18px) !important;
-    border-top: none !important;
-    flex-shrink: 0 !important;
-    padding: 10px !important;
+/* =========================
+   INPUT AREA（输入框区域）
+   ✅ position: sticky; bottom: 0; 不跟随滚动
+========================= */
+
+.drawer-input-area {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(18px);
+    border-top: none;
+    padding: 10px;
+    flex-shrink: 0;
 }
 
-/* 输入框本体 */
-#commentInput {
-    font-size: 16px !important;
-}
-
-/* 手机禁止页面顶飞 */
-html,
-body {
-    overscroll-behavior: none;
-}
-
-/* iOS 防止背景滚动 */
-body.drawer-open {
-    position: fixed;
-    width: 100%;
-    overflow: hidden;
-}
-
-/* drawer 关闭按钮层级 */
-.drawer-close {
-    position: relative !important;
-    z-index: 50 !important;
+/* PC 桌面弹窗输入框 */
+@media (min-width: 769px) {
+    .drawer-input-area {
+        position: relative;
+        border-radius: 0 0 28px 28px;
+        border-top: none;
+    }
 }
 
 /* 回复预览条 */
@@ -275,6 +260,7 @@ body.drawer-open {
     gap: 10px;
 }
 
+/* ✅ 必须改成 font-size: 16px（防止iOS缩放） */
 #commentInput {
     flex: 1;
     min-height: 44px;
@@ -285,6 +271,7 @@ body.drawer-open {
     outline: none;
     resize: none;
     background: rgba(255, 255, 255, .9);
+    font-size: 16px;
     line-height: 1.5;
 }
 
@@ -314,6 +301,7 @@ body.drawer-open {
    COMMENT SYSTEM
 ========================= */
 
+/* 评论项基础布局 */
 .comment {
     display: flex;
     gap: 12px;
@@ -321,6 +309,7 @@ body.drawer-open {
     border-bottom: 1px solid #f3f3f3;
 }
 
+/* 头像区域 */
 .comment-avatar-wrap {
     flex-shrink: 0;
 }
@@ -333,11 +322,13 @@ body.drawer-open {
     display: block;
 }
 
+/* 评论主体 */
 .comment-body {
     flex: 1;
     min-width: 0;
 }
 
+/* 统一 user-line 布局 */
 .user-line {
     display: flex;
     align-items: center;
@@ -345,6 +336,7 @@ body.drawer-open {
     flex-wrap: wrap;
 }
 
+/* 顶部信息行 */
 .comment-top {
     display: flex;
     justify-content: space-between;
@@ -366,6 +358,7 @@ body.drawer-open {
     text-decoration: none;
 }
 
+/* 徽章统一 order: -1 靠左 */
 .badge {
     height: 18px;
     padding: 0 7px;
@@ -390,6 +383,7 @@ body.drawer-open {
     background: rgba(255, 120, 80, .1);
 }
 
+/* 评论正文 */
 .comment-content {
     margin-top: 6px;
     font-size: 14px;
@@ -401,6 +395,7 @@ body.drawer-open {
     pointer-events: auto;
 }
 
+/* 评论操作按钮区 */
 .comment-actions {
     display: flex;
     align-items: center;
@@ -586,6 +581,13 @@ body.drawer-open {
 /* =========================
    容器
 ========================= */
+
+#commentDrawer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
 
 #drawerComments {
     flex: 1;
@@ -868,9 +870,25 @@ body.drawer-open {
 }
 
 /* =========================
-   键盘适配
+   ========== 最终强制覆盖（放最底部）==========
 ========================= */
 
-body.keyboard-open .drawer {
-    height: 100vh;
+/* 手机禁止页面顶飞 */
+html,
+body {
+    overscroll-behavior: none;
+}
+
+/* iOS 防止背景滚动 */
+body.drawer-open {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* PC 强制隐藏拖拽条 */
+@media (min-width: 769px) {
+    .drawer-handle-wrap {
+        display: none !important;
+    }
 }
