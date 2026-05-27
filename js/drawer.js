@@ -1,5 +1,5 @@
 /* =========================
-   drawer.js - 最终完整版（已修复所有问题）
+   drawer.js - 最终完整版（已删除所有键盘 hack）
 ========================= */
 
 const currentUser = {
@@ -91,12 +91,8 @@ document.addEventListener('click', (e) => {
                 preventScroll: true
             });
 
-            const rect = target.getBoundingClientRect();
-            const contentRect = content.getBoundingClientRect();
-            const top = content.scrollTop + rect.top - contentRect.top - 120;
-
-            content.scrollTo({
-                top,
+            content?.scrollTo({
+                top: target.offsetTop - content.clientHeight * 0.35,
                 behavior: 'smooth'
             });
         }, 250);
@@ -139,7 +135,7 @@ document.addEventListener('click', (e) => {
             const targetElement = trigger.closest('.post, .comment');
             if (targetElement && content) {
                 content.scrollTo({
-                    top: targetElement.offsetTop - content.clientHeight / 2,
+                    top: targetElement.offsetTop - content.clientHeight * 0.35,
                     behavior: 'smooth'
                 });
             }
@@ -293,7 +289,6 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     if (closeBtn) {
         closeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            // ✅ 修复：使用 overlay.closeDrawer 而不是 close
             overlay.closeDrawer();
         });
     }
@@ -349,20 +344,9 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     drawer.addEventListener("touchcancel", endDrag);
 
     // =========================
-    // 键盘方案（只使用 visualViewport，已删除所有 scrollIntoView）
-    // =========================
-    const visual = window.visualViewport;
-    if (visual) {
-        visual.addEventListener('resize', () => {
-            const inputArea = document.querySelector('.drawer-input-area');
-            if (!inputArea) return;
-            const keyboardHeight = window.innerHeight - visual.height;
-            inputArea.style.bottom = keyboardHeight > 0 ? `${keyboardHeight}px` : '0px';
-        });
-    }
-
-    // =========================
-    // ❌ 已删除 commentInput scrollIntoView 相关代码
+    // ❌ 已删除 visualViewport 整段
+    // ❌ 已删除 commentInput scrollIntoView 整段
+    // ❌ 已删除 paddingBottom hack
     // =========================
 
     /* =========================
