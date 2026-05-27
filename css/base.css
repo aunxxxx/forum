@@ -66,9 +66,13 @@ body{
 
 /* drawer open */
 body.drawer-open .app{
-    transform:scale(.94) translateY(-4px);
-    filter:brightness(.85);
-    border-radius:16px;
+    transform:scale(.965) translateY(-4px);
+    filter:brightness(.72);
+    border-radius:22px 22px 0 0;
+    overflow:hidden;
+}
+
+body.scroll-locked{
     overflow:hidden;
 }
 
