@@ -28,7 +28,12 @@ function createPostCard(text, image) {
                 </svg>
                 <span class="like-count">0</span>
             </button>
-            <button class="stat-btn comment-btn" data-post-id="${id}" type="button">💬 0</button>
+            <button class="stat-btn comment-btn" data-post-id="${id}" type="button">
+                <svg class="comment-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12c0 4.4-4 8-9 8-1.1 0-2.1-.2-3.1-.6L3 21l1.7-4.2C3.7 15.5 3 13.8 3 12c0-4.4 4-8 9-8s9 3.6 9 8Z"/>
+                </svg>
+                <span>0</span>
+            </button>
         </div>
     `;
 
@@ -36,7 +41,7 @@ function createPostCard(text, image) {
     return card;
 }
 
-export function initEditor(postsContainer, getImage) {
+function initEditor(postsContainer, getImage) {
     const editor = document.getElementById("editor");
     const closeEditor = document.getElementById("closeEditor");
     const submitPost = document.getElementById("submitPost");
@@ -89,3 +94,5 @@ export function initEditor(postsContainer, getImage) {
         }, 550);
     });
 }
+
+window.initEditor = initEditor;
