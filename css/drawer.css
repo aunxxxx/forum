@@ -8,8 +8,9 @@
 
 /* 手机打开 drawer 时背景缩放 */
 body.drawer-open .app {
-    transform: scale(.965);
-    filter: blur(2px);
+    transform: scale(.965) translateY(-4px);
+    filter: brightness(.72);
+    border-radius: 22px 22px 0 0;
 }
 
 /* PC 不缩放 */
@@ -28,7 +29,7 @@ body.drawer-open .app {
 .drawer-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.42);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -74,8 +75,8 @@ body.drawer-open .app {
 @media (max-width: 768px) {
     .drawer {
         touch-action: pan-y;
-        height: min(85dvh, calc(100dvh - var(--keyboard-offset, 0px)));
-        max-height: calc(100dvh - var(--keyboard-offset, 0px));
+        height: min(85dvh, calc(100dvh - 12px));
+        max-height: calc(100dvh - var(--keyboard-offset, 0px) - 12px);
     }
 }
 
@@ -181,6 +182,7 @@ body.drawer-open .app {
     padding: 12px;
     padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
     scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
 }
 
 /* PC 桌面弹窗内容区 */
@@ -200,7 +202,7 @@ body.drawer-open .app {
     position: absolute !important;
     left: 0;
     right: 0;
-    bottom: var(--keyboard-offset, 0px);
+    bottom: 0;
     z-index: 30;
     background: rgba(255, 255, 255, .92);
     backdrop-filter: blur(18px);
@@ -247,6 +249,7 @@ body.drawer-open .app {
     transform: translateY(6px);
     pointer-events: none;
     transition: opacity .18s ease, transform .18s ease;
+    display: block;
 }
 
 .comment-preview-popover.show {
@@ -548,16 +551,56 @@ body.drawer-open .app {
     animation: likePop .32s cubic-bezier(.22, 1.4, .36, 1);
 }
 
+.like-btn.spread::after,
+.reply-like-btn.spread::after {
+    content: "";
+    position: absolute;
+    inset: -9px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(255, 77, 79, .28) 0 36%, rgba(255, 77, 79, 0) 68%);
+    animation: likeSpread .48s ease-out;
+    pointer-events: none;
+}
+
 @keyframes likePop {
     0% { transform: scale(1); }
     40% { transform: scale(1.45); }
     100% { transform: scale(1); }
 }
 
+@keyframes likeSpread {
+    0% {
+        transform: scale(.35);
+        opacity: .9;
+    }
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
 .like-count,
 .reply-like-count {
     font-size: 13px;
     line-height: 1;
+}
+
+.like-count-trigger {
+    cursor: pointer;
+    padding: 6px 4px;
+    margin: -6px -4px;
+    border-radius: 8px;
+}
+
+.like-count.pop,
+.like-count-trigger.pop {
+    animation: countPop .24s cubic-bezier(.22, 1.3, .36, 1);
+}
+
+@keyframes countPop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.22); }
+    100% { transform: scale(1); }
 }
 
 .like-btn.ripple::after,
@@ -684,6 +727,67 @@ body.drawer-open .app {
     top: 0;
     z-index: 100;
     border-bottom: 1px solid #eee;
+}
+
+body.drawer-open .topbar {
+    border-radius: 0 0 20px 20px;
+}
+
+.post-avatar,
+.comment-avatar,
+.reply-avatar,
+.avatar {
+    cursor: pointer;
+}
+
+.comment-icon {
+    flex-shrink: 0;
+}
+
+.like-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 4px;
+}
+
+.like-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.like-left .user-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.like-left .username {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.like-times {
+    min-width: 34px;
+    height: 26px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: rgba(255, 77, 79, .1);
+    color: #ff4d4f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
 }
 
 .logo {
