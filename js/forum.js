@@ -1,8 +1,3 @@
-import { initEditor } from "./editor.js";
-import { initUpload } from "./upload.js";
-import { initFAB } from "./fab.js";
-import { initDrawer } from "./drawer.js";
-
 const postsContainer = document.getElementById("postsList");
 const previewImage = document.getElementById("previewImage");
 
