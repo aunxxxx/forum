@@ -1,5 +1,5 @@
 /* =========================
-   drawer.js - 最终正确版本
+   drawer.js - 最终正确版本（已修复 lockScroll）
 ========================= */
 
 const currentUser = {
@@ -202,24 +202,14 @@ export function createDrawerInstance(overlay, drawer, triggerSelector) {
     const OPEN_Y = 0;
 
     // =========================
-    // SCROLL LOCK（只在移动端锁定）
+    // SCROLL LOCK（修复：只用 overflow，不用 position:fixed）
     // =========================
     function lockScroll(lock) {
         const body = document.body;
         if (lock) {
-            scrollY = window.scrollY || 0;
-            body.style.position = "fixed";
-            body.style.top = `-${scrollY}px`;
-            body.style.left = "0";
-            body.style.right = "0";
-            body.style.width = "100%";
+            body.style.overflow = 'hidden';
         } else {
-            body.style.position = "";
-            body.style.top = "";
-            body.style.left = "";
-            body.style.right = "";
-            body.style.width = "";
-            window.scrollTo(0, scrollY);
+            body.style.overflow = '';
         }
     }
 
