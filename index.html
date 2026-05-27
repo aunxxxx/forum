@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
-  <title>Forum3.985</title>
+  <title>Forum3.83</title>
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/editor.css">
@@ -61,14 +61,12 @@
           </div>
           <div class="post-content">欢迎来到铁汁窝！这是一个全新的社区平台。</div>
           <div class="post-stats">
-            <!-- ✅ 帖子点赞：同时有 like-btn（动画）和 like-action-btn（事件） -->
             <button class="stat-btn like-btn like-action-btn" data-like-id="post_1" data-like-type="post" type="button">
               <svg class="like-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
               </svg>
               <span class="like-count">38</span>
             </button>
-            <!-- ✅ 评论按钮：stat-btn comment-btn -->
             <button class="stat-btn comment-btn" data-post-id="post_1" type="button">💬 12</button>
           </div>
         </div>
@@ -127,13 +125,12 @@
         <div class="drawer-handle"></div>
       </div>
 
-      <!-- ✅ 评论 drawer 加关闭按钮 -->
       <div class="drawer-header">
         <div class="drawer-title">评论</div>
         <button class="drawer-close" type="button">✕</button>
       </div>
 
-      <div class="drawer-content" id="drawerComments">
+      <div class="drawer-content">
         <!-- 评论 1 -->
         <div class="comment" data-comment-id="c1" data-user-id="1">
           <img class="comment-avatar" src="https://i.pravatar.cc/40?img=2" alt="">
@@ -151,7 +148,6 @@
                     <path d="M20 20c0-6-4-11-11-11H4" />
                   </svg>
                 </button>
-                <!-- ✅ 评论点赞：同时有 like-btn（动画）和 comment-like-btn（事件），带 like-count -->
                 <button class="like-btn comment-like-btn" type="button" data-like-id="comment_c1" data-like-type="comments">
                   <svg class="like-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
@@ -162,9 +158,7 @@
             </div>
             <div class="comment-content">这个 drawer 已经开始有 App 感了。</div>
 
-            <!-- 回复列表 -->
             <div class="reply-list">
-              <!-- 回复 1 -->
               <div class="reply-item" data-id="reply_1" data-type="reply">
                 <img class="reply-avatar" src="https://i.pravatar.cc/40?img=6" data-user-id="u2">
                 <div class="reply-main">
@@ -176,7 +170,6 @@
                   </div>
                   <div class="reply-content">回复得确实有 App 那味了。</div>
                 </div>
-                <!-- ✅ 回复点赞：同时有 like-btn（动画）和 reply-like-btn（事件），带 like-count -->
                 <button class="like-btn reply-like-btn" type="button" data-like-id="reply_r1" data-like-type="comments">
                   <svg class="like-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12.1 20.3l-.1.1-.1-.1C7 16 4 13.2 4 9.8C4 7.2 6 5.2 8.6 5.2C10.1 5.2 11.5 5.9 12.4 7.1C13.3 5.9 14.7 5.2 16.2 5.2C18.8 5.2 20.8 7.2 20.8 9.8C20.8 13.2 17.8 16 12.9 20.3Z"/>
@@ -185,7 +178,6 @@
                 </button>
               </div>
 
-              <!-- 回复 2 -->
               <div class="reply-item" data-id="reply_2" data-type="reply">
                 <img class="reply-avatar" src="https://i.pravatar.cc/40?img=5" data-user-id="u3">
                 <div class="reply-main">
@@ -209,7 +201,6 @@
         </div>
       </div>
 
-      <!-- 输入区 -->
       <div class="drawer-input-area">
         <div class="reply-preview hidden" id="replyPreview" style="display: none;">
           <span class="reply-preview-text">回复 @用户</span>
@@ -230,7 +221,7 @@
   </div>
 
   <!-- =========================
-       LIKE DRAWER（点赞列表）
+       LIKE DRAWER
   ========================== -->
   <div class="drawer-overlay" id="likeOverlay">
     <div class="drawer" id="likeDrawer">
