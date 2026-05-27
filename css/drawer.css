@@ -168,7 +168,7 @@ body.drawer-open .app {
 
 /* =========================
    CONTENT（滚动内容区）
-   ✅ flex + overflow-y: auto
+   ✅ 只改 padding-bottom，不加 absolute
 ========================= */
 
 .drawer-content {
@@ -178,37 +178,38 @@ body.drawer-open .app {
     min-height: 0;
     -webkit-overflow-scrolling: touch;
     padding: 12px;
-    padding-bottom: 100px;
+    padding-bottom: 120px !important;
 }
 
 /* PC 桌面弹窗内容区 */
 @media (min-width: 769px) {
     .drawer-content {
         padding: 12px;
-        padding-bottom: 12px;
+        padding-bottom: 12px !important;
     }
 }
 
 /* =========================
    INPUT AREA（输入框区域）
-   ✅ position: sticky; bottom: 0; 不跟随滚动
+   ✅ 只改 input 为 absolute，不碰 content
 ========================= */
 
 .drawer-input-area {
-    position: sticky;
+    position: absolute !important;
+    left: 0;
+    right: 0;
     bottom: 0;
-    z-index: 20;
+    z-index: 30;
     background: rgba(255, 255, 255, .92);
     backdrop-filter: blur(18px);
     border-top: none;
     padding: 10px;
-    flex-shrink: 0;
 }
 
 /* PC 桌面弹窗输入框 */
 @media (min-width: 769px) {
     .drawer-input-area {
-        position: relative;
+        position: relative !important;
         border-radius: 0 0 28px 28px;
         border-top: none;
     }
@@ -442,7 +443,6 @@ body.drawer-open .app {
     transition: transform .18s ease;
 }
 
-/* ✅ 关键修复：让点击永远落在 button 上 */
 .like-icon,
 .like-icon * {
     width: 18px;
@@ -450,7 +450,6 @@ body.drawer-open .app {
     fill: transparent;
     stroke: currentColor;
     transition: fill .22s ease, stroke .22s ease, transform .22s ease;
-    pointer-events: none !important;
 }
 
 .like-btn.active,
@@ -892,4 +891,10 @@ body.drawer-open {
     .drawer-handle-wrap {
         display: none !important;
     }
+}
+
+/* ✅ 关键修复：让点击永远落在 button 上，解决点赞失效 */
+.like-icon,
+.like-icon * {
+    pointer-events: none !important;
 }
